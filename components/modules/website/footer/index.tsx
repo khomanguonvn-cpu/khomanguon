@@ -23,28 +23,63 @@ import dynamic from "next/dynamic";
 
 const VisitorCounter = dynamic(() => import("./VisitorCounter"), { ssr: false });
 
+type SiteConfigData = {
+  facebookUrl: string;
+  youtubeUrl: string;
+  zaloUrl: string;
+  telegramUrl: string;
+  tiktokUrl: string;
+  footerEmail: string;
+  footerPhone: string;
+  footerAddress: string;
+  footerDescription: string;
+  copyrightText: string;
+  paymentMethods: string;
+};
+
+const DEFAULTS: SiteConfigData = {
+  facebookUrl: "https://facebook.com",
+  youtubeUrl: "https://youtube.com",
+  zaloUrl: "https://zalo.me",
+  telegramUrl: "https://t.me",
+  tiktokUrl: "",
+  footerEmail: "contact@khoinguon.io.vn",
+  footerPhone: "0868 686 868",
+  footerAddress: "",
+  footerDescription:
+    "Nền tảng marketplace chuyên cung cấp các sản phẩm số chất lượng cao với giao hàng tự động 24/7.",
+  copyrightText: "",
+  paymentMethods: "Visa,Mastercard,PayPal,Chuyển khoản",
+};
+
 export default function Footer() {
   const { language } = useSelector((state: IRootState) => state.settings);
   const [email, setEmail] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [config, setConfig] = useState<SiteConfigData>(DEFAULTS);
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
-    const getCategories = async () => {
+    const loadData = async () => {
       try {
-        const response = await axios.get("/api/categories");
-        setCategories(response.data.data || []);
+        const [catRes, configRes] = await Promise.all([
+          axios.get("/api/categories").catch(() => ({ data: { data: [] } })),
+          axios.get("/api/site-config").catch(() => ({ data: { data: null } })),
+        ]);
+        setCategories(catRes.data?.data || []);
+        if (configRes.data?.data) {
+          setConfig({ ...DEFAULTS, ...configRes.data.data });
+        }
       } catch {
-        // Lỗi tải dữ liệu
+        // Use defaults
       }
     };
-    getCategories();
+    loadData();
   }, []);
 
   const txt = language === "vi" ? {
     brand: "KHOMANGUON.IO.VN",
     tagline: "Chợ sản phẩm số hàng đầu Việt Nam",
-    description: "Nền tảng marketplace chuyên cung cấp các sản phẩm số chất lượng cao với giao hàng tự động 24/7.",
     products: "Sản phẩm",
     support: "Hỗ trợ",
     company: "Công ty",
@@ -52,7 +87,6 @@ export default function Footer() {
     newsletterDesc: "Nhận thông tin về sản phẩm mới và ưu đãi đặc biệt",
     subscribeBtn: "Đăng ký",
     paymentMethods: "Phương thức thanh toán",
-    copyright: `© ${currentYear} KHOMANGUON.IO.VN — Bảo lưu mọi quyền.`,
     about: "Giới thiệu",
     privacy: "Chính sách bảo mật",
     terms: "Điều khoản sử dụng",
@@ -64,7 +98,6 @@ export default function Footer() {
     securePayment: "Thanh toán bảo mật",
     support247: "Hỗ trợ 24/7",
     viewAll: "Xem tất cả",
-    // Additional footer links
     accountLicense: "Tài khoản & License",
     sourceCode: "Mã nguồn",
     aiTools: "AI Tools",
@@ -76,7 +109,6 @@ export default function Footer() {
   } : {
     brand: "KHOMANGUON.IO.VN",
     tagline: "Vietnam's Leading Digital Marketplace",
-    description: "Premium digital marketplace offering high-quality products with 24/7 automated delivery.",
     products: "Products",
     support: "Support",
     company: "Company",
@@ -84,7 +116,6 @@ export default function Footer() {
     newsletterDesc: "Get updates on new products and exclusive deals",
     subscribeBtn: "Subscribe",
     paymentMethods: "Payment Methods",
-    copyright: `© ${currentYear} KHOMANGUON.IO.VN — All rights reserved.`,
     about: "About Us",
     privacy: "Privacy Policy",
     terms: "Terms of Service",
@@ -96,7 +127,6 @@ export default function Footer() {
     securePayment: "Secure Payment",
     support247: "24/7 Support",
     viewAll: "View all",
-    // Additional footer links
     accountLicense: "Accounts & License",
     sourceCode: "Source Code",
     aiTools: "AI Tools",
@@ -148,6 +178,46 @@ export default function Footer() {
     { label: txt.contactUs, href: "/contact" },
   ];
 
+  // Social links from config (only show if URL is set)
+  const socialLinks = [
+    {
+      url: config.facebookUrl,
+      icon: Facebook,
+      hoverBg: "hover:bg-primary-600",
+      label: "Facebook",
+    },
+    {
+      url: config.youtubeUrl,
+      icon: Youtube,
+      hoverBg: "hover:bg-red-500",
+      label: "YouTube",
+    },
+    {
+      url: config.zaloUrl,
+      icon: MessageCircle,
+      hoverBg: "hover:bg-blue-500",
+      label: "Zalo",
+    },
+    {
+      url: config.telegramUrl,
+      icon: Send,
+      hoverBg: "hover:bg-primary-600",
+      label: "Telegram",
+    },
+  ].filter((item) => !!item.url);
+
+  // Payment methods from config
+  const paymentMethodsList = config.paymentMethods
+    ? config.paymentMethods.split(",").map((m) => m.trim()).filter(Boolean)
+    : ["Visa", "Mastercard", "PayPal", "Chuyển khoản"];
+
+  // Copyright text
+  const copyrightDisplay =
+    config.copyrightText ||
+    `© ${currentYear} KHOMANGUON.IO.VN — ${
+      language === "vi" ? "Bảo lưu mọi quyền." : "All rights reserved."
+    }`;
+
   return (
     <footer className="bg-slate-900 text-slate-300">
       {/* Trust Badges */}
@@ -172,25 +242,25 @@ export default function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-4 space-y-4">
             <Logo isDark />
-            <p className="text-slate-400 text-sm leading-relaxed">{txt.description}</p>
-            <div className="flex items-center gap-3 pt-2">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-800 text-slate-400 hover:bg-primary-600 hover:text-white transition-all">
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-800 text-slate-400 hover:bg-red-500 hover:text-white transition-all">
-                <Youtube className="h-4 w-4" />
-              </a>
-              <a href="https://zalo.me" target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-800 text-slate-400 hover:bg-blue-500 hover:text-white transition-all">
-                <MessageCircle className="h-4 w-4" />
-              </a>
-              <a href="https://t.me" target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-800 text-slate-400 hover:bg-primary-600 hover:text-white transition-all">
-                <Send className="h-4 w-4" />
-              </a>
-            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              {config.footerDescription}
+            </p>
+            {socialLinks.length > 0 && (
+              <div className="flex items-center gap-3 pt-2">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center justify-center w-10 h-10 rounded-lg bg-slate-800 text-slate-400 ${social.hoverBg} hover:text-white transition-all`}
+                    aria-label={social.label}
+                  >
+                    <social.icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Products */}
@@ -254,16 +324,26 @@ export default function Footer() {
               </button>
             </form>
             <div className="mt-6 space-y-3">
-              <a href="mailto:contact@khoinguon.io.vn"
-                className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary-400 transition-colors">
-                <Mail className="h-4 w-4 flex-shrink-0" />
-                <span>contact@khoinguon.io.vn</span>
-              </a>
-              <a href="tel:+84868686868"
-                className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary-400 transition-colors">
-                <Phone className="h-4 w-4 flex-shrink-0" />
-                <span>0868 686 868</span>
-              </a>
+              {config.footerEmail && (
+                <a href={`mailto:${config.footerEmail}`}
+                  className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary-400 transition-colors">
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span>{config.footerEmail}</span>
+                </a>
+              )}
+              {config.footerPhone && (
+                <a href={`tel:${config.footerPhone.replace(/\s/g, "")}`}
+                  className="flex items-center gap-2 text-sm text-slate-400 hover:text-primary-400 transition-colors">
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  <span>{config.footerPhone}</span>
+                </a>
+              )}
+              {config.footerAddress && (
+                <div className="flex items-start gap-2 text-sm text-slate-400">
+                  <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <span>{config.footerAddress}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -276,9 +356,11 @@ export default function Footer() {
         {/* Payment + Copyright */}
         <div className="mt-12 pt-8 border-t border-slate-800 space-y-6">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <span className="text-xs text-slate-500 uppercase tracking-wider font-medium">{txt.paymentMethods}</span>
+            <span className="text-xs text-slate-500 uppercase tracking-wider font-medium">
+              {txt.paymentMethods}
+            </span>
             <div className="flex items-center gap-4 flex-wrap justify-center">
-              {["Visa", "Mastercard", "PayPal", "Chuyển khoản"].map((method) => (
+              {paymentMethodsList.map((method) => (
                 <div key={method}
                   className="px-3 py-1.5 rounded-md bg-slate-800 border border-slate-700 text-xs text-slate-400 font-medium">
                   {method}
@@ -287,7 +369,7 @@ export default function Footer() {
             </div>
           </div>
           <div className="text-center">
-            <p className="text-slate-500 text-sm">{txt.copyright}</p>
+            <p className="text-slate-500 text-sm">{copyrightDisplay}</p>
           </div>
         </div>
       </div>

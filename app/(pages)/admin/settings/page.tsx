@@ -7,9 +7,17 @@ import {
   Image,
   FolderTree,
   Newspaper,
+  Layout,
 } from "lucide-react";
 
 const settingSections = [
+  {
+    title: "Giao diện Website",
+    description: "Cấu hình TopBar, Footer, mạng xã hội và thông tin liên hệ.",
+    href: "/admin/site-config",
+    icon: Layout,
+    color: "from-teal-500 to-emerald-500",
+  },
   {
     title: "SEO website",
     description: "Cấu hình title, meta description, schema và mạng xã hội.",
