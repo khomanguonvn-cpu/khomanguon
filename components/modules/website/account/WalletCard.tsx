@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { usePayOS } from "@payos/payos-checkout";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -292,7 +293,24 @@ toast.custom(<Toast message={t(language, "walletNoBankAccount")} status="error" 
 
       const checkoutUrl = response.data?.checkoutUrl || response.data?.data?.checkoutUrl;
       if (checkoutUrl) {
-        window.location.assign(checkoutUrl);
+        const { open } = usePayOS({
+          RETURN_URL: returnUrl,
+          ELEMENT_ID: "payos-checkout-iframe",
+          CHECKOUT_URL: checkoutUrl,
+          onSuccess: (event) => {
+            toast.custom(<Toast message={t(language, "walletDepositSuccess")} status="success" />);
+            setDepositAmount("");
+            activatePanel("history");
+            void loadWallet();
+          },
+          onCancel: (event) => {
+            toast.custom(<Toast message={t(language, "walletDepositFail") || "Đã hủy nạp tiền"} status="error" />);
+          },
+          onExit: (event) => {
+            // User closed the popup
+          }
+        });
+        open();
         return;
       }
 
@@ -501,6 +519,7 @@ toast.custom(
 
   return (
     <>
+      <div id="payos-checkout-iframe"></div>
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         {/* ───────── WALLET HEADER ───────── */}
         <div className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-400 p-6 text-white">
