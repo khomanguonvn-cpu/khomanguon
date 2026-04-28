@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 
 /**
  * API endpoint: POST /api/admin/seo/sync-schema

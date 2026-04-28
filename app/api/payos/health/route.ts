@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 
 import { ok, unauthorized } from "@/lib/api-response";
 import { requireAdminUser } from "@/lib/api-auth";

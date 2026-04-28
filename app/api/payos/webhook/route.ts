@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 
 import { and, eq, like } from "drizzle-orm";
 import { db } from "@/lib/db";

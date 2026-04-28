@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 
 import { and, desc, eq, gte, isNull } from "drizzle-orm";
 import { Resend } from "resend";

@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 
 import bcrypt from "bcryptjs";
 import { and, desc, eq, isNull } from "drizzle-orm";
