@@ -9,8 +9,6 @@ import { db } from "@/lib/db";
 import { systemIntegrations } from "@/lib/schema";
 import { requireSessionUser } from "@/lib/api-auth";
 import { getRequestId, logApiError } from "@/lib/observability";
-import * as fs from "fs";
-import * as path from "path";
 
 const BASE_URL = "https://khomanguon.io.vn";
 
@@ -24,10 +22,9 @@ interface WebsiteSchema {
   name: string;
 }
 
-function readJson<T>(filename: string): T {
-  const filePath = path.join(process.cwd(), "public", "schema", filename);
-  const raw = fs.readFileSync(filePath, "utf-8");
-  return JSON.parse(raw) as T;
+async function readJson<T>(filename: string, baseUrl: string): Promise<T> {
+  const res = await fetch(`${baseUrl}/schema/${filename}`);
+  return res.json() as Promise<T>;
 }
 
 export async function POST(request: NextRequest) {
@@ -51,8 +48,8 @@ export async function POST(request: NextRequest) {
     };
 
     // 1. Read JSON schema files
-    const org = readJson<OrganizationSchema>("organization.json");
-    const site = readJson<WebsiteSchema>("website.json");
+    const org = await readJson<OrganizationSchema>("organization.json", BASE_URL);
+    const site = await readJson<WebsiteSchema>("website.json", BASE_URL);
 
     // 2. SEO + Schema fields
     await upsert("seo_schema_org_name", org.name);
