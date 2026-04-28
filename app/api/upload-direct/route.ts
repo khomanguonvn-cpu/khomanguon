@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || "";
     const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || "";
     const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
-    const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || "";
+    const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || "https://pub-e77b9135382d42ab9a5cb0d95c21d8cf.r2.dev";
 
     const { S3Client } = await import("@aws-sdk/client-s3");
     const client = new S3Client({
