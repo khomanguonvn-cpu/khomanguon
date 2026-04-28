@@ -1,6 +1,5 @@
-﻿export const runtime = 'edge';
-
 "use client";
+export const runtime = 'edge';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";

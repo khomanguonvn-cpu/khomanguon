@@ -1,6 +1,5 @@
-﻿export const runtime = 'edge';
-
 "use client";
+export const runtime = 'edge';
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
