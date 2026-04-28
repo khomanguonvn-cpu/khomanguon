@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 /**
  * API endpoint: POST /api/admin/seo/sync-schema

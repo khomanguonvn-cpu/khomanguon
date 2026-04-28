@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 
 import { MetadataRoute } from "next";
 import { db } from "@/lib/db";

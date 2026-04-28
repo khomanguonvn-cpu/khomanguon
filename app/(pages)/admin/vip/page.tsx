@@ -1,5 +1,4 @@
 "use client";
-export const runtime = 'edge';
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Plus, Pencil, Trash2, X, Crown } from "lucide-react";

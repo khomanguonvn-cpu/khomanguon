@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import { desc, eq, sql } from "drizzle-orm";
 import { badRequest, forbidden, ok, serverError } from "@/lib/api-response";

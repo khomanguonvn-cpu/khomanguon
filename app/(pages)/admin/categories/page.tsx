@@ -1,5 +1,4 @@
 "use client";
-export const runtime = 'edge';
 import React, { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, X, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";

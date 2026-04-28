@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 
 import Container from "@/components/modules/custom/Container";
 import NewsContentRenderer from "@/components/modules/website/news/NewsContentRenderer";

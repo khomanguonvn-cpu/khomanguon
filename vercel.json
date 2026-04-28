@@ -1,7 +1,3 @@
 {
-    "git": {
-      "deploymentEnabled": {
-        "master": false
-      }
-    }
-  }
+  "framework": "nextjs"
+}

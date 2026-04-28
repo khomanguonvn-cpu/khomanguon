@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import { Metadata } from "next";
 import { AlertTriangle } from "lucide-react";

@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { badRequest, ok, serverError } from "@/lib/api-response";

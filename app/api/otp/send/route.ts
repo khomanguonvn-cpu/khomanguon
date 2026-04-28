@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import { and, desc, eq, gte, isNull } from "drizzle-orm";
 import { Resend } from "resend";

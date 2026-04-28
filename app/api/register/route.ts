@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";

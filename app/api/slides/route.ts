@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import { ok, serverError } from "@/lib/api-response";
 import { getRequestId } from "@/lib/observability";

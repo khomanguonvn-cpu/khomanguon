@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 
 import { getUserById } from "@/actions/user";
 import auth from "@/auth";

@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import { NextRequest } from "next/server";
 import { and, desc, eq, like, sql } from "drizzle-orm";

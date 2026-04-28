@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import { ok, unauthorized } from "@/lib/api-response";
 import { requireAdminUser } from "@/lib/api-auth";

@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 
 // Here website layout
 import MobileBottom from "@/components/modules/custom/MobileBottom";

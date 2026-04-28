@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import { and, eq } from "drizzle-orm";
 import { requireSessionUser } from "@/lib/api-auth";

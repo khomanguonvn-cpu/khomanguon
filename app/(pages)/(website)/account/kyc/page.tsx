@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import Profile from "@/components/modules/website/account/Profile";
 import { getUserById } from "@/actions/user";

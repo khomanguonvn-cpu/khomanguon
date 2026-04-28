@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import Cart from "@/components/modules/website/cart";
 import { Metadata } from "next";

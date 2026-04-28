@@ -1,4 +1,3 @@
-﻿export const runtime = 'edge';
 
 import Banner from "@/components/modules/website/home/Banner";
 import BestSellersProducts from "@/components/modules/website/home/BestSellersProducts";
