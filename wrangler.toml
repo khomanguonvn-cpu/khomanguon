@@ -1,9 +1,11 @@
 name = "youtube-ecommerce"
 compatibility_date = "2024-09-23"
 compatibility_flags = [ "nodejs_compat" ]
-pages_build_output_dir = ".cloudflare-pages"
+main = ".open-next/worker.js"
 
-
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
 
 [[kv_namespaces]]
 binding = "NEXT_INC_CACHE_KV"
