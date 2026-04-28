@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  
+
+  serverExternalPackages: ["@libsql/isomorphic-ws"],
+
+  outputFileTracingIncludes: {
+    "/**": ["./node_modules/@libsql/isomorphic-ws/**/*"],
+  },
+
   typescript: {
     ignoreBuildErrors: true,
   },
