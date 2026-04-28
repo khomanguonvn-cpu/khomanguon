@@ -35,7 +35,8 @@ export default function Cta() {
       style={{
         height: "500px",
         width: "100%",
-        backgroundImage: `url(${slides[0]?.image})`,
+        backgroundImage: slides[0]?.image ? `url(${slides[0].image})` : "none",
+        backgroundColor: slides[0]?.image ? "transparent" : "#1e293b",
         backgroundPosition: "top",
         backgroundSize: "cover",
       }}

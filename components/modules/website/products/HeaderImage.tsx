@@ -37,7 +37,8 @@ export default function HeaderImage({ slug }: { slug?: string }) {
           <div
             className="flex w-full rounded-lg bg-cover justify-center h-[200px] sm:h-[300px] lg:h-[350px] items-center"
             style={{
-              backgroundImage: `url(${slides[0]?.image})`,
+              backgroundImage: slides[0]?.image ? `url(${slides[0].image})` : "none",
+              backgroundColor: slides[0]?.image ? "transparent" : "#f1f5f9",
             }}
           >
             <h1

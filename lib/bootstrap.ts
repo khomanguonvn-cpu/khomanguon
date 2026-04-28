@@ -4,6 +4,7 @@ let initPromise: Promise<void> | null = null;
 let initialized = false;
 
 export async function ensureDatabaseReady() {
+  if (process.env.NODE_ENV === 'production') return;
   if (initialized) return;
   if (initPromise) {
     await initPromise;
