@@ -65,6 +65,20 @@ export default function ChatBox() {
     }
   }, [isOpen, activeConversation]);
 
+  // Auto-open chat box after 3 seconds (once per session)
+  useEffect(() => {
+    const alreadyOpened = sessionStorage.getItem("chat_auto_opened");
+    if (alreadyOpened) return;
+
+    const timer = setTimeout(() => {
+      openChat();
+      setShowConversations(false); // Go straight to welcome message
+      sessionStorage.setItem("chat_auto_opened", "1");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [openChat]);
+
   const handleSend = async () => {
     if (!message.trim() || isSending) return;
 
