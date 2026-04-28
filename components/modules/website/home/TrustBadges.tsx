@@ -11,9 +11,8 @@ interface BadgeData {
   icon: React.ElementType;
   titleKey: I18nKey;
   descKey: I18nKey;
-  color: string;
-  bgColor: string;
-  borderColor: string;
+  gradient: string;
+  iconColor: string;
 }
 
 const badges: BadgeData[] = [
@@ -21,33 +20,29 @@ const badges: BadgeData[] = [
     icon: Zap,
     titleKey: "trustAutoDeliveryTitle",
     descKey: "trustAutoDeliveryDesc",
-    color: "text-amber-500",
-    bgColor: "bg-amber-50",
-    borderColor: "border-amber-200",
+    gradient: "from-amber-500 to-orange-500",
+    iconColor: "text-amber-500",
   },
   {
     icon: ShieldCheck,
     titleKey: "trustSecurePaymentTitle",
     descKey: "trustSecurePaymentDesc",
-    color: "text-green-500",
-    bgColor: "bg-green-50",
-    borderColor: "border-green-200",
+    gradient: "from-emerald-500 to-green-500",
+    iconColor: "text-emerald-500",
   },
   {
     icon: Headphones,
     titleKey: "trustSupport247Title",
     descKey: "trustSupport247Desc",
-    color: "text-blue-500",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-200",
+    gradient: "from-blue-500 to-indigo-500",
+    iconColor: "text-blue-500",
   },
   {
     icon: Rocket,
     titleKey: "trustQualityTitle",
     descKey: "trustQualityDesc",
-    color: "text-purple-500",
-    bgColor: "bg-purple-50",
-    borderColor: "border-purple-200",
+    gradient: "from-purple-500 to-violet-500",
+    iconColor: "text-purple-500",
   },
 ];
 
@@ -55,7 +50,7 @@ export default function TrustBadges() {
   const { language } = useSelector((state: IRootState) => state.settings);
 
   return (
-    <section className="py-8 bg-slate-50 border-y border-slate-200">
+    <section className="py-10 bg-white border-y border-slate-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {badges.map((badge, index) => {
@@ -63,10 +58,16 @@ export default function TrustBadges() {
             return (
               <div
                 key={index}
-                className={`trust-badge group cursor-default ${badge.bgColor} ${badge.borderColor}`}
+                className="trust-badge group cursor-default relative overflow-hidden"
               >
-                <div className={`${badge.color} mb-2 transition-transform duration-300 group-hover:scale-110`}>
-                  <Icon className="h-8 w-8 mx-auto" strokeWidth={1.5} />
+                {/* Angular accent stripe */}
+                <div
+                  className={`absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b ${badge.gradient}`}
+                  style={{ clipPath: "polygon(0 0, 100% 4%, 100% 96%, 0 100%)" }}
+                />
+
+                <div className={`${badge.iconColor} mb-2 transition-transform duration-300 group-hover:scale-110 pl-2`}>
+                  <Icon className="h-9 w-9 mx-auto" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-slate-900 font-bold text-sm text-center mb-1">
                   {t(language, badge.titleKey)}

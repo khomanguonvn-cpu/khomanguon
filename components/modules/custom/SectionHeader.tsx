@@ -40,21 +40,21 @@ export default function SectionHeader({
 
         {/* Subtitle */}
         {subtitle && (
-          <p className="text-slate-500 text-sm mt-1">{subtitle}</p>
+          <p className="text-slate-500 text-sm mt-2">{subtitle}</p>
         )}
 
-        {/* Decorative line */}
-        <div className="mt-3 flex items-center gap-3">
-          <div className="h-0.5 w-12 bg-primary-500 rounded-full" />
-          <div className="h-0.5 flex-1 bg-slate-200 rounded-full" />
+        {/* Angular accent line */}
+        <div className="mt-4 flex items-center gap-0">
+          <div className="h-1 w-16 bg-gradient-to-r from-primary-600 to-indigo-500" style={{ clipPath: "polygon(0 0, calc(100% - 4px) 0, 100% 100%, 0 100%)" }} />
+          <div className="h-px flex-1 bg-slate-200" />
         </div>
       </div>
 
-      {/* View All Link */}
+      {/* View All Link — angular button style */}
       {viewAllHref && viewAllLabel && (
         <Link
           href={viewAllHref}
-          className="flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors group"
+          className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-primary-600 border-2 border-primary-500 hover:bg-primary-600 hover:text-white transition-all duration-200 group clip-angular-sm"
         >
           <span>{viewAllLabel}</span>
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

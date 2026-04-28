@@ -112,8 +112,8 @@ export default function ProductCard({
     <div
       className={cn(
         "card card-lift p-0 overflow-hidden flex flex-col h-full",
-        "bg-white border border-slate-200 rounded-2xl shadow-card",
-        isHovered && "shadow-card-hover"
+        "bg-white border border-slate-200",
+        isHovered && "border-primary-300"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -129,7 +129,7 @@ export default function ProductCard({
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="inline-flex items-center px-3 py-1 rounded-lg bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold shadow-lg"
+                className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold shadow-lg clip-angular-sm"
               >
                 -{discountRate}%
               </m.span>
@@ -139,7 +139,7 @@ export default function ProductCard({
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, delay: 0.05 }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500 text-white text-xs font-bold shadow"
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500 text-white text-xs font-bold shadow clip-angular-sm"
               >
                 <Zap className="h-3 w-3" />
                 Sắp hết
@@ -212,7 +212,7 @@ export default function ProductCard({
 
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-            <span className="px-4 py-2 rounded-xl bg-slate-900 text-white text-base font-bold">
+            <span className="px-5 py-2.5 bg-slate-900 text-white text-base font-bold uppercase tracking-wider clip-angular-sm">
               Hết hàng
             </span>
           </div>
@@ -315,7 +315,7 @@ export default function ProductCard({
           whileHover={!isOutOfStock ? { scale: 1.01 } : {}}
           whileTap={{ scale: stockLeft === 0 ? 1 : 0.97 }}
           className={cn(
-            "mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl text-base font-bold transition-all duration-300",
+            "mt-4 w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider transition-all duration-300 clip-angular",
             isOutOfStock
               ? "bg-slate-200 text-slate-400 cursor-not-allowed"
               : "bg-gradient-to-r from-primary-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-primary-500/20"
@@ -323,7 +323,7 @@ export default function ProductCard({
           aria-label={isOutOfStock ? "Hết hàng" : `Mua hàng ${item.name}`}
         >
           <ShoppingBag className="h-4 w-4" />
-          <span>{isOutOfStock ? "Hết hàng" : "Mua hàng"}</span>
+          <span>{isOutOfStock ? "Hết hàng" : "Mua ngay"}</span>
           {!isOutOfStock && <ArrowRight className="h-4 w-4" />}
         </m.button>
       </div>

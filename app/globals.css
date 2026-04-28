@@ -11,9 +11,7 @@ html {
 }
 
 body {
-  @apply bg-white text-slate-900 antialiased;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(72, 70, 229, 0.06) 0%, transparent 60%);
+  @apply bg-slate-50 text-slate-900 antialiased;
   min-height: 100vh;
 }
 
@@ -52,17 +50,12 @@ body {
 }
 
 /* =============================================
-   SHIMMER SKELETON LOADING
+   ANGULAR / SKEWED DESIGN SYSTEM
    ============================================= */
 @layer utilities {
   .skeleton {
     @apply relative overflow-hidden bg-slate-200 rounded;
-    background: linear-gradient(
-      90deg,
-      #f1f5f9 25%,
-      #e2e8f0 50%,
-      #f1f5f9 75%
-    );
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
@@ -97,92 +90,118 @@ body {
       linear-gradient(90deg, rgba(72, 70, 229, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
   }
+
+  /* Clipped / Angular corners */
+  .clip-angular {
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+
+  .clip-angular-sm {
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+
+  .clip-angular-lg {
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  }
+
+  /* Skewed accent bar */
+  .skew-accent {
+    @apply relative;
+  }
+  .skew-accent::before {
+    content: "";
+    @apply absolute -left-1 top-0 bottom-0 w-1;
+    background: linear-gradient(to bottom, #4846e5, #f97316);
+    transform: skewX(-3deg);
+  }
 }
 
 /* =============================================
-   COMPONENT UTILITIES
+   COMPONENT UTILITIES — ANGULAR EDITION
    ============================================= */
 @layer components {
-  /* Card base */
+  /* Card base — angular corners */
   .card {
-    @apply bg-white rounded-xl border border-slate-200 shadow-card transition-all duration-300;
+    @apply bg-white border border-slate-200 transition-all duration-300;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
   .card:hover {
-    @apply shadow-card-hover border-slate-300;
+    box-shadow: 0 8px 24px rgba(72, 70, 229, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+    @apply border-primary-200;
   }
 
   .card-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary-200;
+    @apply transition-all duration-300 hover:-translate-y-1.5;
   }
 
-  /* Badge variants */
+  /* Badge variants — angular */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-3 py-1 text-xs font-bold uppercase tracking-wider;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
   }
 
   .badge-primary {
-    @apply bg-primary-100 text-primary-700;
+    @apply bg-primary-600 text-white;
   }
 
   .badge-success {
-    @apply bg-green-100 text-green-700;
+    @apply bg-emerald-600 text-white;
   }
 
   .badge-warning {
-    @apply bg-amber-100 text-amber-700;
+    @apply bg-amber-500 text-white;
   }
 
   .badge-danger {
-    @apply bg-red-100 text-red-700;
+    @apply bg-red-600 text-white;
   }
 
   .badge-accent {
-    @apply bg-orange-100 text-orange-700;
+    @apply bg-orange-500 text-white;
   }
 
-  /* Button primary */
+  /* ========== ANGULAR BUTTONS ========== */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold;
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3 font-bold text-sm uppercase tracking-wider;
     @apply text-white select-none;
-    background: linear-gradient(to bottom, #6366f1, #4f46e5);
-    box-shadow: 0 1px 3px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    background: linear-gradient(135deg, #4846e5 0%, #6366f1 100%);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
     @apply transition-all duration-200;
     @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:saturate-50;
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(to bottom, #818cf8, #6366f1);
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
   }
 
   .btn-primary:active:not(:disabled) {
     transform: scale(0.97);
   }
 
-  /* Button secondary */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold;
-    @apply bg-white text-primary-600 border border-primary-200 select-none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3 font-bold text-sm uppercase tracking-wider;
+    @apply bg-white text-primary-600 border-2 border-primary-500 select-none;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
     @apply transition-all duration-200;
     @apply disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary:hover:not(:disabled) {
-    @apply bg-primary-50 border-primary-300 text-primary-700;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-    transform: translateY(-1px);
+    @apply bg-primary-600 text-white;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
   }
 
   .btn-secondary:active:not(:disabled) {
     transform: scale(0.97);
   }
 
-  /* Button ghost */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 font-semibold;
     @apply text-slate-600 select-none;
     @apply transition-all duration-200;
     @apply hover:bg-slate-100 hover:text-slate-900;
@@ -192,38 +211,36 @@ body {
     transform: scale(0.97);
   }
 
-  /* Button accent */
   .btn-accent {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold;
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3 font-bold text-sm uppercase tracking-wider;
     @apply text-white select-none;
-    background: linear-gradient(to bottom, #f97316, #ea580c);
-    box-shadow: 0 1px 3px rgba(249, 115, 22, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
     @apply transition-all duration-200;
   }
 
   .btn-accent:hover:not(:disabled) {
-    background: linear-gradient(to bottom, #fb923c, #f97316);
-    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.35);
+    transform: translateY(-2px);
   }
 
   .btn-accent:active:not(:disabled) {
     transform: scale(0.97);
   }
 
-  /* Button success */
   .btn-success {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold;
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3 font-bold text-sm uppercase tracking-wider;
     @apply text-white select-none;
-    background: linear-gradient(to bottom, #10b981, #059669);
-    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
     @apply transition-all duration-200;
   }
 
   .btn-success:hover:not(:disabled) {
-    background: linear-gradient(to bottom, #34d399, #10b981);
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+    transform: translateY(-2px);
   }
 
   .btn-success:active:not(:disabled) {
@@ -282,18 +299,19 @@ body {
     height: 100%;
     min-height: 420px;
     align-self: start;
-    border-radius: 12px;
     position: relative;
     z-index: 30;
-    @apply bg-white border border-slate-200 overflow-visible shadow-card;
+    @apply bg-white border border-slate-200 overflow-visible;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
   .grid-area-swiper {
     grid-area: swiper;
     height: auto;
-    border-radius: 12px;
     overflow: hidden;
-    @apply shadow-card;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
   .grid-area-seller-highlight {
@@ -301,27 +319,29 @@ body {
     height: auto;
   }
 
-  /* Section header */
+  /* Section header — angular accent */
   .section-header {
-    @apply flex items-center justify-between mb-8;
+    @apply flex items-center justify-between mb-10;
   }
 
   .section-title {
-    @apply text-2xl md:text-3xl font-bold text-slate-900;
+    @apply text-2xl md:text-3xl font-black text-slate-900 tracking-tight;
   }
 
   .section-badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold;
-    @apply bg-primary-100 text-primary-700;
+    @apply inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest;
+    @apply bg-primary-600 text-white;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
   }
 
   /* Input styles */
   .input {
-    @apply w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white;
+    @apply w-full px-4 py-3 border border-slate-300 bg-white;
     @apply text-slate-900 placeholder:text-slate-400;
     @apply transition-all duration-200;
     @apply focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none;
     @apply disabled:bg-slate-100 disabled:cursor-not-allowed;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
   }
 
   .input-error {
@@ -347,11 +367,17 @@ body {
     @apply border-t border-slate-200 my-6;
   }
 
-  /* Trust badges */
+  /* Trust badges — angular */
   .trust-badge {
-    @apply flex flex-col items-center gap-3 p-6 rounded-xl;
-    @apply bg-white border border-slate-100 shadow-sm;
-    @apply transition-all duration-300 hover:shadow-md hover:border-primary-100 hover:-translate-y-0.5;
+    @apply flex flex-col items-center gap-3 p-6;
+    @apply bg-white border border-slate-100;
+    @apply transition-all duration-300 hover:-translate-y-1;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+
+  .trust-badge:hover {
+    box-shadow: 0 8px 24px rgba(72, 70, 229, 0.1);
+    @apply border-primary-200;
   }
 
   /* Flash sale gradient */
@@ -381,7 +407,7 @@ body {
    SWIPER CUSTOM STYLES
    ============================================= */
 .swiper {
-  @apply rounded-xl overflow-hidden;
+  @apply overflow-hidden;
 }
 
 .swiper-pagination-bullet-active {
@@ -403,8 +429,9 @@ body {
    ============================================= */
 .countdown-box {
   @apply flex flex-col items-center justify-center;
-  @apply bg-white/20 backdrop-blur-sm rounded-lg;
+  @apply bg-white/20 backdrop-blur-sm;
   @apply px-3 py-2 min-w-[60px];
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
 }
 
 .countdown-number {
@@ -463,6 +490,26 @@ body {
   }
 }
 
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(72, 70, 229, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(72, 70, 229, 0.15);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Staggered fade in for lists */
 .stagger-item {
   @apply opacity-0 animate-fade-in-up;
@@ -476,3 +523,19 @@ body {
 .stagger-item:nth-child(6) { animation-delay: 375ms; }
 .stagger-item:nth-child(7) { animation-delay: 450ms; }
 .stagger-item:nth-child(8) { animation-delay: 525ms; }
+
+/* Angular section divider */
+.section-divider-angular {
+  position: relative;
+  overflow: hidden;
+}
+.section-divider-angular::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: inherit;
+  clip-path: polygon(0 100%, 100% 60%, 100% 100%);
+}
