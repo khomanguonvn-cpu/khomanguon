@@ -771,7 +771,7 @@ export default function Profile({
     return (
       <div className="space-y-4">
         {/* Header Card */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="border border-slate-200 bg-white p-5 sm:p-6" style={{ clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))" }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50">
               <Store className="h-6 w-6 text-indigo-600" />
@@ -857,10 +857,10 @@ export default function Profile({
 
         {/* Registration Form - show when not approved or rejected (can resubmit) */}
         {(isNotSubmitted || isRejected) && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-5">
+          <div className="border border-slate-200 bg-white p-5 sm:p-6 space-y-5" style={{ clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))" }}>
             <div className="flex items-center gap-2 mb-1">
               <IdCard className="h-5 w-5 text-indigo-600" />
-              <h3 className="text-lg font-semibold text-slate-900">Thông tin đăng ký bán hàng</h3>
+              <h3 className="text-base font-bold text-slate-900 uppercase tracking-wider">Thông tin đăng ký bán hàng</h3>
             </div>
 
             <p className="text-sm text-slate-600 -mt-2">
@@ -890,42 +890,26 @@ export default function Profile({
               </div>
             </div>
 
-            <div className="space-y-4">
+            {/* 3-column grid for image uploads */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Ảnh mặt trước CCCD */}
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-700">
-                  Ảnh mặt trước CCCD <span className="text-rose-500">*</span>
+                <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">
+                  Mặt trước CCCD <span className="text-rose-500">*</span>
                 </label>
                 {documentFrontUrl ? (
-                  <div className="relative w-full max-w-xs rounded-xl border border-slate-200 overflow-hidden">
-                    <Image src={documentFrontUrl} alt="Mặt trước CCCD" className="w-full h-40 object-cover" width={320} height={160} />
-                    <button
-                      type="button"
-                      onClick={() => setDocumentFrontUrl("")}
-                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 text-slate-600 hover:bg-white hover:text-rose-600 shadow transition-colors"
-                    >
+                  <div className="relative w-full border border-slate-200 overflow-hidden" style={{ clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))" }}>
+                    <img src={documentFrontUrl} alt="Mặt trước CCCD" className="w-full h-44 object-cover" />
+                    <button type="button" onClick={() => setDocumentFrontUrl("")} className="absolute top-2 right-2 p-1.5 bg-white/90 text-slate-600 hover:text-rose-600 shadow clip-angular-sm">
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full max-w-xs h-40 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      {uploadingFront ? (
-                        <Loader2 className="h-8 w-8 text-slate-400 animate-spin" />
-                      ) : (
-                        <Upload className="h-8 w-8 text-slate-400 mb-2" />
-                      )}
-                      <p className="text-sm text-slate-500">
-                        {uploadingFront ? t(language, "profileUploading") : t(language, "profileClickToSelectImage")}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">{t(language, "profileImageFormatNote")}</p>
-                    </div>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={(e) => handleKycFileChange(e, setDocumentFrontUrl, setUploadingFront)}
-                    />
+                  <label className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-primary-300 cursor-pointer bg-primary-50/50 hover:bg-primary-50 transition-colors" style={{ clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))" }}>
+                    {uploadingFront ? <Loader2 className="h-8 w-8 text-primary-400 animate-spin" /> : <Upload className="h-8 w-8 text-primary-400 mb-2" />}
+                    <p className="text-sm text-primary-600 font-medium">{uploadingFront ? t(language, "profileUploading") : t(language, "profileClickToSelectImage")}</p>
+                    <p className="text-xs text-slate-400 mt-1">{t(language, "profileImageFormatNote")}</p>
+                    <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleKycFileChange(e, setDocumentFrontUrl, setUploadingFront)} />
                   </label>
                 )}
                 <p className="text-xs text-slate-400">{t(language, "profileFrontIdTip")}</p>
@@ -933,78 +917,44 @@ export default function Profile({
 
               {/* Ảnh mặt sau CCCD */}
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-700">
-                  {t(language, "profileBackIdLabel")} <span className="text-slate-400">{t(language, "profileOptionalLabel")}</span>
+                <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">
+                  {t(language, "profileBackIdLabel")} <span className="text-slate-400 normal-case font-normal">{t(language, "profileOptionalLabel")}</span>
                 </label>
                 {documentBackUrl ? (
-                  <div className="relative w-full max-w-xs rounded-xl border border-slate-200 overflow-hidden">
-                    <Image src={documentBackUrl} alt="Mặt sau CCCD" className="w-full h-40 object-cover" width={320} height={160} />
-                    <button
-                      type="button"
-                      onClick={() => setDocumentBackUrl("")}
-                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 text-slate-600 hover:bg-white hover:text-rose-600 shadow transition-colors"
-                    >
+                  <div className="relative w-full border border-slate-200 overflow-hidden" style={{ clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))" }}>
+                    <img src={documentBackUrl} alt="Mặt sau CCCD" className="w-full h-44 object-cover" />
+                    <button type="button" onClick={() => setDocumentBackUrl("")} className="absolute top-2 right-2 p-1.5 bg-white/90 text-slate-600 hover:text-rose-600 shadow clip-angular-sm">
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full max-w-xs h-40 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      {uploadingBack ? (
-                        <Loader2 className="h-8 w-8 text-slate-400 animate-spin" />
-                      ) : (
-                        <ImagePlus className="h-8 w-8 text-slate-400 mb-2" />
-                      )}
-                      <p className="text-sm text-slate-500">
-                        {uploadingBack ? t(language, "profileUploading") : t(language, "profileClickToSelectImage")}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">{t(language, "profileImageFormatNote")}</p>
-                    </div>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={(e) => handleKycFileChange(e, setDocumentBackUrl, setUploadingBack)}
-                    />
+                  <label className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-slate-300 cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors" style={{ clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))" }}>
+                    {uploadingBack ? <Loader2 className="h-8 w-8 text-slate-400 animate-spin" /> : <ImagePlus className="h-8 w-8 text-slate-400 mb-2" />}
+                    <p className="text-sm text-slate-500">{uploadingBack ? t(language, "profileUploading") : t(language, "profileClickToSelectImage")}</p>
+                    <p className="text-xs text-slate-400 mt-1">{t(language, "profileImageFormatNote")}</p>
+                    <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleKycFileChange(e, setDocumentBackUrl, setUploadingBack)} />
                   </label>
                 )}
               </div>
 
               {/* Ảnh selfie */}
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-700">
-                  {t(language, "profileSelfieIdLabel")} <span className="text-slate-400">{t(language, "profileOptionalLabel")}</span>
+                <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">
+                  {t(language, "profileSelfieIdLabel")} <span className="text-slate-400 normal-case font-normal">{t(language, "profileOptionalLabel")}</span>
                 </label>
                 {selfieUrl ? (
-                  <div className="relative w-full max-w-xs rounded-xl border border-slate-200 overflow-hidden">
-                    <Image src={selfieUrl} alt="Selfie" className="w-full h-40 object-cover" width={320} height={160} />
-                    <button
-                      type="button"
-                      onClick={() => setSelfieUrl("")}
-                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 text-slate-600 hover:bg-white hover:text-rose-600 shadow transition-colors"
-                    >
+                  <div className="relative w-full border border-slate-200 overflow-hidden" style={{ clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))" }}>
+                    <img src={selfieUrl} alt="Selfie" className="w-full h-44 object-cover" />
+                    <button type="button" onClick={() => setSelfieUrl("")} className="absolute top-2 right-2 p-1.5 bg-white/90 text-slate-600 hover:text-rose-600 shadow clip-angular-sm">
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full max-w-xs h-40 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      {uploadingSelfie ? (
-                        <Loader2 className="h-8 w-8 text-slate-400 animate-spin" />
-                      ) : (
-                        <UserCircle2 className="h-8 w-8 text-slate-400 mb-2" />
-                      )}
-                      <p className="text-sm text-slate-500">
-                        {uploadingSelfie ? t(language, "profileUploading") : t(language, "profileClickToSelectImage")}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">{t(language, "profileImageFormatNote")}</p>
-                    </div>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={(e) => handleKycFileChange(e, setSelfieUrl, setUploadingSelfie)}
-                    />
+                  <label className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-slate-300 cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors" style={{ clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))" }}>
+                    {uploadingSelfie ? <Loader2 className="h-8 w-8 text-slate-400 animate-spin" /> : <UserCircle2 className="h-8 w-8 text-slate-400 mb-2" />}
+                    <p className="text-sm text-slate-500">{uploadingSelfie ? t(language, "profileUploading") : t(language, "profileClickToSelectImage")}</p>
+                    <p className="text-xs text-slate-400 mt-1">{t(language, "profileImageFormatNote")}</p>
+                    <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleKycFileChange(e, setSelfieUrl, setUploadingSelfie)} />
                   </label>
                 )}
                 <p className="text-xs text-slate-400">{t(language, "profileSelfieIdTip")}</p>
@@ -1021,15 +971,15 @@ export default function Profile({
               </ul>
             </div>
 
-            <Button
+            <button
               type="button"
               disabled={sellerSubmitting}
               onClick={() => void handleRegisterSeller()}
-              className="h-12 px-6 text-base"
+              className="h-12 px-8 text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-primary-600 to-indigo-600 text-white hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 clip-angular"
             >
-              {sellerSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Store className="mr-2 h-4 w-4" />}
+              {sellerSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Store className="h-4 w-4" />}
               {sellerSubmitting ? t(language, "profileSendingRegistration") : t(language, "profileSubmitRegistration")}
-            </Button>
+            </button>
           </div>
         )}
 
@@ -1053,8 +1003,8 @@ export default function Profile({
   };
 
   return (
-    <div className="w-full max-w-5xl space-y-4">
-      <div className="rounded-2xl bg-gradient-to-r from-primary-600 to-indigo-600 p-5 text-white">
+    <div className="w-full space-y-4">
+      <div className="bg-gradient-to-r from-primary-600 to-indigo-600 p-5 text-white" style={{ clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))" }}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <Image
