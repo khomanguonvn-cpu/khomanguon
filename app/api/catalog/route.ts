@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { productCategories, productSubcategories } from "@/lib/schema";

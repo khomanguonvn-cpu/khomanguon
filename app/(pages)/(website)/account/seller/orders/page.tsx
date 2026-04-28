@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import auth from "@/auth";
 import SellerOrdersManager from "@/components/modules/website/account/SellerOrdersManager";
 import { Metadata } from "next";

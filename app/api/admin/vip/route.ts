@@ -1,4 +1,6 @@
-﻿import { NextRequest } from "next/server";
+﻿export const runtime = 'edge';
+
+import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { vipTiers } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";

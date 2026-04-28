@@ -1,4 +1,6 @@
-﻿import { and, desc, eq, gte, isNull } from "drizzle-orm";
+﻿export const runtime = 'edge';
+
+import { and, desc, eq, gte, isNull } from "drizzle-orm";
 import { Resend } from "resend";
 import { requireSessionUser } from "@/lib/api-auth";
 import { badRequest, ok, serverError, unauthorized } from "@/lib/api-response";

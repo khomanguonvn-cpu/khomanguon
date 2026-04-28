@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { newsPosts, sellerProducts } from "@/lib/schema";

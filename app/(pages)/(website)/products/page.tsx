@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import ProductsPage from "@/components/modules/website/products/ProductsPage";
 import { mergeOpenGraph } from "@/lib/mergeOpenGraph";
 import { Metadata } from "next";

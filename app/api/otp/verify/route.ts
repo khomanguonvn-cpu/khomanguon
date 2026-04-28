@@ -1,4 +1,6 @@
-﻿import { and, desc, eq, isNull } from "drizzle-orm";
+﻿export const runtime = 'edge';
+
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { badRequest, ok, serverError } from "@/lib/api-response";
 import { ensureDatabaseReady } from "@/lib/bootstrap";
 import { db } from "@/lib/db";

@@ -1,4 +1,6 @@
-﻿import { and, desc, eq } from "drizzle-orm";
+﻿export const runtime = 'edge';
+
+import { and, desc, eq } from "drizzle-orm";
 import { requireSessionUser } from "@/lib/api-auth";
 import { badRequest, ok, serverError, unauthorized } from "@/lib/api-response";
 import { ensureDatabaseReady } from "@/lib/bootstrap";

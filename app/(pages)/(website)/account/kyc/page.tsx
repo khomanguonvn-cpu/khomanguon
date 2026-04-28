@@ -1,4 +1,6 @@
-﻿import Profile from "@/components/modules/website/account/Profile";
+﻿export const runtime = 'edge';
+
+import Profile from "@/components/modules/website/account/Profile";
 import { getUserById } from "@/actions/user";
 import auth from "@/auth";
 import AccountPageHeader from "@/components/modules/website/account/AccountPageHeader";

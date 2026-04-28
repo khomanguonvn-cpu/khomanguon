@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import Container from "@/components/modules/custom/Container";
 import { getPublishedNewsPage } from "@/actions/news";
 import { mergeOpenGraph } from "@/lib/mergeOpenGraph";

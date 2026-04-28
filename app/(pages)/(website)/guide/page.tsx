@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, MessageCircle, Sparkles } from "lucide-react";

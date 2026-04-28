@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { carts, coupons } from "@/lib/schema";

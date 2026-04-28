@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {

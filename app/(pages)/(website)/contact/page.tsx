@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import ContactForm from "@/components/modules/website/contact/ContactForm";
 import { Metadata } from "next";
 import React from "react";

@@ -1,4 +1,6 @@
-﻿import { and, desc, eq, inArray, sql } from "drizzle-orm";
+﻿export const runtime = 'edge';
+
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   escrowTransactions,

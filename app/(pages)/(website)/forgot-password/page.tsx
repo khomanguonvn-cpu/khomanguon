@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import ForgotPassword from "@/components/modules/website/auth/ForgotPassword";
 import { Metadata } from "next";
 

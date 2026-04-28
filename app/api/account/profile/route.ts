@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import bcrypt from "bcryptjs";
 import { and, eq, ne } from "drizzle-orm";
 import { requireSessionUser } from "@/lib/api-auth";

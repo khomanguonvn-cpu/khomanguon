@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { josephan } from "./fonts";
 import "./globals.css";
 import * as React from "react";

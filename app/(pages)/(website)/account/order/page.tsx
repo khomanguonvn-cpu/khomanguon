@@ -1,4 +1,6 @@
-﻿import { getOrdersByUserId } from "@/actions/order";
+﻿export const runtime = 'edge';
+
+import { getOrdersByUserId } from "@/actions/order";
 import auth from "@/auth";
 import AccountPageHeader from "@/components/modules/website/account/AccountPageHeader";
 import Orders from "@/components/modules/website/account/Orders";

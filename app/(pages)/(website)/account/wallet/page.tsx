@@ -1,4 +1,6 @@
-﻿import WalletCard from "@/components/modules/website/account/WalletCard";
+﻿export const runtime = 'edge';
+
+import WalletCard from "@/components/modules/website/account/WalletCard";
 import AccountPageHeader from "@/components/modules/website/account/AccountPageHeader";
 import { Metadata } from "next";
 import { Wallet } from "lucide-react";

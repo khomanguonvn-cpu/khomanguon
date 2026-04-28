@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import auth from "@/auth";
 import Container from "@/components/modules/custom/Container";
 import OrderWrapper from "@/components/modules/website/order/OrderWrapper";

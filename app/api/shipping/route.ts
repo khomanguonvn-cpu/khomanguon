@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { db } from "@/lib/db";
 import { addresses } from "@/lib/schema";
 import { badRequest, ok, serverError, unauthorized } from "@/lib/api-response";

@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 // Here website layout
 import MobileBottom from "@/components/modules/custom/MobileBottom";
 import Footer from "@/components/modules/website/footer";

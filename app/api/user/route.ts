@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { addresses, sellerProfiles, userBankAccounts, users } from "@/lib/schema";

@@ -1,4 +1,6 @@
-﻿import auth from "@/auth";
+﻿export const runtime = 'edge';
+
+import auth from "@/auth";
 import { getUserById } from "@/actions/user";
 import AccountPageHeader from "@/components/modules/website/account/AccountPageHeader";
 import { Metadata } from "next";

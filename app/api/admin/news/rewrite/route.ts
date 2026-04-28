@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { NextRequest } from "next/server";
 import { requireAdminUser } from "@/lib/api-auth";
 import { badRequest, forbidden, ok, serverError } from "@/lib/api-response";

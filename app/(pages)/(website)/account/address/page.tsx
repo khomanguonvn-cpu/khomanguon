@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { Metadata } from "next";
 import auth from "@/auth";
 import { redirect } from "next/navigation";

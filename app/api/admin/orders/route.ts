@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { orders, users } from "@/lib/schema";

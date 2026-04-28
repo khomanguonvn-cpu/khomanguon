@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import Login from "@/components/modules/website/auth/Login";
 import { Metadata } from "next";
 

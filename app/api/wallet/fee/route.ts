@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { eq } from "drizzle-orm";
 import { ok, serverError } from "@/lib/api-response";
 import { ensureDatabaseReady } from "@/lib/bootstrap";

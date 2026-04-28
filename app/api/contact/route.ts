@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { db } from "@/lib/db";
 import { contactMessages } from "@/lib/schema";
 import { badRequest, ok, serverError } from "@/lib/api-response";

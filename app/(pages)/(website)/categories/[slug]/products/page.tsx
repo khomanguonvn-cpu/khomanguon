@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import CategoriesPage from "@/components/modules/website/categories/CategoriesPage";
 import { mergeOpenGraph } from "@/lib/mergeOpenGraph";
 import { Metadata } from "next";

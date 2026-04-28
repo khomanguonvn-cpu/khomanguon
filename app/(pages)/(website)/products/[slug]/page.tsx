@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import Container from "@/components/modules/custom/Container";
 import FeaturesProducts from "@/components/modules/website/home/FeaturesProducts";
 import ProductSpecifications from "@/components/modules/website/product/ProductSpecifications";

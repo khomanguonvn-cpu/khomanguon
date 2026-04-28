@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { wallets, walletTransactions } from "@/lib/schema";

@@ -1,4 +1,6 @@
-﻿import { NextRequest } from "next/server";
+﻿export const runtime = 'edge';
+
+import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { orders, users, sellerProducts, kycSubmissions } from "@/lib/schema";
 import { sql, eq } from "drizzle-orm";

@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 /**
  * API endpoint: POST /api/admin/seo/sync-schema
  * Đồng bộ dữ liệu SEO/Schema từ file JSON trong public/schema/ vào database.

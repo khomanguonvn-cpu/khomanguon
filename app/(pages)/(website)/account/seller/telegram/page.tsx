@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import auth from "@/auth";
 import AccountPageHeader from "@/components/modules/website/account/AccountPageHeader";
 import SellerTelegramSetup from "@/components/modules/website/account/SellerTelegramSetup";

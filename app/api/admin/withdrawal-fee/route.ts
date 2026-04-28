@@ -1,3 +1,5 @@
+﻿export const runtime = 'edge';
+
 import { eq } from "drizzle-orm";
 import { badRequest, forbidden, ok, serverError } from "@/lib/api-response";
 import { requireAdminUser } from "@/lib/api-auth";
