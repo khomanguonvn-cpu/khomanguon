@@ -1,0 +1,13 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="partnersTitle partnersDesc">
+  <title id="partnersTitle">Đối tác</title>
+  <desc id="partnersDesc">Biểu tượng bắt tay dành cho mục đối tác và nhãn hàng</desc>
+  <defs>
+    <linearGradient id="g" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+  <path d="M19 25.5L26.2 21.8C28.1 20.8 30.4 20.9 32.3 22L36.1 24.2C37.1 24.8 38.3 24.9 39.5 24.6L45 23V29.5L41.7 30.5C40.2 31 38.5 30.8 37.1 30L33.3 27.9C32.4 27.4 31.4 27.3 30.5 27.7L27.4 29" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M17 27V39C17 40.7 18.3 42 20 42H23.3C24.1 42 24.8 41.7 25.4 41.1L28.6 37.9C29.8 36.7 31.7 36.7 32.9 37.9L33.1 38.1C34.3 39.3 36.2 39.3 37.4 38.1L39.2 36.3C40.4 35.1 42.3 35.1 43.5 36.3L44.2 37C45.7 38.5 48.2 37.4 48.2 35.3V24.2" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

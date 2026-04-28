@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" fill="none" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">KHOMANGUON.IO.VN</title>
+  <desc id="logoDesc">Logo của KHOMANGUON - Chợ sản phẩm số hàng đầu Việt Nam</desc>
+
+  <defs>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon: Stylized code bracket + diamond shape (represents digital marketplace) -->
+  <g transform="translate(8, 10)">
+    <!-- Outer hexagon/shield shape -->
+    <path d="M40 0 L72 18 L72 54 L40 72 L8 54 L8 18 Z" fill="url(#iconGrad)" opacity="0.12" rx="4"/>
+    
+    <!-- Left code bracket < -->
+    <path d="M32 20 L16 36 L32 52" stroke="url(#iconGrad)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Right code bracket > -->
+    <path d="M48 20 L64 36 L48 52" stroke="url(#iconGrad)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Center slash / -->
+    <line x1="44" y1="16" x2="36" y2="56" stroke="url(#accentGrad)" stroke-width="4" stroke-linecap="round"/>
+    
+    <!-- Accent dots - network/marketplace nodes -->
+    <circle cx="16" cy="36" r="3.5" fill="url(#accentGrad)"/>
+    <circle cx="64" cy="36" r="3.5" fill="url(#accentGrad)"/>
+    <circle cx="40" cy="8" r="2.5" fill="#22D3EE" opacity="0.7"/>
+    <circle cx="40" cy="64" r="2.5" fill="#22D3EE" opacity="0.7"/>
+  </g>
+
+  <!-- Brand text: KHOMANGUON -->
+  <text x="98" y="44"
+    font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif"
+    font-size="30"
+    font-weight="800"
+    fill="#1e293b"
+    letter-spacing="-0.5">KHOMANGUON</text>
+
+  <!-- Subtitle: .IO.VN with accent color -->
+  <text x="99" y="66"
+    font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif"
+    font-size="15"
+    font-weight="700"
+    fill="url(#textGrad)"
+    letter-spacing="3">.IO.VN</text>
+
+  <!-- Tagline -->
+  <text x="99" y="82"
+    font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif"
+    font-size="8.5"
+    font-weight="500"
+    fill="#94A3B8"
+    letter-spacing="1.5">CHỢ SẢN PHẨM SỐ</text>
+</svg>

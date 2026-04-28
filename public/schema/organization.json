@@ -1,0 +1,28 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "KHOMANGUON.IO.VN",
+  "alternateName": "KHOMANGUON",
+  "url": "https://khomanguon.io.vn",
+  "logo": "https://khomanguon.io.vn/assets/images/logo.svg",
+  "description": "Chợ sản phẩm số hàng đầu Việt Nam - Mua bán mã nguồn, tài khoản số, tool AI, dịch vụ SaaS, Game MMO và Template. Giao dịch an toàn, kiểm duyệt kỹ, giao hàng tức thì.",
+  "foundingDate": "2024",
+  "slogan": "Chợ sản phẩm số hàng đầu Việt Nam",
+  "sameAs": [
+    "https://www.facebook.com/khomanguon",
+    "https://www.youtube.com/@khomanguon"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "email": "contact@khoinguon.io.vn",
+    "telephone": "+84868686868",
+    "contactType": "customer service",
+    "availableLanguage": ["Vietnamese", "English"],
+    "areaServed": "VN"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "VN",
+    "description": "Việt Nam"
+  }
+}

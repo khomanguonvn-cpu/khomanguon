@@ -1,0 +1,79 @@
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "image": "https://khomanguon.io.vn/assets/images/logo.svg",
+  "name": "KHOMANGUON.IO.VN",
+  "description": "Chợ sản phẩm số hàng đầu Việt Nam - Mua bán mã nguồn, tài khoản số, tool AI, dịch vụ SaaS, Game MMO và Template.",
+  "url": "https://khomanguon.io.vn",
+  "telephone": "+84868686868",
+  "email": "contact@khoinguon.io.vn",
+  "priceRange": "$$",
+  "paymentAccepted": "Cash, Credit Card, Bank Transfer",
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "opens": "00:00",
+    "closes": "23:59",
+    "description": "Hỗ trợ 24/7"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Vietnam"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Sản phẩm số",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Mã nguồn"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Tài khoản số"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Tool AI"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "SaaS"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Game & MMO"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Template"
+        }
+      }
+    ]
+  }
+}

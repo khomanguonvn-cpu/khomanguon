@@ -1,0 +1,10 @@
+name = "youtube-ecommerce"
+compatibility_date = "2024-09-23"
+compatibility_flags = [ "nodejs_compat" ]
+pages_build_output_dir = ".cloudflare-pages"
+
+
+
+[[kv_namespaces]]
+binding = "NEXT_INC_CACHE_KV"
+id = "54011fca8dd54fc984db6714a4e9910e"

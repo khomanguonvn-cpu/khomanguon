@@ -1,0 +1,87 @@
+.mySwiper {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.mySwiper .swiper-wrapper {
+  width: 100%;
+  height: auto !important;
+}
+
+.mySwiper .swiper-slide {
+  width: 100%;
+  height: auto !important;
+  display: block !important;
+}
+
+.mySwiper .swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mySwiper .swiper-pagination {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.mySwiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.4);
+  width: 8px;
+  height: 8px;
+  opacity: 1;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.mySwiper .swiper-pagination-bullet-active {
+  background-color: #fff;
+  width: 24px;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* ── Floating animations for hero banner ── */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-2deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 5s ease-in-out infinite;
+}

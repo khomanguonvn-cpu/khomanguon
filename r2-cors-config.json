@@ -1,0 +1,31 @@
+[
+  {
+    "AllowedOrigins": [
+      "http://localhost:3000",
+      "https://khomanguon.io.vn"
+    ],
+    "AllowedMethods": [
+      "GET",
+      "HEAD",
+      "PUT",
+      "POST",
+      "DELETE"
+    ],
+    "AllowedHeaders": [
+      "Content-Type",
+      "Content-MD5",
+      "x-amz-content-sha256",
+      "x-amz-date",
+      "x-amz-security-token",
+      "Authorization",
+      "x-amz-sdk-checksum-algorithm",
+      "x-amz-checksum-crc32"
+    ],
+    "ExposeHeaders": [
+      "ETag",
+      "x-amz-version-id",
+      "x-amz-request-id"
+    ],
+    "MaxAgeSeconds": 3600
+  }
+]

@@ -1,0 +1,54 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "KHOMANGUON.IO.VN là gì?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "KHOMANGUON.IO.VN là chợ sản phẩm số hàng đầu Việt Nam, nơi người dùng có thể mua bán mã nguồn, tài khoản số, tool AI, dịch vụ SaaS, Game MMO và Template với giao dịch an toàn và giao hàng tức thì."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Sản phẩm số được giao như thế nào?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sau khi thanh toán thành công, sản phẩm số sẽ được bàn giao tự động qua email, Telegram/Zalo hoặc trực tiếp trên hệ thống trong vài phút."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Tôi có thể bán sản phẩm trên KHOMANGUON không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Có, bạn cần đăng ký tài khoản, xác minh KYC CCCD và bắt đầu đăng bán sản phẩm. Tất cả giao dịch được kiểm duyệt và bảo vệ bởi hệ thống."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Phương thức thanh toán nào được hỗ trợ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hiện tại hỗ trợ thanh toán qua ví KHOMANGUON (nạp tiền từ tài khoản ngân hàng), thanh toán qua cổng PayOS với tài khoản ngân hàng Vietcombank, và nạp tiền qua thẻ cào điện thoại."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Giao dịch trên KHOMANGUON có an toàn không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Có. Tất cả giao dịch được kiểm duyệt kỹ trước khi đăng bán. Hệ thống hỗ trợ giải quyết tranh chấp (dispute) giữa người mua và người bán. Sản phẩm số được bàn giao tự động sau thanh toán."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Tôi cần hỗ trợ thì liên hệ qua đâu?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bạn có thể liên hệ qua email contact@khoinguon.io.vn, hotline 0868 686 868 hoặc chat trực tiếp trên website. Đội ngũ hỗ trợ hoạt động 24/7."
+      }
+    }
+  ]
+}

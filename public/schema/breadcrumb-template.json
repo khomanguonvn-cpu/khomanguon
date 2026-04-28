@@ -1,0 +1,30 @@
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Trang chủ",
+      "item": "https://khomanguon.io.vn"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Sản phẩm",
+      "item": "https://khomanguon.io.vn/products"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "DANH_MUC",
+      "item": "https://khomanguon.io.vn/categories/DANH_MUC_SLUG/products"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "TEN_SAN_PHAM",
+      "item": "https://khomanguon.io.vn/products/SAN_PHAM_SLUG"
+    }
+  ]
+}

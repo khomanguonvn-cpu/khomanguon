@@ -1,0 +1,25 @@
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "KHOMANGUON.IO.VN",
+  "alternateName": "KHOMANGUON",
+  "url": "https://khomanguon.io.vn",
+  "description": "Chợ sản phẩm số hàng đầu Việt Nam - Mua bán mã nguồn, tài khoản số, tool AI, dịch vụ SaaS, Game MMO và Template.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "KHOMANGUON.IO.VN",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://khomanguon.io.vn/assets/images/logo.svg"
+    }
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://khomanguon.io.vn/products?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string",
+    "description": "Tìm kiếm sản phẩm số trên KHOMANGUON"
+  }
+}
