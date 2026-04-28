@@ -12,14 +12,17 @@ export default async function Page() {
 
   if (!user) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center rounded-3xl border border-slate-200 bg-white p-8">
+      <div
+        className="flex min-h-[60vh] items-center justify-center border border-slate-200 bg-white p-8"
+        style={{ clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))" }}
+      >
         <p className="text-slate-500">Không tìm thấy thông tin người dùng.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <AccountPageHeader
         icon={UserCircle2}
         title="Hồ sơ tài khoản"
@@ -27,7 +30,10 @@ export default async function Page() {
         gradient="from-sky-600 via-cyan-600 to-blue-700"
       />
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:p-7">
+      <div
+        className="border border-slate-200 bg-white p-4 sm:p-6 lg:p-7"
+        style={{ clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))" }}
+      >
         <Profile user={user} section="account" />
       </div>
     </div>

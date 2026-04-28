@@ -16,7 +16,10 @@ import {
   ShieldCheck,
   Store,
   Wallet,
+  ArrowRight,
+  UserCircle2,
 } from "lucide-react";
+import AccountPageHeader from "@/components/modules/website/account/AccountPageHeader";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -33,111 +36,113 @@ export default async function DashboardPage() {
 
   const recentOrders = orders.slice(0, 5);
 
+  const statCards = [
+    { value: stats.totalOrders, label: "Tổng đơn hàng", icon: ShoppingBag, gradient: "from-blue-500 to-indigo-500" },
+    { value: stats.completed, label: "Đơn đã nhận", icon: CheckCircle, gradient: "from-emerald-500 to-green-500" },
+    { value: stats.pending, label: "Đang xử lý", icon: Clock, gradient: "from-amber-500 to-orange-500" },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-6 text-white">
-        <h1 className="text-2xl font-bold mb-2">
-          Xin chào, {session?.user?.name || "Khách hàng"}!
-        </h1>
-        <p className="text-primary-100">Chào mừng bạn quay trở lại KHOMANGUON.IO.VN</p>
-      </div>
+    <div className="space-y-4">
+      {/* Welcome header */}
+      <AccountPageHeader
+        icon={UserCircle2}
+        title={`Xin chào, ${session?.user?.name || "Khách hàng"}!`}
+        subtitle="Chào mừng bạn quay trở lại KHOMANGUON.IO.VN"
+        gradient="from-primary-600 via-indigo-600 to-primary-700"
+      />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="min-w-0 bg-white rounded-xl border border-slate-200 p-4 sm:p-5 hover:shadow-md transition-shadow">
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {statCards.map((stat, i) => {
+          const StatIcon = stat.icon;
+          return (
+            <div
+              key={i}
+              className="min-w-0 bg-white border border-slate-200 p-4 sm:p-5 hover:border-primary-200 transition-all"
+              style={{ clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))" }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div
+                  className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${stat.gradient} flex items-center justify-center text-white`}
+                  style={{ clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))" }}
+                >
+                  <StatIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+              </div>
+              <p className="text-2xl sm:text-3xl font-black text-slate-900">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">{stat.label}</p>
+            </div>
+          );
+        })}
+
+        {/* Total spent card */}
+        <div
+          className="min-w-0 bg-white border border-slate-200 p-4 sm:p-5 hover:border-primary-200 transition-all"
+          style={{ clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))" }}
+        >
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+            <div
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center text-white"
+              style={{ clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))" }}
+            >
+              <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-slate-900">{stats.totalOrders}</p>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Tổng đơn hàng</p>
-        </div>
-
-        <div className="min-w-0 bg-white rounded-xl border border-slate-200 p-4 sm:p-5 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-xl flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
-            </div>
-          </div>
-          <p className="text-2xl sm:text-3xl font-bold text-slate-900">{stats.completed}</p>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Đơn đã nhận</p>
-        </div>
-
-        <div className="min-w-0 bg-white rounded-xl border border-slate-200 p-4 sm:p-5 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-              <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
-            </div>
-          </div>
-          <p className="text-2xl sm:text-3xl font-bold text-slate-900">{stats.pending}</p>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Đơn đang xử lý</p>
-        </div>
-
-        <div className="min-w-0 bg-white rounded-xl border border-slate-200 p-4 sm:p-5 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-              <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-            </div>
-          </div>
-          <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-slate-900 truncate" title={`${new Intl.NumberFormat("vi-VN").format(stats.totalSpent)}đ`}>
+          <p className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-900 truncate" title={`${new Intl.NumberFormat("vi-VN").format(stats.totalSpent)}đ`}>
             {new Intl.NumberFormat("vi-VN").format(stats.totalSpent)}đ
           </p>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Tổng chi tiêu</p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Tổng chi tiêu</p>
         </div>
       </div>
 
       <WalletCard />
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-5">
+      {/* Quick access - Security */}
+      <div
+        className="bg-white border border-slate-200 p-5"
+        style={{ clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))" }}
+      >
         <div className="flex items-center gap-2 mb-4">
           <ShieldCheck className="w-5 h-5 text-emerald-600" />
-          <h2 className="font-semibold text-slate-900">Truy cập nhanh bảo mật & xác minh</h2>
+          <h2 className="font-bold text-slate-900 uppercase tracking-wider text-sm">Truy cập nhanh</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-          <Link
-            href="/account/kyc"
-            className="rounded-xl border border-slate-200 px-4 py-3 hover:border-primary-300 hover:bg-primary-50 transition-colors"
-          >
-            <Store className="w-5 h-5 text-primary-600 mb-1" />
-            <p className="font-medium text-slate-900">Đăng ký bán hàng</p>
-            <p className="text-xs text-slate-500">Mở quyền tạo sản phẩm seller</p>
-          </Link>
-          <Link
-            href="/account/kyc"
-            className="rounded-xl border border-slate-200 px-4 py-3 hover:border-primary-300 hover:bg-primary-50 transition-colors"
-          >
-            <ShieldCheck className="w-5 h-5 text-primary-600 mb-1" />
-            <p className="font-medium text-slate-900">KYC CCCD</p>
-            <p className="text-xs text-slate-500">Xác minh danh tính người bán</p>
-          </Link>
-          <Link
-            href="/account/bank"
-            className="rounded-xl border border-slate-200 px-4 py-3 hover:border-primary-300 hover:bg-primary-50 transition-colors"
-          >
-            <Landmark className="w-5 h-5 text-primary-600 mb-1" />
-            <p className="font-medium text-slate-900">Thông tin ngân hàng</p>
-            <p className="text-xs text-slate-500">Lưu để rút tiền, tự động điền biểu mẫu</p>
-          </Link>
-          <Link
-            href="/forgot-password"
-            className="rounded-xl border border-slate-200 px-4 py-3 hover:border-primary-300 hover:bg-primary-50 transition-colors"
-          >
-            <KeyRound className="w-5 h-5 text-primary-600 mb-1" />
-            <p className="font-medium text-slate-900">Quên mật khẩu OTP</p>
-            <p className="text-xs text-slate-500">Bắt buộc OTP email để đổi mật khẩu</p>
-          </Link>
+          {[
+            { href: "/account/kyc", icon: Store, title: "Đăng ký bán hàng", desc: "Mở quyền tạo sản phẩm seller" },
+            { href: "/account/kyc", icon: ShieldCheck, title: "KYC CCCD", desc: "Xác minh danh tính người bán" },
+            { href: "/account/bank", icon: Landmark, title: "Thông tin ngân hàng", desc: "Lưu để rút tiền tự động" },
+            { href: "/forgot-password", icon: KeyRound, title: "Quên mật khẩu OTP", desc: "OTP email để đổi mật khẩu" },
+          ].map((item) => {
+            const ItemIcon = item.icon;
+            return (
+              <Link
+                key={item.href + item.title}
+                href={item.href}
+                className="border border-slate-200 px-4 py-3 hover:border-primary-300 hover:bg-primary-50 transition-all clip-angular-sm group"
+              >
+                <ItemIcon className="w-5 h-5 text-primary-600 mb-1" />
+                <p className="font-bold text-slate-900 text-sm">{item.title}</p>
+                <p className="text-xs text-slate-500">{item.desc}</p>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      {/* Recent orders */}
+      <div
+        className="bg-white border border-slate-200 overflow-hidden"
+        style={{ clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))" }}
+      >
         <div className="flex items-center justify-between p-5 border-b border-slate-200">
-          <h2 className="font-semibold text-slate-900 flex items-center gap-2">
+          <h2 className="font-bold text-slate-900 flex items-center gap-2 uppercase tracking-wider text-sm">
             <Package className="w-5 h-5 text-primary-600" />
             Đơn hàng gần đây
           </h2>
           <Link
             href="/account/order"
-            className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+            className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1 font-bold"
           >
             Xem tất cả
             <ChevronRight className="w-4 h-4" />
@@ -153,18 +158,20 @@ export default async function DashboardPage() {
                 className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                  <div
+                    className="w-10 h-10 bg-slate-100 flex items-center justify-center clip-angular-sm"
+                  >
                     <Package className="w-5 h-5 text-slate-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-slate-900">#{String(order._id || "").slice(-8)}</p>
+                    <p className="font-bold text-slate-900 text-sm">#{String(order._id || "").slice(-8)}</p>
                     <p className="text-sm text-slate-500">
                       {new Date(order.createdAt || Date.now()).toLocaleDateString("vi-VN")}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-slate-900">
+                  <span className="text-sm font-bold text-slate-900">
                     {new Intl.NumberFormat("vi-VN").format(order.total || 0)}đ
                   </span>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -178,59 +185,38 @@ export default async function DashboardPage() {
             <p className="text-slate-500">Chưa có đơn hàng nào</p>
             <Link
               href="/products"
-              className="inline-block mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-primary-600 text-white text-sm font-bold uppercase tracking-wider hover:bg-primary-700 transition-colors clip-angular-sm"
             >
               Mua sắm ngay
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link
-          href="/products"
-          className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-primary-200 transition-all text-center"
-        >
-          <ShoppingBag className="w-8 h-8 text-primary-600 mx-auto mb-2" />
-          <p className="font-medium text-slate-900">Mua sắm</p>
-          <p className="text-xs text-slate-500 mt-1">Khám phá sản phẩm</p>
-        </Link>
-        <Link
-          href="/account/order"
-          className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-primary-200 transition-all text-center"
-        >
-          <Package className="w-8 h-8 text-primary-600 mx-auto mb-2" />
-          <p className="font-medium text-slate-900">Đơn hàng</p>
-          <p className="text-xs text-slate-500 mt-1">Xem lịch sử mua</p>
-        </Link>
-        <Link
-          href="/account/profile"
-          className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-primary-200 transition-all text-center"
-        >
-          <svg
-            className="w-8 h-8 text-primary-600 mx-auto mb-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-          <p className="font-medium text-slate-900">Hồ sơ</p>
-          <p className="text-xs text-slate-500 mt-1">Cập nhật thông tin</p>
-        </Link>
-        <Link
-          href="/account/kyc"
-          className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-primary-200 transition-all text-center"
-        >
-          <Store className="w-8 h-8 text-primary-600 mx-auto mb-2" />
-          <p className="font-medium text-slate-900">Kênh người bán</p>
-          <p className="text-xs text-slate-500 mt-1">Đăng ký bán hàng & KYC CCCD</p>
-        </Link>
+      {/* Quick links grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { href: "/products", icon: ShoppingBag, title: "Mua sắm", desc: "Khám phá sản phẩm" },
+          { href: "/account/order", icon: Package, title: "Đơn hàng", desc: "Xem lịch sử mua" },
+          { href: "/account/profile", icon: UserCircle2, title: "Hồ sơ", desc: "Cập nhật thông tin" },
+          { href: "/account/kyc", icon: Store, title: "Kênh người bán", desc: "Đăng ký & KYC" },
+        ].map((item) => {
+          const ItemIcon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="bg-white border border-slate-200 p-4 hover:border-primary-200 transition-all text-center group clip-angular-sm"
+            >
+              <div className="w-10 h-10 mx-auto mb-2 bg-primary-100 text-primary-600 flex items-center justify-center clip-angular-sm">
+                <ItemIcon className="w-5 h-5" />
+              </div>
+              <p className="font-bold text-slate-900 text-sm">{item.title}</p>
+              <p className="text-xs text-slate-500 mt-1">{item.desc}</p>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
