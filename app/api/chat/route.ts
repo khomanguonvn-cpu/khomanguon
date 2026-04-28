@@ -65,10 +65,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Nội dung tin nhắn là bắt buộc" }, { status: 400 });
     }
 
-    if (userRole === "admin") {
-      return NextResponse.json({ error: "Quản trị viên không thể tạo hội thoại theo cách này" }, { status: 403 });
-    }
-
     let conversationId: number | null = null;
     const existing = await db
       .select()
@@ -83,12 +79,7 @@ export async function POST(req: NextRequest) {
     if (existing.length > 0) {
       conversationId = existing[0].id;
     } else {
-      const admins = await db
-        .select()
-        .from(chatConversations)
-        .where(eq(chatConversations.type, "user_admin"));
-
-      const firstAdminId = admins.length > 0 ? admins[0].adminId : 1;
+      const assignedAdminId = userRole === "admin" ? userId : 1;
 
       const result = await db
         .insert(chatConversations)
@@ -96,7 +87,7 @@ export async function POST(req: NextRequest) {
           participantId: userId,
           participantName: participantName || "",
           participantEmail: participantEmail || "",
-          adminId: firstAdminId,
+          adminId: assignedAdminId,
           type: "user_admin",
           status: "open",
           lastMessage: message.trim(),
