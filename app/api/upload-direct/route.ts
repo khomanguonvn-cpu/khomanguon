@@ -84,9 +84,23 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    const publicUrl = R2_PUBLIC_URL
-      ? `${R2_PUBLIC_URL.replace(/\/$/, "")}/${objectKey}`
-      : `https://${R2_BUCKET_NAME}.${R2_ACCOUNT_ID}.r2.dev/${objectKey}`;
+    // Build public URL
+    // Priority: R2_PUBLIC_URL (full base URL like https://cdn.khomanguon.io.vn)
+    //   -> R2_PUBLIC_DOMAIN (just domain like cdn.khomanguon.io.vn)  
+    //   -> R2 dev URL (bucket.accountid.r2.dev) — requires public access enabled on bucket
+    const R2_PUBLIC_DOMAIN = process.env.R2_PUBLIC_DOMAIN || "";
+    
+    let publicUrl: string;
+    if (R2_PUBLIC_URL) {
+      publicUrl = `${R2_PUBLIC_URL.replace(/\/$/, "")}/${objectKey}`;
+    } else if (R2_PUBLIC_DOMAIN) {
+      publicUrl = `https://${R2_PUBLIC_DOMAIN.replace(/\/$/, "")}/${objectKey}`;
+    } else {
+      // Fallback: use R2 public dev URL (must enable public access on bucket in Cloudflare dashboard)
+      publicUrl = `https://pub-${R2_ACCOUNT_ID}.r2.dev/${objectKey}`;
+    }
+
+    console.log("[upload-direct] Generated publicUrl:", publicUrl, "| objectKey:", objectKey);
 
     return ok({
       publicUrl,
