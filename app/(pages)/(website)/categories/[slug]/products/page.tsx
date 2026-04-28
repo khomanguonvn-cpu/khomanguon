@@ -13,13 +13,14 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   await ensureDatabaseReady();
+  const { slug } = await params;
   const cats = await db
     .select()
     .from(productCategories)
-    .where(eq(productCategories.slug, params.slug))
+    .where(eq(productCategories.slug, slug))
     .limit(1);
   const cat = cats[0];
 
@@ -35,12 +36,12 @@ export async function generateMetadata({
     description,
     keywords: [cat?.name, "sản phẩm số", "mã nguồn", "tài khoản số", "AI", "SaaS", "KHOMANGUON"].filter(Boolean),
     alternates: {
-      canonical: `/categories/${params.slug}/products`,
+      canonical: `/categories/${slug}/products`,
     },
     openGraph: mergeOpenGraph({
       title,
       description,
-      url: `/categories/${params.slug}/products`,
+      url: `/categories/${slug}/products`,
     }),
     twitter: {
       card: "summary_large_image",
@@ -51,6 +52,7 @@ export async function generateMetadata({
   };
 }
 
-export default function page({ params }: { params: { slug: string } }) {
-  return <CategoriesPage slug={params.slug} />;
+export default async function page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <CategoriesPage slug={slug} />;
 }

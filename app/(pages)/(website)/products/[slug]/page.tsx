@@ -21,8 +21,9 @@ import Script from "next/script";
 
 const BASE_URL = "https://khomanguon.io.vn";
 
-export default async function page({ params }: { params: { slug: string } }) {
-  const product = await getProductBySlug(params.slug);
+export default async function page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
@@ -46,7 +47,7 @@ export default async function page({ params }: { params: { slug: string } }) {
     },
     offers: {
       "@type": "Offer",
-      url: `${BASE_URL}/products/${params.slug}`,
+      url: `${BASE_URL}/products/${slug}`,
       priceCurrency: "VND",
       price: price,
       availability: price > 0
@@ -144,9 +145,10 @@ export default async function page({ params }: { params: { slug: string } }) {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const product = await getProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -160,7 +162,7 @@ export async function generateMetadata({
   const firstOption = product.subProducts[0]?.options[0];
   const images = firstOption?.images[0] || "/assets/images/logo.svg";
   const price = firstOption?.price || 0;
-  const slug = params.slug;
+  // slug is already awaited
 
   const title = `${product.name} | Mua ngay tại KHOMANGUON.IO.VN`;
   const description =

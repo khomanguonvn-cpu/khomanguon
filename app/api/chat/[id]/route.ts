@@ -7,9 +7,10 @@ import auth from "@/auth";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
 
     if (!session?.user) {
@@ -18,7 +19,7 @@ export async function GET(
 
     const userId = Number(session?.user?.id || 0);
     const userRole = String(session?.user?.role || "user");
-    const conversationId = Number(params.id);
+    const conversationId = Number(id);
 
     if (!conversationId) {
       return NextResponse.json({ error: "Thiếu ID hội thoại" }, { status: 400 });
@@ -66,9 +67,10 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
 
     if (!session?.user) {
@@ -77,7 +79,7 @@ export async function POST(
 
     const userId = Number(session?.user?.id || 0);
     const userRole = String(session?.user?.role || "user");
-    const conversationId = Number(params.id);
+    const conversationId = Number(id);
     const body = await req.json();
     const { content } = body;
     const now = new Date().toISOString();

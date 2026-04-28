@@ -22,9 +22,10 @@ function formatDate(input: string | null) {
 export default async function NewsPage({
   searchParams,
 }: {
-  searchParams?: { page?: string };
+  searchParams?: Promise<{ page?: string }>;
 }) {
-  const pageRaw = Number(searchParams?.page || 1);
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const pageRaw = Number(resolvedSearchParams.page || 1);
   const page = Number.isFinite(pageRaw) ? Math.max(1, Math.floor(pageRaw)) : 1;
   const { items, pagination } = await getPublishedNewsPage(page, NEWS_PER_PAGE);
 

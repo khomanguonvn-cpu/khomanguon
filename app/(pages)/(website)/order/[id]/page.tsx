@@ -18,13 +18,15 @@ export default async function page({
   params,
   searchParams,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  searchParams?: {
+  }>;
+  searchParams?: Promise<{
     status?: string;
-  };
+  }>;
 }) {
+  const { id } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
   const session = await auth();
   if (!session) {
     redirect("/");
@@ -49,13 +51,13 @@ export default async function page({
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink href="#">{params.id}</BreadcrumbLink>
+                <BreadcrumbLink href="#">{id}</BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </Container>
       </section>
-      <OrderWrapper id={params.id} paymentStatus={searchParams?.status} />
+      <OrderWrapper id={id} paymentStatus={resolvedSearchParams.status} />
     </>
   );
 }

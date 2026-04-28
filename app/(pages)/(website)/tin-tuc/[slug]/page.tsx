@@ -30,9 +30,10 @@ function formatISODate(input: string | null) {
 export default async function NewsDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const post = await getPublishedNewsBySlug(params.slug);
+  const { slug } = await params;
+  const post = await getPublishedNewsBySlug(slug);
   if (!post) {
     notFound();
   }
@@ -165,9 +166,10 @@ export default async function NewsDetailPage({
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const post = await getPublishedNewsBySlug(params.slug);
+  const { slug } = await params;
+  const post = await getPublishedNewsBySlug(slug);
 
   if (!post) {
     return {
