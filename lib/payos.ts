@@ -163,13 +163,11 @@ function buildCreatePaymentSignature(
     `returnUrl=${payload.returnUrl}`,
   ].join("&");
 
-  if (process.env.NODE_ENV === "development") {
-    console.log("[PayOS] Signature debug:", {
-      signData,
-      checksumKeyLength: checksumKey.length,
-      checksumKeyPrefix: checksumKey.slice(0, 4) + "...",
-    });
-  }
+  console.log("[PayOS] Signature debug:", {
+    signData,
+    checksumKeyLength: checksumKey.length,
+    checksumKeyPrefix: checksumKey.slice(0, 8) + "...",
+  });
 
   return crypto.createHmac("sha256", checksumKey).update(signData).digest("hex");
 }
@@ -332,6 +330,7 @@ export async function createPayOSPaymentLink(payload: CreatePaymentLinkPayload) 
   }
 
   try {
+    console.log("[PayOS] Config source:", payosConfig.source, "| checksumKey len:", payosConfig.checksumKey.length);
     const requestPayload = normalizeCreatePaymentPayload(payload, payosConfig.checksumKey);
 
     const response = await fetchWithRetry(

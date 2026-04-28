@@ -35,7 +35,7 @@ let cache: {
 } | null = null;
 
 function normalize(value: unknown) {
-  return String(value ?? "").trim();
+  return String(value ?? "").replace(/[\r\n\t]/g, "").trim();
 }
 
 function resolveConfigValue(
