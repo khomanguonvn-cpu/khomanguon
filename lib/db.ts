@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client/web";
 
-const url = process.env.TURSO_DATABASE_URL || "file:local.db";
+const url = process.env.TURSO_DATABASE_URL || "libsql://dummy.db";
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
 export const client = createClient({
