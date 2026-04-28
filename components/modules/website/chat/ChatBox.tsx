@@ -1,10 +1,12 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { useChat } from "@/providers/ChatProvider";
-import { X, MessageCircle, Send, ArrowLeft, Minimize2 } from "lucide-react";
+import { X, MessageCircle, Send, ArrowLeft, Minimize2, Bot } from "lucide-react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { cn } from "@/lib/utils";
+
+const WELCOME_MESSAGE = "Chào Mừng Khách Hàng Đến Với KhoMaNguon.IO.VN 🎉\n\nMọi chi tiết xin liên hệ — Tôi là trợ lý AI hỗ trợ 24/24.\n\nHãy gửi tin nhắn để được hỗ trợ ngay!";
 
 function formatTime(dateString?: string) {
   if (!dateString) return "";
@@ -315,44 +317,52 @@ export default function ChatBox() {
               )}
             </div>
           ) : (
-            /* New Conversation Form */
-            <div className="flex-1 flex flex-col p-4">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
-                  <MessageCircle className="w-8 h-8" />
+            /* New Conversation Form with Welcome Message */
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Welcome message area */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {/* AI Welcome Bubble */}
+                <div className="flex items-end gap-2 justify-start">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-md">
+                    <Bot className="w-4 h-4" />
+                  </div>
+                  <div className="max-w-[80%] px-4 py-3 rounded-2xl bg-gradient-to-br from-primary-50 to-indigo-50 text-neutral-800 rounded-bl-md border border-primary-100 shadow-sm">
+                    <p className="text-sm font-semibold text-primary-700 mb-1">Trợ lý KhoMaNguon</p>
+                    <p className="text-sm whitespace-pre-line leading-relaxed">{WELCOME_MESSAGE}</p>
+                    <div className="text-[10px] mt-1.5 text-neutral-400">Vừa xong</div>
+                  </div>
                 </div>
-                <h4 className="font-semibold text-neutral-900">Liên hệ hỗ trợ</h4>
-                <p className="text-sm text-neutral-500 mt-1">
-                  Gửi tin nhắn cho đội ngũ hỗ trợ của chúng tôi
-                </p>
               </div>
 
-              <div className="flex-1 flex flex-col">
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend();
-                    }
-                  }}
-                  placeholder="Nhập tin nhắn của bạn..."
-                  className="flex-1 w-full resize-none rounded-xl border border-neutral-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent min-h-[120px]"
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={!message.trim() || isSending}
-                  className={cn(
-                    "mt-3 w-full py-3 rounded-xl bg-primary-600 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2",
-                    (message.trim() && !isSending)
-                      ? "hover:bg-primary-700 cursor-pointer"
-                      : "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <Send className="w-4 h-4" />
-                  {isSending ? "Đang gửi..." : "Gửi tin nhắn"}
-                </button>
+              {/* Input area */}
+              <div className="p-3 border-t border-neutral-100 bg-white">
+                <div className="flex items-end gap-2">
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                    placeholder="Nhập tin nhắn để bắt đầu..."
+                    className="flex-1 resize-none rounded-xl border border-neutral-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent max-h-32"
+                    rows={1}
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={!message.trim() || isSending}
+                    className={cn(
+                      "w-10 h-10 rounded-xl bg-primary-600 text-white flex items-center justify-center shrink-0 transition-colors",
+                      (message.trim() && !isSending)
+                        ? "hover:bg-primary-700 cursor-pointer"
+                        : "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
