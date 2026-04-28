@@ -1,4 +1,4 @@
-
+export const runtime = 'nodejs';
 import { NextRequest } from "next/server";
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
