@@ -198,7 +198,7 @@ export default function Profile({
       uploadForm.append("file", file);
       uploadForm.append("folder", "kyc");
       const uploadRes = await axios.post("/api/upload-direct", uploadForm);
-      const uploadedUrl = uploadRes.data?.data?.publicUrl;
+      const uploadedUrl = uploadRes.data?.publicUrl || uploadRes.data?.data?.publicUrl;
 
       if (!uploadedUrl) {
         toast.custom(<Toast message={uploadRes.data?.message || t(language, "profileUploadFail")} status="error" />);
