@@ -2,31 +2,50 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  cn,
   getBestPriceWithDiscountFromProduct,
   getBestPriceWithoutDiscountFromProduct,
   getDiscountRate,
   getHighestPriceWithDiscountFromProduct,
   getHighestPriceWithoutDiscountFromProduct,
 } from "@/lib/utils";
+import { IRootState } from "@/store";
 import { Product } from "@/types";
+import { ArrowRight, Eye, Heart, ShoppingBag, Star, Zap } from "lucide-react";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import CurrencyFormat from "./CurrencyFormat";
-import { Star, ShoppingBag, Eye, Heart, Zap, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useSelector } from "react-redux";
-import { IRootState } from "@/store";
-import { m } from "framer-motion";
+import CurrencyFormat from "./CurrencyFormat";
 
-const getHighestPriceWithDiscount = getHighestPriceWithDiscountFromProduct;
-const getHighestPriceWithoutDiscount = getHighestPriceWithoutDiscountFromProduct;
+const PLACEHOLDER_IMAGE = "/assets/images/placeholders/placeholder.png";
+
+function ProductCardSkeleton() {
+  return (
+    <div className="h-full overflow-hidden border border-slate-200 bg-white shadow-sm">
+      <Skeleton className="aspect-[4/3] w-full rounded-none" />
+      <div className="space-y-4 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-14" />
+        </div>
+        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-5 w-4/5" />
+        <div className="flex items-center justify-between gap-3">
+          <Skeleton className="h-7 w-32" />
+          <Skeleton className="h-10 w-10 rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ProductCard({
   item,
   loading,
 }: {
-  item: Product;
+  item: Product | null;
   loading: boolean;
 }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -36,46 +55,67 @@ export default function ProductCard({
     (state: IRootState) => state.settings
   );
 
-  const active = 0;
-  const product = item?.subProducts?.[active];
-  const options = product?.options?.[active];
-
-  const bestPriceWithDiscount = getBestPriceWithDiscountFromProduct(item);
-  const bestPriceWithoutDiscount = getBestPriceWithoutDiscountFromProduct(item);
-  const highestPriceWithDiscount = getHighestPriceWithDiscount(item);
-  const highestPriceWithoutDiscount = getHighestPriceWithoutDiscount(item);
-  const discountRate = getDiscountRate(bestPriceWithoutDiscount, bestPriceWithDiscount);
-  const hasDiscount = discountRate > 0;
-  const hasPriceRange = bestPriceWithDiscount !== highestPriceWithDiscount;
-
-  const reviewCount = item.reviews?.length ?? 0;
-  const avgRating =
-    reviewCount > 0
-      ? item.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
-      : 0;
-
-  const stockLeft =
-    item?.subProducts?.reduce((total, subProduct) => {
-      const subTotal =
-        subProduct.options?.reduce(
-          (sum, option) => sum + Math.max(0, Number(option.qty || 0)),
-          0
-        ) || 0;
-      return total + subTotal;
-    }, 0) || 0;
-  const isLowStock = stockLeft > 0 && stockLeft <= 5;
-  const isOutOfStock = stockLeft === 0;
-
   const primaryImage =
-    String(options?.images?.[0] || "").trim() ||
-    `/assets/images/placeholders/${item.category?.slug || "placeholder"}.png`;
+    String(item?.subProducts?.[0]?.options?.[0]?.images?.[0] || "").trim() ||
+    `/assets/images/placeholders/${item?.category?.slug || "placeholder"}.png`;
   const [imageSrc, setImageSrc] = useState(primaryImage);
 
   useEffect(() => {
     setImageSrc(primaryImage);
   }, [primaryImage]);
 
-  const formatCardMoney = (value: number) => {
+  if (loading || !item) {
+    return <ProductCardSkeleton />;
+  }
+
+  const product = item.subProducts?.[0];
+  const option = product?.options?.[0];
+  const reviews = Array.isArray(item.reviews) ? item.reviews : [];
+  const reviewCount = reviews.length;
+  const avgRating =
+    reviewCount > 0
+      ? reviews.reduce((sum, review) => sum + Number(review?.rating || 0), 0) /
+        reviewCount
+      : 0;
+
+  const bestPriceWithDiscountRaw = getBestPriceWithDiscountFromProduct(item);
+  const bestPriceWithoutDiscount = getBestPriceWithoutDiscountFromProduct(item);
+  const highestPriceWithDiscountRaw = getHighestPriceWithDiscountFromProduct(item);
+  const highestPriceWithoutDiscount =
+    getHighestPriceWithoutDiscountFromProduct(item);
+  const bestPriceWithDiscount =
+    bestPriceWithoutDiscount > 0
+      ? Math.min(bestPriceWithDiscountRaw || bestPriceWithoutDiscount, bestPriceWithoutDiscount)
+      : bestPriceWithDiscountRaw;
+  const highestPriceWithDiscount =
+    highestPriceWithoutDiscount > 0
+      ? Math.min(
+          highestPriceWithDiscountRaw || highestPriceWithoutDiscount,
+          highestPriceWithoutDiscount
+        )
+      : highestPriceWithDiscountRaw;
+  const discountRate = Math.round(
+    getDiscountRate(bestPriceWithoutDiscount, bestPriceWithDiscount)
+  );
+  const hasDiscount = discountRate > 0;
+  const hasPriceRange = bestPriceWithDiscount !== highestPriceWithDiscount;
+
+  const stockLeft =
+    item.subProducts?.reduce((total, subProduct) => {
+      const subTotal =
+        subProduct.options?.reduce(
+          (sum, currentOption) => sum + Math.max(0, Number(currentOption.qty || 0)),
+          0
+        ) || 0;
+
+      return total + subTotal;
+    }, 0) || 0;
+  const isLowStock = stockLeft > 0 && stockLeft <= 5;
+  const isOutOfStock = stockLeft === 0;
+  const categoryName = item.category?.name || "Sản phẩm số";
+  const optionLabel = option?.option || product?.style?.name || "Có sẵn";
+
+  const formatCompactMoney = (value: number) => {
     const normalizedVnd = Number(value || 0);
 
     if (currency === "USD") {
@@ -86,247 +126,173 @@ export default function ProductCard({
       })}`;
     }
 
-    return normalizedVnd.toLocaleString("vi-VN");
+    return `${normalizedVnd.toLocaleString("vi-VN")} ₫`;
   };
 
-  const handleBuyClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleBuyClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     if (isOutOfStock) return;
     router.push(`/products/${item.slug}`);
   };
 
-  if (loading) {
-    return (
-      <div className="card card-lift p-0 overflow-hidden h-full">
-        <Skeleton className="aspect-square w-full rounded-none" />
-        <div className="p-5 space-y-4">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-7 w-36" />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div
+    <m.article
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28 }}
       className={cn(
-        "card card-lift p-0 overflow-hidden flex flex-col h-full",
-        "bg-white border border-slate-200",
-        isHovered && "border-primary-300"
+        "group flex h-full flex-col overflow-hidden border bg-white shadow-sm transition-all duration-300",
+        "border-slate-200 hover:-translate-y-1 hover:border-primary-200 hover:shadow-card-hover"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link
-        href={`/products/${item.slug}`}
-        className="block relative overflow-hidden rounded-t-2xl"
-      >
-        <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
-          <div className="flex flex-col gap-2">
-            {hasDiscount && (
-              <m.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold shadow-lg clip-angular-sm"
-              >
-                -{discountRate}%
-              </m.span>
-            )}
-            {isLowStock && (
-              <m.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, delay: 0.05 }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500 text-white text-xs font-bold shadow clip-angular-sm"
-              >
-                <Zap className="h-3 w-3" />
-                Sắp hết
-              </m.span>
-            )}
-          </div>
-
-          <m.button
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 300, delay: 0.1 }}
-            onClick={(e) => {
-              e.preventDefault();
-              setIsWishlisted(!isWishlisted);
-            }}
-            className={cn(
-              "p-2.5 rounded-full transition-all duration-300 z-10",
-              "bg-white/90 backdrop-blur-sm shadow-lg",
-              isWishlisted
-                ? "text-red-500 scale-110"
-                : "text-slate-400 hover:text-red-500 scale-100"
-            )}
-            aria-label="Thêm vào yêu thích"
-          >
-            <Heart
-              className={cn("h-4 w-4 transition-all", isWishlisted && "fill-current scale-110")}
+      <div className="relative overflow-hidden bg-slate-100">
+        <Link href={`/products/${item.slug}`} className="block">
+          <div className="aspect-[4/3] w-full overflow-hidden bg-white">
+            <m.img
+              src={imageSrc}
+              alt={item.name}
+              width={520}
+              height={390}
+              className={cn(
+                "h-full w-full object-cover transition-transform duration-500",
+                isHovered && "scale-105"
+              )}
+              onError={() => {
+                if (imageSrc !== PLACEHOLDER_IMAGE) {
+                  setImageSrc(PLACEHOLDER_IMAGE);
+                }
+              }}
             />
-          </m.button>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-slate-950/0 to-slate-950/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="pointer-events-none absolute bottom-3 left-3 flex translate-y-2 items-center gap-2 rounded-md bg-white px-3 py-2 text-xs font-bold text-slate-900 opacity-0 shadow-lg transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <Eye className="h-3.5 w-3.5" />
+            Xem chi tiết
+          </div>
+        </Link>
+
+        <div className="absolute left-3 top-3 z-10 flex flex-col gap-2">
+          {hasDiscount && (
+            <span className="inline-flex w-fit items-center rounded-md bg-rose-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+              -{discountRate}%
+            </span>
+          )}
+          {isLowStock && (
+            <span className="inline-flex w-fit items-center gap-1 rounded-md bg-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+              <Zap className="h-3 w-3" />
+              Sắp hết
+            </span>
+          )}
         </div>
 
-        <div className="aspect-square w-full overflow-hidden bg-slate-50">
-          <m.img
-            src={imageSrc}
-            alt={item.name}
-            width={500}
-            height={500}
-            className={cn(
-              "w-full h-full object-cover transition-all duration-500",
-              isHovered && "scale-110"
-            )}
-            onError={() => {
-              if (imageSrc !== "/assets/images/placeholders/placeholder.png") {
-                setImageSrc("/assets/images/placeholders/placeholder.png");
-              }
-            }}
-          />
-        </div>
-
-        <m.div
-          initial={false}
-          animate={{
-            opacity: isHovered ? 1 : 0,
-            y: isHovered ? 0 : 10,
-          }}
-          transition={{ duration: 0.25 }}
-          className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/60 via-black/20 to-transparent z-[5] pointer-events-none"
-          style={{ pointerEvents: isHovered ? "auto" : "none" }}
+        <button
+          type="button"
+          onClick={() => setIsWishlisted((value) => !value)}
+          className={cn(
+            "absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-500 shadow-sm backdrop-blur transition-all duration-200 hover:text-rose-500",
+            isWishlisted && "text-rose-500"
+          )}
+          aria-label="Thêm vào yêu thích"
         >
-          <m.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
-            transition={{ duration: 0.2, delay: 0.05 }}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-slate-900 text-sm font-bold shadow-xl hover:bg-primary-600 hover:text-white transition-all duration-200 transform hover:scale-105"
-            aria-label="Xem nhanh"
-          >
-            <Eye className="h-4 w-4" />
-            <span>Xem nhanh</span>
-          </m.button>
-        </m.div>
+          <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
+        </button>
 
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-            <span className="px-5 py-2.5 bg-slate-900 text-white text-base font-bold uppercase tracking-wider clip-angular-sm">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/45">
+            <span className="rounded-md bg-white px-4 py-2 text-sm font-black uppercase tracking-wider text-slate-900 shadow-lg">
               Hết hàng
             </span>
           </div>
         )}
-      </Link>
+      </div>
 
-      <div className="flex flex-col flex-1 p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={cn(
-                  "h-4 w-4",
-                  star <= Math.round(avgRating)
-                    ? "fill-amber-400 text-amber-400"
-                    : "fill-slate-200 text-slate-200"
-                )}
-              />
-            ))}
+      <div className="flex flex-1 flex-col p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <span className="line-clamp-1 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+            {categoryName}
+          </span>
+          <div className="flex shrink-0 items-center gap-1 text-xs font-semibold text-amber-500">
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+            <span>{avgRating > 0 ? avgRating.toFixed(1) : "Mới"}</span>
           </div>
-          <span className="text-sm text-slate-400">({reviewCount})</span>
         </div>
 
-        <Link href={`/products/${item.slug}`} className="block flex-1">
-          <h3 className="text-base lg:text-lg font-bold text-slate-800 line-clamp-2 hover:text-primary-600 transition-colors duration-200 leading-snug">
+        <Link href={`/products/${item.slug}`} className="block">
+          <h3 className="line-clamp-2 min-h-[44px] text-[15px] font-bold leading-snug text-slate-900 transition-colors hover:text-primary-600">
             {item.name}
           </h3>
         </Link>
 
-        {isLowStock && (
-          <p className="text-sm text-orange-500 font-semibold mt-2 flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5" />
-            Chỉ còn {stockLeft} sản phẩm
-          </p>
-        )}
+        <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+          <span className="line-clamp-1">{optionLabel}</span>
+          <span className="h-1 w-1 rounded-full bg-slate-300" />
+          <span>{reviewCount} đánh giá</span>
+        </div>
 
-        <div className="mt-4 flex flex-col gap-1.5">
+        <div className="mt-4 space-y-1.5">
           {hasPriceRange ? (
             <>
-              <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-baseline gap-1.5">
                 <span
-                  className="block whitespace-nowrap text-[17px] font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600 sm:text-lg"
-                  title={
-                    currency === "USD"
-                      ? `${formatCardMoney(bestPriceWithDiscount)} - ${formatCardMoney(
-                          highestPriceWithDiscount
-                        )}`
-                      : `${formatCardMoney(bestPriceWithDiscount)} - ${formatCardMoney(
-                          highestPriceWithDiscount
-                        )} ₫`
-                  }
+                  className="text-lg font-black leading-tight text-primary-700"
+                  title={`${formatCompactMoney(bestPriceWithDiscount)} - ${formatCompactMoney(
+                    highestPriceWithDiscount
+                  )}`}
                 >
-                  {currency === "USD"
-                    ? `${formatCardMoney(bestPriceWithDiscount)} - ${formatCardMoney(
-                        highestPriceWithDiscount
-                      )}`
-                    : `${formatCardMoney(bestPriceWithDiscount)} - ${formatCardMoney(
-                        highestPriceWithDiscount
-                      )} ₫`}
+                  {formatCompactMoney(bestPriceWithDiscount)}
+                </span>
+                <span className="text-sm font-bold text-slate-400">-</span>
+                <span className="text-lg font-black leading-tight text-primary-700">
+                  {formatCompactMoney(highestPriceWithDiscount)}
                 </span>
               </div>
               {hasDiscount && (
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm text-slate-400 line-through">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                  <span className="line-through">
                     <CurrencyFormat value={bestPriceWithoutDiscount} />
                   </span>
-                  <span className="text-sm text-slate-400">-</span>
-                  <span className="text-sm text-slate-400 line-through">
+                  <span>-</span>
+                  <span className="line-through">
                     <CurrencyFormat value={highestPriceWithoutDiscount} />
-                  </span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold">
-                    -{discountRate}%
                   </span>
                 </div>
               )}
             </>
           ) : (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600">
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="text-xl font-black leading-tight text-primary-700">
                 <CurrencyFormat value={bestPriceWithDiscount} />
               </span>
               {hasDiscount && (
-                <>
-                  <span className="text-sm text-slate-400 line-through">
-                    <CurrencyFormat value={bestPriceWithoutDiscount} />
-                  </span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold">
-                    -{discountRate}%
-                  </span>
-                </>
+                <span className="text-sm font-medium text-slate-400 line-through">
+                  <CurrencyFormat value={bestPriceWithoutDiscount} />
+                </span>
               )}
             </div>
           )}
         </div>
 
-        <m.button
-          onClick={handleBuyClick}
-          disabled={isOutOfStock}
-          whileHover={!isOutOfStock ? { scale: 1.01 } : {}}
-          whileTap={{ scale: stockLeft === 0 ? 1 : 0.97 }}
-          className={cn(
-            "mt-4 w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider transition-all duration-300 clip-angular",
-            isOutOfStock
-              ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-primary-600 to-indigo-600 text-white hover:shadow-xl hover:shadow-primary-500/20"
-          )}
-          aria-label={isOutOfStock ? "Hết hàng" : `Mua hàng ${item.name}`}
-        >
-          <ShoppingBag className="h-4 w-4" />
-          <span>{isOutOfStock ? "Hết hàng" : "Mua ngay"}</span>
-          {!isOutOfStock && <ArrowRight className="h-4 w-4" />}
-        </m.button>
+        <div className="mt-auto pt-4">
+          <button
+            type="button"
+            onClick={handleBuyClick}
+            disabled={isOutOfStock}
+            className={cn(
+              "flex h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold transition-all duration-200",
+              isOutOfStock
+                ? "cursor-not-allowed bg-slate-100 text-slate-400"
+                : "bg-slate-950 text-white hover:bg-primary-600 hover:shadow-lg hover:shadow-primary-600/20"
+            )}
+            aria-label={isOutOfStock ? "Hết hàng" : `Mua ${item.name}`}
+          >
+            <ShoppingBag className="h-4 w-4" />
+            <span>{isOutOfStock ? "Hết hàng" : "Mua ngay"}</span>
+            {!isOutOfStock && <ArrowRight className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
-    </div>
+    </m.article>
   );
 }

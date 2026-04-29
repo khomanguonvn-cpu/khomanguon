@@ -31,6 +31,7 @@ export default function AddReview({
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
   const initialValues = {
     review: "",
     rating: "",
@@ -72,7 +73,7 @@ export default function AddReview({
       createdAt: JSON.parse(JSON.stringify(new Date())),
     };
 
-    setReviews([...reviews, data as unknown as Review]);
+    setReviews([...safeReviews, data as unknown as Review]);
 
     await axios
       .post(process.env.NEXT_PUBLIC_API_URL + "/api/review", data)
@@ -99,9 +100,9 @@ export default function AddReview({
             <div className="flex flex-wrap justify-between">
               <h1>{t(language, "reviewsAverageRating")}:</h1>
               <div className="flex">
-                <Rating readOnly value={getRating(product)} precision={0.5} />
+                <Rating readOnly value={getRating({ ...product, reviews: safeReviews })} precision={0.5} />
                 <span className="text-xl font-bold text-yellow-800">
-                  ({getRating(product)})
+                  ({getRating({ ...product, reviews: safeReviews })})
                 </span>
               </div>
             </div>

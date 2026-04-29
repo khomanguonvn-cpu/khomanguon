@@ -9,21 +9,21 @@ import { m } from "framer-motion";
 export default function ProductWrapper({ product }: { product: Product }) {
   const [active, setActive] = useState<number>(0);
   const [images, setImages] = useState<string[]>(
-    product?.subProducts[active]?.options[0]?.images?.length
+    product?.subProducts?.[active]?.options?.[0]?.images?.length
       ? product.subProducts[active].options[0].images
       : ["/assets/images/placeholders/placeholder.png"]
   );
 
   return (
-    <section className="my-6 lg:my-10">
+    <section className="bg-white py-6 lg:py-10">
       <Container>
         <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start"
+          className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] xl:gap-12"
         >
-          <div className="w-full lg:w-1/2 lg:sticky lg:top-6">
+          <div className="w-full lg:sticky lg:top-6 lg:self-start">
             <ProductImage
               className="w-full"
               product={product}
@@ -32,7 +32,7 @@ export default function ProductWrapper({ product }: { product: Product }) {
             />
           </div>
 
-          <div className="w-full lg:w-1/2">
+          <div className="w-full">
             <m.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}

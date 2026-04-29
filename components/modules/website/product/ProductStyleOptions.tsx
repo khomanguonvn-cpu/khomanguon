@@ -17,20 +17,38 @@ export default function ProductStyleOptions({
   option,
   options,
 }: {
-  style: Style;
+  style?: Style;
   styles: Style[];
-  setStyle: (value: Style) => void;
+  setStyle: (value: Style | undefined) => void;
   setActive: (value: number) => void;
-  setOption: (value: Option) => void;
+  setOption: (value: Option | undefined) => void;
   setOptionActive: (value: number) => void;
   setImages: (value: string[]) => void;
-  getStock: () => void;
-  option: Option;
+  getStock: () => number;
+  option?: Option;
   options: Option[];
 }) {
-  const stockLeft = option.qty ?? 0;
+  const stockLeft = Math.max(0, Number(option?.qty || 0));
   const isLowStock = stockLeft > 0 && stockLeft <= 5;
   const isOutOfStock = stockLeft === 0;
+
+  const selectStyle = (item: Style, index: number) => {
+    const firstOption = item.options?.[0];
+
+    setStyle(item);
+    setActive(index);
+    setOption(firstOption);
+    setImages(firstOption?.images || []);
+    setOptionActive(0);
+    getStock();
+  };
+
+  const selectOption = (item: Option, index: number) => {
+    setOption(item);
+    setImages(item.images || []);
+    setOptionActive(index);
+    getStock();
+  };
 
   return (
     <m.div
@@ -39,158 +57,169 @@ export default function ProductStyleOptions({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.15 }}
     >
-      {/* Styles / Phong cách */}
       {styles.length > 1 && (
-        <m.div
-          className="flex flex-col gap-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-1 h-5 rounded-full bg-gradient-to-b from-primary-500 to-indigo-500" />
-            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wide">
+            <div className="h-5 w-1 rounded-full bg-primary-600" />
+            <h2 className="text-sm font-black uppercase tracking-wide text-slate-900">
               Phong cách
             </h2>
           </div>
-          <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {styles.map((item: Style, idx: number) => (
-              <m.button
-                onMouseEnter={() => {
-                  setStyle(item);
-                  setActive(idx);
-                  setOption(item.options[0]);
-                  setImages(item.options[0]?.images || []);
-                  setOptionActive(0);
-                  getStock();
-                }}
-                key={idx}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 + idx * 0.05 }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                className={cn(
-                  "relative flex-shrink-0 min-w-[100px] h-[80px] border-2 cursor-pointer rounded-2xl overflow-hidden transition-all duration-200 flex flex-col items-center justify-center gap-2 p-3 shadow-sm",
-                  item === style
-                    ? "border-primary-500 bg-gradient-to-br from-primary-50 to-indigo-50 shadow-md ring-2 ring-primary-500/20"
-                    : "border-slate-200 hover:border-primary-300 hover:bg-slate-50 bg-white"
-                )}
-              >
-                {item.image ? (
-                  <Image
-                    src={item.image}
-                    className="w-10 h-10 rounded-xl object-cover shadow-sm"
-                    width={40}
-                    height={40}
-                    alt={item.name}
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-sm">
-                    <div className="w-5 h-5 rounded-full" style={{ backgroundColor: item.color || "#6366f1" }} />
-                  </div>
-                )}
-                <span className={cn(
-                  "text-[11px] font-bold text-center leading-tight",
-                  item === style ? "text-primary-700" : "text-slate-600"
-                )}>
-                  {item.name}
-                </span>
-                {item === style && (
-                  <m.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center shadow-lg"
+
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            {styles.map((item: Style, index: number) => {
+              const isSelected = item === style;
+
+              return (
+                <m.button
+                  type="button"
+                  onClick={() => selectStyle(item, index)}
+                  key={`${item.name}-${index}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.18 + index * 0.04 }}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={cn(
+                    "relative flex h-20 min-w-[112px] flex-shrink-0 items-center gap-3 rounded-lg border p-3 text-left shadow-sm transition-all duration-200",
+                    isSelected
+                      ? "border-primary-500 bg-primary-50 ring-2 ring-primary-500/15"
+                      : "border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50"
+                  )}
+                >
+                  {item.image ? (
+                    <Image
+                      src={item.image}
+                      className="h-11 w-11 rounded-md object-cover shadow-sm"
+                      width={44}
+                      height={44}
+                      alt={item.name}
+                    />
+                  ) : (
+                    <span className="flex h-11 w-11 items-center justify-center rounded-md bg-slate-100">
+                      <span
+                        className="h-5 w-5 rounded-full"
+                        style={{ backgroundColor: item.color || "#6366f1" }}
+                      />
+                    </span>
+                  )}
+                  <span
+                    className={cn(
+                      "line-clamp-2 text-xs font-bold leading-snug",
+                      isSelected ? "text-primary-700" : "text-slate-700"
+                    )}
                   >
-                    <Check className="h-3 w-3 text-white" />
-                  </m.div>
-                )}
-              </m.button>
-            ))}
+                    {item.name}
+                  </span>
+                  {isSelected && (
+                    <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-white shadow-sm">
+                      <Check className="h-3 w-3" />
+                    </span>
+                  )}
+                </m.button>
+              );
+            })}
           </div>
-        </m.div>
+        </div>
       )}
 
-      {/* Options / Tùy chọn */}
-      <m.div
-        className="flex flex-col gap-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-1 h-5 rounded-full bg-gradient-to-b from-primary-500 to-indigo-500" />
-            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wide">
-              Tùy chọn
+            <div className="h-5 w-1 rounded-full bg-primary-600" />
+            <h2 className="text-sm font-black uppercase tracking-wide text-slate-900">
+              Chọn gói
             </h2>
           </div>
-          {/* Stock Status Badge */}
-          {isOutOfStock ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 border border-red-200 text-red-700 text-xs font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              Hết hàng
-            </span>
-          ) : isLowStock ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-200 text-amber-700 text-xs font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-              Còn {stockLeft} sản phẩm
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Còn hàng
+
+          {option && (
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold",
+                isOutOfStock
+                  ? "border-red-200 bg-red-50 text-red-700"
+                  : isLowStock
+                  ? "border-amber-200 bg-amber-50 text-amber-700"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-700"
+              )}
+            >
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  isOutOfStock
+                    ? "bg-red-500"
+                    : isLowStock
+                    ? "bg-amber-500"
+                    : "bg-emerald-500"
+                )}
+              />
+              {isOutOfStock
+                ? "Hết hàng"
+                : isLowStock
+                ? `Còn ${stockLeft} sản phẩm`
+                : "Còn hàng"}
             </span>
           )}
         </div>
 
-        <div className="flex items-center flex-wrap gap-2.5">
-          {options.map((item: Option, idx2: number) => {
-            const itemStock = item.qty ?? 0;
-            const isItemOut = itemStock === 0;
-            const isSelected = item === option;
-            return (
-              <m.button
-                key={idx2}
-                onMouseEnter={() => {
-                  setOption(item);
-                  setImages(item.images || []);
-                  setOptionActive(idx2);
-                  getStock();
-                }}
-                disabled={isItemOut}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.35 + idx2 * 0.04, type: "spring", stiffness: 300 }}
-                whileHover={!isItemOut ? { y: -1, scale: 1.02 } : {}}
-                whileTap={!isItemOut ? { scale: 0.97 } : {}}
-                className={cn(
-                  "relative px-5 py-3 border-2 cursor-pointer rounded-xl transition-all duration-200 text-sm font-bold",
-                  isItemOut
-                    ? "border-slate-200 bg-slate-50 text-slate-400 cursor-not-allowed line-through opacity-60"
-                    : isSelected
-                    ? "border-primary-500 bg-gradient-to-br from-primary-50 to-indigo-50 text-primary-700 shadow-md ring-2 ring-primary-500/20"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-primary-300 hover:bg-slate-50 shadow-sm"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <Package className={cn("h-3.5 w-3.5", isSelected ? "text-primary-500" : "text-slate-400")} />
-                  <span>{item.option}</span>
-                </div>
-                {isSelected && (
-                  <m.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center shadow-lg"
-                  >
-                    <Check className="h-3 w-3 text-white" />
-                  </m.div>
-                )}
-              </m.button>
-            );
-          })}
-        </div>
-      </m.div>
+        {options.length > 0 ? (
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {options.map((item: Option, index: number) => {
+              const itemStock = Math.max(0, Number(item.qty || 0));
+              const isItemOut = itemStock === 0;
+              const isSelected = item === option;
+
+              return (
+                <m.button
+                  type="button"
+                  key={`${item.option}-${index}`}
+                  onClick={() => selectOption(item, index)}
+                  disabled={isItemOut}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.22 + index * 0.04 }}
+                  whileHover={!isItemOut ? { y: -1 } : {}}
+                  whileTap={!isItemOut ? { scale: 0.98 } : {}}
+                  className={cn(
+                    "relative flex min-h-[56px] items-center justify-between gap-3 rounded-lg border px-4 py-3 text-left shadow-sm transition-all duration-200",
+                    isItemOut
+                      ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400 opacity-70"
+                      : isSelected
+                      ? "border-primary-500 bg-primary-50 text-primary-800 ring-2 ring-primary-500/15"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-primary-200 hover:bg-slate-50"
+                  )}
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <Package
+                      className={cn(
+                        "h-4 w-4 flex-shrink-0",
+                        isSelected ? "text-primary-600" : "text-slate-400"
+                      )}
+                    />
+                    <span className={cn("line-clamp-2 text-sm font-bold", isItemOut && "line-through")}>
+                      {item.option}
+                    </span>
+                  </span>
+
+                  <span className="shrink-0 text-xs font-semibold text-slate-400">
+                    {isItemOut ? "Hết" : `${itemStock} còn`}
+                  </span>
+
+                  {isSelected && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-white shadow-sm">
+                      <Check className="h-3 w-3" />
+                    </span>
+                  )}
+                </m.button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-500">
+            Chưa có gói khả dụng.
+          </div>
+        )}
+      </div>
     </m.div>
   );
 }

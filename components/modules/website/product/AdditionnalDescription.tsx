@@ -18,6 +18,9 @@ export default function AdditionnalDescription({
   const pathname = usePathname();
   const { language } = useSelector((state: IRootState) => state.settings);
   const shareUrl = `${process.env.NEXT_PUBLIC_SERVER_URL || ""}${pathname}`;
+  const subCategories = Array.isArray(product?.subCategories)
+    ? product.subCategories.slice(0, 3)
+    : [];
 
   const shareItems = [
     { Icon: BsTwitterX, href: `https://x.com/intent/post?url=${encodeURIComponent(shareUrl)}`, label: "Twitter" },
@@ -27,10 +30,9 @@ export default function AdditionnalDescription({
   ];
 
   return (
-    <div className="flex items-center justify-between gap-4 pt-2 border-t border-slate-100">
-      {/* Category Tag */}
+    <div className="flex flex-col justify-between gap-4 border-t border-slate-100 pt-2 sm:flex-row sm:items-center">
       <div className="flex items-center gap-2 flex-wrap">
-        {product.subCategories.slice(0, 3).map((item, idx) => (
+        {subCategories.map((item, idx) => (
           <Link
             key={idx}
             href={`/categories/${item.slug}/products`}
@@ -41,7 +43,6 @@ export default function AdditionnalDescription({
         ))}
       </div>
 
-      {/* Share */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
           <Share2 className="h-3.5 w-3.5" />

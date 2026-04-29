@@ -1,13 +1,14 @@
 "use client";
+
 import { cn } from "@/lib/utils";
-import { Product, SubProduct } from "@/types";
+import { Option, Product, Style } from "@/types";
 import React, { useEffect, useState } from "react";
-import ProductInfo from "./ProductInfo";
-import ProductPrice from "./ProductPrice";
-import ProductStyleOptions from "./ProductStyleOptions";
-import ProductQty from "./ProductQty";
 import AdditionnalDescription from "./AdditionnalDescription";
 import Loading from "../../custom/Loading";
+import ProductInfo from "./ProductInfo";
+import ProductPrice from "./ProductPrice";
+import ProductQty from "./ProductQty";
+import ProductStyleOptions from "./ProductStyleOptions";
 
 export default function ProductContent({
   className,
@@ -23,51 +24,46 @@ export default function ProductContent({
   setActive: (value: number) => void;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
-  const options = product.subProducts[active].options;
-  const [style, setStyle] = useState(product.subProducts[active].style);
-
-  const styles = product.subProducts.map((item: SubProduct) => {
-    return item.style;
-  });
-
-  const [option, setOption] = useState(product.subProducts[active].options[0]);
-
+  const subProducts = product?.subProducts || [];
+  const currentSubProduct = subProducts[active] || subProducts[0];
+  const options = currentSubProduct?.options || [];
+  const [style, setStyle] = useState<Style | undefined>(currentSubProduct?.style);
+  const [option, setOption] = useState<Option | undefined>(options[0]);
   const [optionActive, setOptionActive] = useState(0);
 
+  const styles = subProducts
+    .map((item) => item.style)
+    .filter(Boolean) as Style[];
+
   useEffect(() => {
-    const nextSubProduct = product.subProducts[active];
+    const nextSubProduct = product?.subProducts?.[active] || product?.subProducts?.[0];
     const nextOption = nextSubProduct?.options?.[0];
-    if (!nextSubProduct || !nextOption) return;
+
+    if (!nextSubProduct) return;
 
     setStyle(nextSubProduct.style);
     setOption(nextOption);
     setOptionActive(0);
-    setImages(nextOption.images || []);
-  }, [active, product.subProducts, setImages]);
+    setImages(nextOption?.images?.length ? nextOption.images : []);
+  }, [active, product, setImages]);
 
   const getStock = () => {
-    return option.qty - option.sold;
+    return Math.max(0, Number(option?.qty || 0) - Number(option?.sold || 0));
   };
 
   return (
-    <div>
+    <div className={cn("relative", className)}>
       {loading && <Loading isLoading={loading} />}
-      <div className={cn("flex flex-col gap-6", className)}>
-        {/* Product Info - Name, Rating, Description, Trust Badges */}
+
+      <div className="flex flex-col gap-6">
         <ProductInfo product={product} />
 
-        {/* Divider */}
         <div className="h-px bg-slate-100" />
 
-        {/* Price */}
-        <div>
-          <ProductPrice option={option} />
-        </div>
+        <ProductPrice option={option} />
 
-        {/* Divider */}
         <div className="h-px bg-slate-100" />
 
-        {/* Variant Selection - Styles + Options */}
         <ProductStyleOptions
           style={style}
           styles={styles}
@@ -81,23 +77,23 @@ export default function ProductContent({
           options={options}
         />
 
-        {/* Divider */}
         <div className="h-px bg-slate-100" />
 
-        {/* Mua hàng */}
-        <div>
+        {option ? (
           <ProductQty
             setLoading={setLoading}
             active={active}
             optionActive={optionActive}
             product={product}
           />
-        </div>
+        ) : (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
+            Sản phẩm này chưa có biến thể khả dụng. Vui lòng liên hệ người bán để được hỗ trợ.
+          </div>
+        )}
 
-        {/* Share & Category Tags */}
         <AdditionnalDescription product={product} active={active} />
       </div>
     </div>
   );
 }
-

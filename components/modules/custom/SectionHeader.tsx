@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SectionHeaderProps {
   title: string;
@@ -25,36 +25,44 @@ export default function SectionHeader({
   titleClassName,
 }: SectionHeaderProps) {
   return (
-    <div className={cn("section-header", className)}>
-      <div className="flex flex-col">
-        {/* Badge + Title Row */}
-        <div className="flex items-center gap-3 mb-1">
+    <div
+      className={cn(
+        "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
+        className
+      )}
+    >
+      <div className="min-w-0">
+        <div className="mb-2 flex flex-wrap items-center gap-3">
           {badge && (
-            <span className="section-badge">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
               {badgeIcon && <span className="flex-shrink-0">{badgeIcon}</span>}
               {badge}
             </span>
           )}
-          <h2 className={cn("section-title", titleClassName)}>{title}</h2>
+          <h2
+            className={cn(
+              "text-2xl font-black tracking-tight text-slate-950 md:text-3xl",
+              titleClassName
+            )}
+          >
+            {title}
+          </h2>
         </div>
 
-        {/* Subtitle */}
         {subtitle && (
-          <p className="text-slate-500 text-sm mt-2">{subtitle}</p>
+          <p className="max-w-2xl text-sm leading-6 text-slate-500">{subtitle}</p>
         )}
 
-        {/* Angular accent line */}
         <div className="mt-4 flex items-center gap-0">
-          <div className="h-1 w-16 bg-gradient-to-r from-primary-600 to-indigo-500" style={{ clipPath: "polygon(0 0, calc(100% - 4px) 0, 100% 100%, 0 100%)" }} />
+          <div className="h-1 w-14 rounded-full bg-primary-600" />
           <div className="h-px flex-1 bg-slate-200" />
         </div>
       </div>
 
-      {/* View All Link — angular button style */}
       {viewAllHref && viewAllLabel && (
         <Link
           href={viewAllHref}
-          className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-wider text-primary-600 border-2 border-primary-500 hover:bg-primary-600 hover:text-white transition-all duration-200 group clip-angular-sm"
+          className="group inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm transition-all duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700"
         >
           <span>{viewAllLabel}</span>
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

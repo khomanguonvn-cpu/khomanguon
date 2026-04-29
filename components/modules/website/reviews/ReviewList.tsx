@@ -11,10 +11,11 @@ import { t } from "@/lib/i18n";
 
 export default function ReviewList({ reviews }: { reviews: Review[] }) {
   const { language } = useSelector((state: IRootState) => state.settings);
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
   const [page, setPage] = useState(1);
   const PER_PAGE = 3;
-  const count = Math.ceil(reviews.length / PER_PAGE);
-  const _DATA = usePagination(reviews, PER_PAGE);
+  const count = Math.ceil(safeReviews.length / PER_PAGE);
+  const _DATA = usePagination(safeReviews, PER_PAGE);
 
   const handleChange = (_e: React.ChangeEvent<unknown>, p: number) => {
     setPage(p);
@@ -26,7 +27,7 @@ export default function ReviewList({ reviews }: { reviews: Review[] }) {
       <Container>
         <div className="flex flex-col gap-4">
           <h1>
-            {t(language, "reviewsTitle")} <span> + ({reviews.length})</span>
+            {t(language, "reviewsTitle")} <span>({safeReviews.length})</span>
           </h1>
           <hr />
 

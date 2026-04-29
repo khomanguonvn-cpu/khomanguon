@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import TopBar from "./TopBar";
 import ProductList from "./ProductList";
 import { Pagination } from "@mui/material";
+import { Product } from "@/types";
 
 export default function ShopProducts({
   loading,
@@ -23,7 +24,7 @@ export default function ShopProducts({
   minPrice: number;
   maxPrice: number;
 }) {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [perpage, setPerPages] = useState(10);
   const [filter, setFilter] = useState("latest");
 
@@ -50,10 +51,10 @@ export default function ShopProducts({
           },
         })
         .then((response) => {
-          setProducts(response.data.data);
+          setProducts(response.data.data || []);
         })
         .catch(() => {
-          // Lỗi tải dữ liệu
+          setProducts([]);
         })
         .finally(() => {
           setLoading(false);
@@ -90,7 +91,7 @@ export default function ShopProducts({
         />
 
         <div className="text-sm sm:text-base text-slate-600 sm:ms-auto font-medium">
-          Hiển thị {_DATA.maxPage === page ? products.length : perpage * page} /{" "}
+          Hiển thị {Math.min(products.length, _DATA.maxPage === page ? products.length : perpage * page)} /{" "}
           {products.length} sản phẩm
         </div>
       </div>

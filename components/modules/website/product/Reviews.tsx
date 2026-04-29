@@ -5,7 +5,9 @@ import AddReview from "../reviews/AddReview";
 import ReviewList from "../reviews/ReviewList";
 
 export default function Reviews({ product }: { product: Product }) {
-  const [reviews, setReviews] = useState<Review[]>(product.reviews);
+  const [reviews, setReviews] = useState<Review[]>(
+    Array.isArray(product?.reviews) ? product.reviews : []
+  );
 
   return (
     <section>
