@@ -443,6 +443,7 @@ async function hydrateOrderProducts(order: typeof orders.$inferSelect) {
         ? sellerProductId
         : item.sellerProductId,
       productType,
+      sellerId: orderItem?.sellerId || sellerRow?.sellerId || 0,
     };
 
     // Add fulfillment status from order_items

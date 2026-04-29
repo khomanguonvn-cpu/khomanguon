@@ -24,6 +24,7 @@ import { t } from "@/lib/i18n";
 import CurrencyFormat from "../../custom/CurrencyFormat";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import ContactSeller from "../chat/ContactSeller";
 
 function getFulfillmentBadge(status?: string, language: LanguageCode = "vi") {
   const s = String(status || "pending").toLowerCase();
@@ -357,9 +358,17 @@ export default function OrderProducts({ order }: { order: Order | undefined }) {
                     </div>
                   </div>
 
-                  {/* Right side: status badge */}
-                  <div className="flex-shrink-0">
+                  {/* Right side: status badge & chat */}
+                  <div className="flex-shrink-0 flex flex-col gap-2 items-end">
                     {getFulfillmentBadge(fulfillmentStatus, language)}
+                    {isPaid && item.sellerId ? (
+                      <ContactSeller
+                        sellerId={item.sellerId}
+                        productId={Number(item.sellerProductId) || 0}
+                        productName={item.name}
+                        className="h-8 text-xs px-3 py-1 bg-white"
+                      />
+                    ) : null}
                   </div>
                 </div>
               </div>

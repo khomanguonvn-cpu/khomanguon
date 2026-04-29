@@ -114,7 +114,7 @@ function ensureVariantsMatchTemplate(
         return `Thuộc tính ${field.label || field.key} của biến thể "${variant.label}" phải là chuỗi`;
       }
 
-      if (field.options?.length) {
+      if (field.type === "select" && field.options?.length) {
         const found = field.options.some((option) => String(option) === String(matched.value));
         if (!found) {
           return `Thuộc tính ${field.label || field.key} của biến thể "${variant.label}" không nằm trong danh sách cho phép`;

@@ -209,6 +209,7 @@ export type ProductOrder = {
   qty: number;
   style: Style;
   price: number;
+  sellerId?: number;
   productType?: "physical" | "digital" | "ai_account" | "source_code" | "service";
   attributes?: Array<{ key: string; value: string | number | boolean }>;
   deliveryAccess?: {
