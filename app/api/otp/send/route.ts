@@ -96,7 +96,7 @@ export async function POST(request: Request) {
     }
 
     const code = generateOtpCode();
-    const codeHash = hashOtp(code);
+    const codeHash = await hashOtp(code);
     const expiresAt = new Date(now + OTP_TTL_MINUTES * 60 * 1000).toISOString();
     const resendAvailableAt = new Date(now + RESEND_COOLDOWN_SECONDS * 1000).toISOString();
 

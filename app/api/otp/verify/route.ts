@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       return badRequest("OTP đã hết hạn");
     }
 
-    const hashedInput = hashOtp(code);
+    const hashedInput = await hashOtp(code);
     const nowIso = new Date().toISOString();
 
     if (hashedInput !== active.codeHash) {

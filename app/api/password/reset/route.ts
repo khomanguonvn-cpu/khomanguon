@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     const nowIso = new Date().toISOString();
-    const hashedInput = hashOtp(code);
+    const hashedInput = await hashOtp(code);
 
     if (hashedInput !== active.codeHash) {
       await db

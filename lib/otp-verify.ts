@@ -54,7 +54,7 @@ export async function verifyAndConsumeOtp(input: VerifyOtpInput): Promise<Verify
   }
 
   const nowIso = new Date().toISOString();
-  const hashedInput = hashOtp(code);
+  const hashedInput = await hashOtp(code);
 
   if (hashedInput !== active.codeHash) {
     await db
