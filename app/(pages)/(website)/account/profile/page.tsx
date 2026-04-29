@@ -27,7 +27,7 @@ export default async function Page() {
         icon={UserCircle2}
         title="Hồ sơ tài khoản"
         subtitle="Cập nhật thông tin cá nhân, ảnh đại diện và mật khẩu."
-        gradient="from-sky-600 via-cyan-600 to-blue-700"
+        gradient="from-emerald-600 via-primary-600 to-emerald-800"
       />
 
       <div

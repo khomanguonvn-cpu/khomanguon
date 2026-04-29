@@ -975,7 +975,7 @@ export default function Profile({
               type="button"
               disabled={sellerSubmitting}
               onClick={() => void handleRegisterSeller()}
-              className="h-12 px-8 text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-primary-600 to-indigo-600 text-white hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 clip-angular"
+              className="h-12 px-8 text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-primary-600 to-emerald-600 text-white hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 clip-angular"
             >
               {sellerSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Store className="h-4 w-4" />}
               {sellerSubmitting ? t(language, "profileSendingRegistration") : t(language, "profileSubmitRegistration")}
@@ -1004,7 +1004,7 @@ export default function Profile({
 
   return (
     <div className="w-full space-y-4">
-      <div className="bg-gradient-to-r from-primary-600 to-indigo-600 p-5 text-white" style={{ clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))" }}>
+      <div className="bg-gradient-to-r from-primary-600 to-emerald-600 p-5 text-white" style={{ clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))" }}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <Image
