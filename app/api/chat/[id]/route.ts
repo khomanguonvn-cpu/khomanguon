@@ -137,6 +137,11 @@ export async function POST(
       })
       .where(eq(chatConversations.id, conversationId));
 
+    if (userRole === "user") {
+      const { processAiAutoReply } = await import("@/lib/chat-ai");
+      await processAiAutoReply(conversationId, content.trim());
+    }
+
     const updatedMessages = await db
       .select()
       .from(chatMessages)
@@ -144,7 +149,7 @@ export async function POST(
       .orderBy(chatMessages.createdAt);
 
     return NextResponse.json(
-      { message: updatedMessages[updatedMessages.length - 1] },
+      { messages: updatedMessages, message: updatedMessages[updatedMessages.length - 1] },
       { status: 201 }
     );
   } catch (error) {

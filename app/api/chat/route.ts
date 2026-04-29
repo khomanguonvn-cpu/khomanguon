@@ -114,13 +114,27 @@ export async function POST(req: NextRequest) {
       createdAt: now,
     });
 
+    if (userRole === "user") {
+      const { processAiAutoReply } = await import("@/lib/chat-ai");
+      await processAiAutoReply(conversationId, message.trim());
+    }
+
     const updated = await db
       .select()
       .from(chatConversations)
       .where(eq(chatConversations.id, conversationId))
       .limit(1);
 
-    return NextResponse.json({ conversation: updated[0] }, { status: 201 });
+    const updatedMessages = await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.conversationId, conversationId))
+      .orderBy(chatMessages.createdAt);
+
+    return NextResponse.json({ 
+      conversation: updated[0],
+      messages: updatedMessages 
+    }, { status: 201 });
   } catch (error) {
     console.error("Lỗi tạo hội thoại:", error);
     return NextResponse.json({ error: "Không thể gửi tin nhắn" }, { status: 500 });

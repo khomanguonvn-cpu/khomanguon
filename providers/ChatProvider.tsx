@@ -101,7 +101,35 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const sendMessage = useCallback(async (conversationId: number, content: string) => {
     try {
       const res = await axios.post(`/api/chat/${conversationId}`, { content });
-      if (res.data.message) {
+      if (res.data.messages) {
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id === conversationId) {
+              const lastMsg = res.data.messages[res.data.messages.length - 1];
+              return {
+                ...c,
+                lastMessage: lastMsg.content,
+                lastMessageAt: lastMsg.createdAt,
+                messages: res.data.messages,
+              };
+            }
+            return c;
+          })
+        );
+        if (activeConversation?.id === conversationId) {
+          const lastMsg = res.data.messages[res.data.messages.length - 1];
+          setActiveConversationState((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  lastMessage: lastMsg.content,
+                  lastMessageAt: lastMsg.createdAt,
+                  messages: res.data.messages,
+                }
+              : null
+          );
+        }
+      } else if (res.data.message) {
         setConversations((prev) =>
           prev.map((c) => {
             if (c.id === conversationId) {
@@ -146,12 +174,16 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         participantEmail: participantEmail || "",
       });
       if (res.data.conversation) {
+        const newConv = {
+          ...res.data.conversation,
+          messages: res.data.messages || res.data.conversation.messages || [],
+        };
         setConversations((prev) => {
-          const existing = prev.find((c) => c.id === res.data.conversation.id);
+          const existing = prev.find((c) => c.id === newConv.id);
           if (existing) return prev;
-          return [res.data.conversation, ...prev];
+          return [newConv, ...prev];
         });
-        setActiveConversationState(res.data.conversation);
+        setActiveConversationState(newConv);
       }
     } catch (err) {
       console.error("Error starting conversation:", err);
