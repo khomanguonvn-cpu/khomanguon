@@ -31,6 +31,7 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
   const [loading, setLoading] = useState(false);
   const { language } = useSelector((state: IRootState) => state.settings);
   const router = useRouter();
+  const isPopup = mode === "popup";
 
   const initialValues: LoginFormValues = {
     email: "",
@@ -82,7 +83,7 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
   };
 
   const formContent = (
-    <div className="flex flex-col gap-8">
+    <div className={cn("flex flex-col", isPopup ? "gap-4 sm:gap-5" : "gap-8")}>
       {loading && (
         <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
           <div className="animate-spin h-8 w-8 border-4 border-primary-600 border-t-transparent rounded-full" />
@@ -90,14 +91,17 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
       )}
 
       {/* Header */}
-      <div className="flex flex-col gap-2 items-center text-center">
-        <div className="w-14 h-14 rounded-2xl bg-primary-100 flex items-center justify-center mb-2">
+      <div className={cn("flex flex-col items-center text-center", isPopup ? "gap-1" : "gap-2")}>
+        <div className={cn(
+          "rounded-2xl bg-primary-100 items-center justify-center mb-2",
+          isPopup ? "hidden h-11 w-11 sm:flex" : "flex h-14 w-14"
+        )}>
           <ShieldCheck className="h-7 w-7 text-primary-600" />
         </div>
-        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+        <h2 className={cn("font-extrabold text-slate-900 tracking-tight", isPopup ? "text-lg sm:text-xl" : "text-xl")}>
           {t(language, "loginTitle")}
         </h2>
-        <p className="text-sm text-slate-500 max-w-xs">
+        <p className={cn("text-sm text-slate-500 max-w-xs", isPopup && "hidden sm:block")}>
           {t(language, "loginSubtitle")}
         </p>
       </div>
@@ -109,9 +113,9 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
         onSubmit={handleLogin}
       >
         {({ errors, touched }) => (
-          <Form className="space-y-5">
+          <Form className={cn(isPopup ? "space-y-3 sm:space-y-4" : "space-y-5")}>
             {/* Email */}
-            <div className="space-y-1.5">
+            <div className={cn(isPopup ? "space-y-1" : "space-y-1.5")}>
               <label htmlFor="email" className="text-sm font-medium text-slate-700">
                 {t(language, "login")}
               </label>
@@ -121,7 +125,8 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
                   type="email"
                   name="email"
                   className={cn(
-                    "w-full pl-10 pr-4 py-2.5 rounded-xl border bg-white text-slate-900 text-sm",
+                    "w-full pl-10 pr-4 rounded-xl border bg-white text-slate-900 text-sm",
+                    isPopup ? "py-2.5 sm:py-2.5" : "py-2.5",
                     "focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none",
                     "placeholder:text-slate-400 transition-all",
                     errors.email && touched.email ? "border-red-500" : "border-slate-200"
@@ -133,7 +138,7 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
             </div>
 
             {/* Password */}
-            <div className="space-y-1.5">
+            <div className={cn(isPopup ? "space-y-1" : "space-y-1.5")}>
               <label htmlFor="password" className="text-sm font-medium text-slate-700">
                 {t(language, "formPassword")}
               </label>
@@ -143,7 +148,8 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
                   type={showPassword ? "text" : "password"}
                   name="password"
                   className={cn(
-                    "w-full pl-10 pr-10 py-2.5 rounded-xl border bg-white text-slate-900 text-sm",
+                    "w-full pl-10 pr-10 rounded-xl border bg-white text-slate-900 text-sm",
+                    isPopup ? "py-2.5 sm:py-2.5" : "py-2.5",
                     "focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none",
                     "placeholder:text-slate-400 transition-all",
                     errors.password && touched.password ? "border-red-500" : "border-slate-200"
@@ -162,7 +168,7 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
             </div>
 
             {/* Forgot Password */}
-            <div className="text-right">
+            <div className="text-right leading-none">
               <Link
                 href="/forgot-password"
                 onClick={() => onNavigate?.()}
@@ -190,18 +196,18 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
             </Button>
             
             {/* OAuth Dividers */}
-            <div className="relative flex items-center py-2">
+            <div className={cn("relative flex items-center", isPopup ? "py-1" : "py-2")}>
               <div className="flex-grow border-t border-slate-200"></div>
               <span className="flex-shrink-0 mx-4 text-slate-400 text-sm">{t(language, "oauthDivider")}</span>
               <div className="flex-grow border-t border-slate-200"></div>
             </div>
 
             {/* OAuth Buttons */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 sm:gap-3">
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-11 border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-xl transition-all"
+                className="w-full h-10 sm:h-11 border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-xl transition-all"
                 onClick={() => signIn("google")}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -215,7 +221,7 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-11 border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-xl transition-all"
+                className="w-full h-10 sm:h-11 border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-xl transition-all"
                 onClick={() => signIn("facebook")}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#1877F2">
@@ -243,7 +249,7 @@ export default function Login({ mode = "page", onSuccess, onNavigate }: LoginPro
   );
 
   if (mode === "popup") {
-    return <div className="py-4 relative">{formContent}</div>;
+    return <div className="relative pb-1 pt-0 sm:py-3">{formContent}</div>;
   }
 
   return (

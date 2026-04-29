@@ -14,7 +14,7 @@ export default function ProductList({
 
   return (
     <>
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 max-[360px]:grid-cols-1 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
         {loading
           ? Array.from({ length: 8 }).map((_, index) => (
               <ProductCard key={`product-list-skeleton-${index}`} loading item={null} />

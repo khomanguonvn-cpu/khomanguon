@@ -116,14 +116,14 @@ export default function IconsGroup() {
 
       {/* Auth Dialog */}
       <Dialog open={authOpen} onOpenChange={setAuthOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
+        <DialogContent className="max-h-[calc(100dvh-0.75rem)] overflow-y-auto p-3 sm:max-w-lg sm:p-6">
+          <DialogHeader className="pr-8">
             <DialogTitle className="text-xl font-bold">
               {t(language, "authTitle")}
             </DialogTitle>
           </DialogHeader>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+          <Tabs defaultValue="signin" className="w-full min-w-0">
+            <TabsList className="mb-3 grid w-full grid-cols-2 sm:mb-4">
               <TabsTrigger value="signin" className="data-[state=active]:bg-primary-50 data-[state=active]:text-primary-600">
                 {t(language, "login")}
               </TabsTrigger>
@@ -131,10 +131,10 @@ export default function IconsGroup() {
                 {t(language, "register")}
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="signin">
+            <TabsContent value="signin" className="mt-0">
               <Login mode="popup" onSuccess={() => setAuthOpen(false)} onNavigate={() => setAuthOpen(false)} />
             </TabsContent>
-            <TabsContent value="register">
+            <TabsContent value="register" className="mt-0">
               <Register mode="popup" onSuccess={() => setAuthOpen(false)} />
             </TabsContent>
           </Tabs>
