@@ -5,7 +5,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { IRootState } from "@/store";
 import { t } from "@/lib/i18n";
-import { ShieldCheck, Clock, Star, Award, BadgeCheck, Zap } from "lucide-react";
+import { ShieldCheck, Clock, Star, Award, BadgeCheck, Zap, Quote } from "lucide-react";
 import { m } from "framer-motion";
 import ContactSeller from "../chat/ContactSeller";
 
@@ -116,14 +116,30 @@ export default function ProductInfo({ product }: { product: Product }) {
       )}
 
       {/* Description */}
-      <m.p
-        className="text-slate-600 text-sm leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.25 }}
-      >
-        {product.description}
-      </m.p>
+      {product.description && (
+        <m.div
+          className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-50 rounded-2xl p-5 border border-slate-200/80 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] group"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+        >
+          <div className="absolute -top-4 -right-4 text-slate-100/80 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3 pointer-events-none">
+            <Quote className="w-28 h-28 fill-current" strokeWidth={1} />
+          </div>
+          
+          <div className="relative z-10 flex flex-col gap-2.5">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-1.5 rounded-full bg-primary-500" />
+              <h3 className="text-[13px] font-bold text-slate-800 tracking-wider uppercase">
+                {language === "en" ? "Product Overview" : "Tổng quan sản phẩm"}
+              </h3>
+            </div>
+            <p className="text-slate-600 text-[14px] sm:text-[15px] leading-relaxed whitespace-pre-line">
+              {product.description}
+            </p>
+          </div>
+        </m.div>
+      )}
 
       {/* Trust Badges - 2x2 grid */}
       <div className="grid grid-cols-2 gap-3">
