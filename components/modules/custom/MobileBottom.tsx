@@ -4,9 +4,11 @@ import { FolderKanban, Home, Newspaper, ShoppingCart, User } from "lucide-react"
 import Link from "next/link";
 import React from "react";
 import { useSelector } from "react-redux";
+import { useSession } from "next-auth/react";
 
 export default function MobileBottom() {
   const cart = useSelector((state: IRootState) => state.cart);
+  const { status } = useSession();
   return (
     <div className="bg-white z-[1000] w-full flex border-t border-slate-200 h-16 sm:h-20 px-2 sm:px-10 fixed shadow-lg bottom-0 left-0 lg:hidden">
       <div className="flex items-center justify-between w-full h-full max-w-md mx-auto">
@@ -44,7 +46,13 @@ export default function MobileBottom() {
           <span className="text-[10px] sm:text-xs font-medium whitespace-nowrap">Tin tức</span>
         </Link>
         <Link
-          href="/signin"
+          href={status === "authenticated" ? "/account/profile" : "/signin"}
+          onClick={(e) => {
+            if (status !== "authenticated") {
+              e.preventDefault();
+              window.dispatchEvent(new Event("open-auth-popup"));
+            }
+          }}
           className="group flex-1 flex flex-col gap-1 items-center justify-center text-slate-600 hover:text-primary-900"
         >
           <User className="h-5 w-5 group-hover:font-bold" />
