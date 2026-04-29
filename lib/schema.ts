@@ -322,6 +322,17 @@ export const slides = sqliteTable("slides", {
   updatedAt: text("updated_at").notNull(),
 });
 
+export const partnerBrandLogos = sqliteTable("partner_brand_logos", {
+  id: int("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  logoUrl: text("logo_url").notNull(),
+  link: text("link").notNull().default(""),
+  isActive: int("is_active", { mode: "boolean" }).notNull().default(true),
+  sortOrder: int("sort_order").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export const contactMessages = sqliteTable("contact_messages", {
   id: int("id").primaryKey({ autoIncrement: true }),
   subject: text("subject").notNull(),

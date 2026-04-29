@@ -1,88 +1,129 @@
 import { getNewsAiConfig } from "@/lib/news-ai-config";
 import { db } from "@/lib/db";
 import { chatMessages, chatConversations } from "@/lib/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+
+const DEFAULT_MISTRAL_CHAT_MODEL = "mistral-small-latest";
+
+const SYSTEM_PROMPT = `Bạn là AI KHOMANGUON, một trợ lý ảo hỗ trợ khách hàng của nền tảng KhoMaNguon.IO.VN (Kho Mã Nguồn).
+Nhiệm vụ của bạn là hỗ trợ, tư vấn và giải đáp thắc mắc liên quan đến dịch vụ của hệ thống như mua bán source code, tài khoản AI, sản phẩm số và quy trình thanh toán.
+BẮT BUỘC: Bạn chỉ trả lời các câu hỏi hoặc nội dung liên quan đến Kho Mã Nguồn và dịch vụ phần mềm. Nếu khách hàng hỏi nội dung ngoài chủ đề này, hãy từ chối lịch sự và hướng họ quay lại với chủ đề nền tảng.
+Bạn trả lời ngắn gọn, thân thiện và chuyên nghiệp bằng tiếng Việt có dấu chuẩn xác.`;
+
+const FALLBACK_MESSAGE =
+  "Chào bạn, hệ thống AI KHOMANGUON đang gặp chút gián đoạn kết nối. Chúng tôi đã ghi nhận tin nhắn của bạn và sẽ phản hồi sớm nhất!";
+
+function normalizeAiContent(content: unknown) {
+  if (typeof content === "string") {
+    return content.trim();
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === "string") {
+          return part;
+        }
+        if (part && typeof part === "object" && "text" in part) {
+          return String((part as { text?: unknown }).text || "");
+        }
+        return "";
+      })
+      .join("")
+      .trim();
+  }
+
+  return "";
+}
+
+function getChatModel(config: Awaited<ReturnType<typeof getNewsAiConfig>>) {
+  const configuredModel =
+    config.provider === "mistral" ? String(config.model || "").trim() : "";
+
+  if (configuredModel && !configuredModel.toLowerCase().includes("embed")) {
+    return configuredModel;
+  }
+
+  return DEFAULT_MISTRAL_CHAT_MODEL;
+}
+
+async function saveAiReply(conversationId: number, content: string) {
+  const aiNow = new Date().toISOString();
+
+  await db.insert(chatMessages).values({
+    conversationId,
+    senderId: 0,
+    senderName: "AI KHOMANGUON",
+    senderRole: "admin",
+    content,
+    isRead: false,
+    createdAt: aiNow,
+  });
+
+  await db
+    .update(chatConversations)
+    .set({
+      lastMessage: content,
+      lastMessageAt: aiNow,
+      updatedAt: aiNow,
+    })
+    .where(eq(chatConversations.id, conversationId));
+}
 
 export async function processAiAutoReply(conversationId: number, userMessage: string) {
   console.log(`[AI-CHAT] Starting auto reply for conv: ${conversationId}`);
+
   try {
     const config = await getNewsAiConfig();
     const apiKey = config.mistralApiKey;
+
     if (!apiKey) {
-      console.warn("[AI-CHAT] No Mistral API key found in DB");
-      throw new Error("Missing Mistral API Key");
+      console.warn("[AI-CHAT] No Mistral API key found");
+      await saveAiReply(conversationId, FALLBACK_MESSAGE);
+      return;
     }
 
-    const systemPrompt = `Bạn là AI KHOMANGUON, một trợ lý ảo hỗ trợ khách hàng của nền tảng KhoMaNguon.IO.VN (Kho Mã Nguồn).
-Nhiệm vụ của bạn là hỗ trợ, tư vấn và giải đáp thắc mắc liên quan đến dịch vụ của hệ thống (mua bán source code, tài khoản AI, v.v.).
-BẮT BUỘC: Bạn CHỈ trả lời các câu hỏi hoặc nội dung liên quan đến Kho Ma Nguon và dịch vụ phần mềm. Nếu khách hàng hỏi bất cứ thứ gì ngoài chủ đề này (như chính trị, thời tiết, toán học, sức khỏe...), hãy từ chối một cách lịch sự và hướng họ quay lại với chủ đề nền tảng.
-Bạn trả lời ngắn gọn, thân thiện và chuyên nghiệp.`;
-
     const requestBody = {
-      model: "mistral-small-latest",
+      model: getChatModel(config),
       messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userMessage }
-      ]
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage },
+      ],
+      temperature: 0.4,
+      max_tokens: 320,
     };
 
     const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
-      console.error("Mistral API error:", await response.text());
-      return;
+      const errorText = await response.text().catch(() => "");
+      console.error(
+        "[AI-CHAT] Mistral API error:",
+        response.status,
+        errorText.slice(0, 500)
+      );
+      throw new Error(`Mistral API error ${response.status}`);
     }
 
     const data = await response.json();
-    let aiContent = data.choices?.[0]?.message?.content;
+    const aiContent =
+      normalizeAiContent(data?.choices?.[0]?.message?.content) || FALLBACK_MESSAGE;
 
-    if (!aiContent) {
-      aiContent = "Xin chào! Hiện tại hệ thống AI KHOMANGUON đang bận một chút hoặc có sự cố kết nối. Bạn vui lòng thử lại sau giây lát hoặc để lại lời nhắn, Admin sẽ hỗ trợ bạn sớm nhất có thể nhé!";
-    }
-
-    const aiNow = new Date().toISOString();
-    await db.insert(chatMessages).values({
-      conversationId,
-      senderId: 0,
-      senderName: "AI KHOMANGUON",
-      senderRole: "admin",
-      content: aiContent,
-      isRead: false,
-      createdAt: aiNow,
-    });
-
-    await db.update(chatConversations)
-      .set({
-        lastMessage: aiContent,
-        lastMessageAt: aiNow,
-        unreadCount: sql`unread_count + 1`,
-        updatedAt: aiNow,
-      })
-      .where(eq(chatConversations.id, conversationId));
-
+    await saveAiReply(conversationId, aiContent);
   } catch (error) {
     console.error("Failed to auto-reply with AI:", error);
-    // Fallback on catch
+
     try {
-      const aiNow = new Date().toISOString();
-      await db.insert(chatMessages).values({
-        conversationId,
-        senderId: 0,
-        senderName: "AI KHOMANGUON",
-        senderRole: "admin",
-        content: "Chào bạn, hệ thống AI KHOMANGUON đang gặp chút gián đoạn kết nối. Chúng tôi đã ghi nhận tin nhắn của bạn và sẽ phản hồi sớm nhất!",
-        isRead: false,
-        createdAt: aiNow,
-      });
-    } catch (e) {
-      console.error("Critical failure in chat fallback:", e);
+      await saveAiReply(conversationId, FALLBACK_MESSAGE);
+    } catch (fallbackError) {
+      console.error("Critical failure in chat fallback:", fallbackError);
     }
   }
 }

@@ -19,6 +19,7 @@ import {
   Wallet,
   WalletCards,
   CreditCard,
+  Handshake,
   Newspaper,
   Settings,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const navItems = [
   { icon: Users, label: "Người dùng", href: "/admin/users" },
   { icon: FileCheck, label: "KYC", href: "/admin/kyc" },
   { icon: Image, label: "Banner", href: "/admin/slides" },
+  { icon: Handshake, label: "Đối tác", href: "/admin/partners" },
   { icon: FolderTree, label: "Danh mục", href: "/admin/categories" },
   { icon: Tag, label: "Mã giảm giá", href: "/admin/coupons" },
   { icon: Gift, label: "VIP", href: "/admin/vip" },

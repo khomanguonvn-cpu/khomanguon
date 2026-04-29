@@ -183,6 +183,13 @@ export async function ensureDatabaseReady() {
     } catch (e) {}
 
     try {
+      await client.execute("CREATE TABLE IF NOT EXISTS partner_brand_logos (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, logo_url TEXT NOT NULL, link TEXT NOT NULL DEFAULT '', is_active INTEGER NOT NULL DEFAULT 1, sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)");
+    } catch (e) {}
+    try {
+      await client.execute("CREATE INDEX IF NOT EXISTS partner_brand_logos_active_sort_idx ON partner_brand_logos(is_active, sort_order, id)");
+    } catch (e) {}
+
+    try {
       await client.execute("CREATE TABLE IF NOT EXISTS contact_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT NOT NULL, email TEXT NOT NULL, message TEXT NOT NULL, created_at TEXT NOT NULL)");
     } catch (e) {}
 

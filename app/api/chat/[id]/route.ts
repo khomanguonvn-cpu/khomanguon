@@ -1,15 +1,20 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { chatConversations, chatMessages } from "@/lib/schema";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import auth from "@/auth";
+import { ensureDatabaseReady } from "@/lib/bootstrap";
+
+function normalizeRole(role: unknown) {
+  return String(role || "user").trim().toLowerCase();
+}
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await ensureDatabaseReady();
     const { id } = await params;
     const session = await auth();
 
@@ -17,8 +22,8 @@ export async function GET(
       return NextResponse.json({ error: "Yêu cầu xác thực" }, { status: 401 });
     }
 
-    const userId = Number(session?.user?.id || 0);
-    const userRole = String(session?.user?.role || "user");
+    const userId = Number(session.user.id || 0);
+    const userRole = normalizeRole(session.user.role);
     const conversationId = Number(id);
 
     if (!conversationId) {
@@ -32,7 +37,10 @@ export async function GET(
       .limit(1);
 
     if (conversation.length === 0) {
-      return NextResponse.json({ error: "Không tìm thấy hội thoại" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Không tìm thấy hội thoại" },
+        { status: 404 }
+      );
     }
 
     const conv = conversation[0];
@@ -42,7 +50,10 @@ export async function GET(
       conv.adminId === userId;
 
     if (!hasAccess) {
-      return NextResponse.json({ error: "Truy cập bị từ chối" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Truy cập bị từ chối" },
+        { status: 403 }
+      );
     }
 
     const messages = await db
@@ -61,7 +72,10 @@ export async function GET(
     return NextResponse.json({ conversation: conv, messages }, { status: 200 });
   } catch (error) {
     console.error("Lỗi tải tin nhắn:", error);
-    return NextResponse.json({ error: "Không thể tải tin nhắn" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Không thể tải tin nhắn" },
+      { status: 500 }
+    );
   }
 }
 
@@ -70,6 +84,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await ensureDatabaseReady();
     const { id } = await params;
     const session = await auth();
 
@@ -77,15 +92,18 @@ export async function POST(
       return NextResponse.json({ error: "Yêu cầu xác thực" }, { status: 401 });
     }
 
-    const userId = Number(session?.user?.id || 0);
-    const userRole = String(session?.user?.role || "user");
+    const userId = Number(session.user.id || 0);
+    const userRole = normalizeRole(session.user.role);
     const conversationId = Number(id);
     const body = await req.json();
-    const { content } = body;
+    const content = String(body?.content || "").trim();
     const now = new Date().toISOString();
 
-    if (!content || content.trim() === "") {
-      return NextResponse.json({ error: "Nội dung tin nhắn là bắt buộc" }, { status: 400 });
+    if (!content) {
+      return NextResponse.json(
+        { error: "Nội dung tin nhắn là bắt buộc" },
+        { status: 400 }
+      );
     }
 
     if (!conversationId) {
@@ -99,7 +117,10 @@ export async function POST(
       .limit(1);
 
     if (conversation.length === 0) {
-      return NextResponse.json({ error: "Không tìm thấy hội thoại" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Không tìm thấy hội thoại" },
+        { status: 404 }
+      );
     }
 
     const conv = conversation[0];
@@ -109,37 +130,39 @@ export async function POST(
       conv.adminId === userId;
 
     if (!hasAccess) {
-      return NextResponse.json({ error: "Truy cập bị từ chối" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Truy cập bị từ chối" },
+        { status: 403 }
+      );
     }
 
-    const userName = String(session?.user?.name || "");
+    const userName = String(session.user.name || "");
     const senderRole = userRole === "admin" ? "admin" : "user";
+    const shouldAutoReply = senderRole === "user" && conv.type === "user_admin";
 
     await db.insert(chatMessages).values({
       conversationId,
       senderId: userId,
       senderName: userName,
       senderRole,
-      content: content.trim(),
+      content,
       isRead: false,
       createdAt: now,
     });
 
-    const unreadIncrement = userRole === "admin" ? 1 : 0;
-
     await db
       .update(chatConversations)
       .set({
-        lastMessage: content.trim(),
+        lastMessage: content,
         lastMessageAt: now,
-        unreadCount: sql`unread_count + ${unreadIncrement}`,
+        unreadCount: shouldAutoReply ? sql`unread_count + 1` : sql`unread_count`,
         updatedAt: now,
       })
       .where(eq(chatConversations.id, conversationId));
 
-    if (userRole === "user") {
+    if (shouldAutoReply) {
       const { processAiAutoReply } = await import("@/lib/chat-ai");
-      await processAiAutoReply(conversationId, content.trim());
+      await processAiAutoReply(conversationId, content);
     }
 
     const updatedMessages = await db
@@ -149,11 +172,17 @@ export async function POST(
       .orderBy(chatMessages.createdAt);
 
     return NextResponse.json(
-      { messages: updatedMessages, message: updatedMessages[updatedMessages.length - 1] },
+      {
+        messages: updatedMessages,
+        message: updatedMessages[updatedMessages.length - 1],
+      },
       { status: 201 }
     );
   } catch (error) {
     console.error("Lỗi gửi tin nhắn:", error);
-    return NextResponse.json({ error: "Không thể gửi tin nhắn" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Không thể gửi tin nhắn" },
+      { status: 500 }
+    );
   }
 }
