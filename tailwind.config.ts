@@ -184,6 +184,11 @@ const config = {
       blue: colors.blue,
       purple: colors.purple,
       cyan: colors.cyan,
+      sky: colors.sky,
+      violet: colors.violet,
+      fuchsia: colors.fuchsia,
+      pink: colors.pink,
+      lime: colors.lime,
       transparent: "transparent",
     },
 
