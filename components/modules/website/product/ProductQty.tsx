@@ -107,6 +107,21 @@ export default function ProductQty({
         (p: CartItem) => p._uid === _uid
       );
 
+      const productType = (product.productType as "physical" | "digital" | "ai_account" | "source_code" | "service") || "digital";
+      
+      let accountVariant = undefined;
+      if (productType === "ai_account") {
+        const attrs = selectedOption.attributes || [];
+        const typeAttr = attrs.find((a: any) => a.key?.toLowerCase()?.includes("loại") || String(a.key).includes("Type") || String(a.key).includes("Tài khoản"));
+        const durationAttr = attrs.find((a: any) => a.key?.toLowerCase()?.includes("thời hạn") || a.key?.toLowerCase()?.includes("ngày") || String(a.key).includes("Duration"));
+        
+        accountVariant = {
+          type: typeAttr ? String(typeAttr.value) : "Tài khoản AI",
+          durationDays: durationAttr ? Number(durationAttr.value) || 30 : 30,
+          label: selectedOption.option || product.name,
+        };
+      }
+
       const payload = {
         product: String(sellerProductId),
         sellerProductId,
@@ -127,9 +142,9 @@ export default function ProductQty({
         brand: product.brand?.name || "KHOMANGUON",
         likes: [],
         _uid,
-        productType: (product.productType as "physical" | "digital" | "ai_account" | "source_code" | "service") || "digital",
+        productType,
         attributes: selectedOption.attributes || [],
-        accountVariant: undefined,
+        accountVariant,
       };
 
       if (exist) {
@@ -185,6 +200,21 @@ export default function ProductQty({
 
       const _uid = `${sellerProductId}_${selectedVariantId}`;
 
+      const productType = (product.productType as "physical" | "digital" | "ai_account" | "source_code" | "service") || "digital";
+      
+      let accountVariant = undefined;
+      if (productType === "ai_account") {
+        const attrs = selectedOption.attributes || [];
+        const typeAttr = attrs.find((a: any) => a.key?.toLowerCase()?.includes("loại") || String(a.key).includes("Type") || String(a.key).includes("Tài khoản"));
+        const durationAttr = attrs.find((a: any) => a.key?.toLowerCase()?.includes("thời hạn") || a.key?.toLowerCase()?.includes("ngày") || String(a.key).includes("Duration"));
+        
+        accountVariant = {
+          type: typeAttr ? String(typeAttr.value) : "Tài khoản AI",
+          durationDays: durationAttr ? Number(durationAttr.value) || 30 : 30,
+          label: selectedOption.option || product.name,
+        };
+      }
+
       const payload = {
         product: String(sellerProductId),
         sellerProductId,
@@ -205,9 +235,9 @@ export default function ProductQty({
         brand: product.brand?.name || "KHOMANGUON",
         likes: [],
         _uid,
-        productType: (product.productType as "physical" | "digital" | "ai_account" | "source_code" | "service") || "digital",
+        productType,
         attributes: selectedOption.attributes || [],
-        accountVariant: undefined,
+        accountVariant,
       };
 
       // Xóa giỏ hàng cũ và thêm sản phẩm mới (mua ngay = 1 sản phẩm)
@@ -311,7 +341,7 @@ export default function ProductQty({
       </div>
 
       {/* Nút mua hàng */}
-      <div className="flex-1 flex gap-3">
+      <div className="w-full lg:flex-1 flex flex-col sm:flex-row gap-3">
         {/* Nút Thêm vào giỏ */}
         <m.button
           onClick={addTocartHandler}
