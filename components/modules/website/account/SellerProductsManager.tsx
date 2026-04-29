@@ -1109,14 +1109,29 @@ export default function SellerProductsManager() {
               onChange={(event) => setVariantPrice(parseNumber(event.target.value, 0))}
               className="h-11 rounded-xl"
             />
-            <Input
-              type="number"
-              min={0}
-              placeholder="Tồn kho biến thể"
-              value={variantStock}
-              onChange={(event) => setVariantStock(Math.max(0, Math.round(parseNumber(event.target.value, 0))))}
-              className="h-11 rounded-xl"
-            />
+            <div className="relative">
+              {variantStock >= 999999 ? (
+                <div className="flex h-11 w-full items-center rounded-xl border border-slate-200 bg-slate-50 pl-3 pr-20 text-sm font-medium text-slate-500">
+                  Không giới hạn (∞)
+                </div>
+              ) : (
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="Tồn kho biến thể"
+                  value={variantStock}
+                  onChange={(event) => setVariantStock(Math.max(0, Math.round(parseNumber(event.target.value, 0))))}
+                  className="h-11 rounded-xl pr-20"
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => setVariantStock(variantStock >= 999999 ? 1 : 999999)}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-800"
+              >
+                {variantStock >= 999999 ? "Nhập số" : "Vô hạn"}
+              </button>
+            </div>
           </div>
 
           {(selectedSubcategory?.variantSchema || []).length > 0 && (
@@ -1191,7 +1206,7 @@ export default function SellerProductsManager() {
                           {variant.price.toLocaleString("vi-VN")}đ
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-700">
-                          Tồn: {variant.stock}
+                          Tồn: {variant.stock >= 999999 ? "∞ (Không giới hạn)" : variant.stock}
                         </span>
                       </div>
                       {variant.attributes.length > 0 && (
@@ -1511,7 +1526,7 @@ export default function SellerProductsManager() {
                           {Number(item.basePrice || 0).toLocaleString("vi-VN")}đ
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-700">
-                          Tồn: {item.stock}
+                          Tồn: {item.stock >= 999999 ? "∞ (Không giới hạn)" : item.stock}
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 font-semibold text-violet-700">
                           <Tag className="h-2.5 w-2.5" />
