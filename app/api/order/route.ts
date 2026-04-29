@@ -727,7 +727,7 @@ export async function GET(request: Request) {
         return badRequest("user không hợp lệ");
       }
 
-      if (userId !== sessionUserId) {
+      if (userId !== sessionUserId && sessionUser.role !== "admin") {
         return unauthorized("Bạn không có quyền truy cập danh sách đơn hàng này");
       }
 
@@ -735,6 +735,16 @@ export async function GET(request: Request) {
         .select()
         .from(orders)
         .where(eq(orders.userId, userId))
+        .orderBy(desc(orders.createdAt));
+
+      const mappedRows = await Promise.all(rows.map((item) => mapOrder(item)));
+      return ok({ data: mappedRows });
+    }
+
+    if (sessionUser.role === "admin") {
+      const rows = await db
+        .select()
+        .from(orders)
         .orderBy(desc(orders.createdAt));
 
       const mappedRows = await Promise.all(rows.map((item) => mapOrder(item)));
