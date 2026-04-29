@@ -6,6 +6,8 @@ import FeaturesProducts from "@/components/modules/website/home/FeaturesProducts
 import TopCategories from "@/components/modules/website/home/TopCategories";
 import TrustBadges from "@/components/modules/website/home/TrustBadges";
 import NewsletterCTA from "@/components/modules/website/home/NewsletterCTA";
+import CategoryProductsSection from "@/components/modules/website/home/CategoryProductsSection";
+import { Code, User, Bot, Globe, Cloud } from "lucide-react";
 import * as React from "react";
 import Script from "next/script";
 import { Metadata } from "next";
@@ -133,6 +135,14 @@ export default async function Home() {
       <TrustBadges />
       <FeaturesProducts />
       <BestSellersProducts />
+      
+      {/* Các chuyên mục sản phẩm theo yêu cầu */}
+      <CategoryProductsSection title="Mã Nguồn" categorySlug="ma-nguon" icon={<Code className="h-4 w-4" />} />
+      <CategoryProductsSection title="Tài Khoản" categorySlug="tai-khoan" icon={<User className="h-4 w-4" />} />
+      <CategoryProductsSection title="Tài Khoản AI" categorySlug="tai-khoan-ai" icon={<Bot className="h-4 w-4" />} />
+      <CategoryProductsSection title="MMO" categorySlug="mmo" icon={<Globe className="h-4 w-4" />} />
+      <CategoryProductsSection title="SaaS" categorySlug="saas" icon={<Cloud className="h-4 w-4" />} />
+
       <BrandList />
       <NewsletterCTA />
     </>
