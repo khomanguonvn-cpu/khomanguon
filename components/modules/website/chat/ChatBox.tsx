@@ -124,28 +124,54 @@ export default function ChatBox() {
 
   return (
     <>
-      {/* Floating Button */}
-      <button
-        onClick={toggleChat}
-        className={cn(
-          "fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary-600 text-white shadow-lg hover:bg-primary-700 transition-all duration-300 flex items-center justify-center",
-          unreadTotal > 0 && "animate-pulse"
-        )}
-        aria-label="Mở chat"
-      >
-        {isOpen && !isMinimized ? (
-          <Minimize2 className="w-6 h-6" />
-        ) : (
-          <>
-            <MessageCircle className="w-6 h-6" />
-            {unreadTotal > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                {unreadTotal > 9 ? "9+" : unreadTotal}
-              </span>
-            )}
-          </>
-        )}
-      </button>
+      {/* Floating Button Group */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 items-end">
+        {/* Full Chat Page Button */}
+        <motion.button
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => window.open("/chat", "_blank")}
+          className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 text-indigo-400 shadow-xl flex items-center justify-center transition-all group"
+          title="Mở giao diện Nexus Chat"
+        >
+          <Zap className="w-5 h-5 fill-indigo-400 group-hover:fill-indigo-300" />
+        </motion.button>
+
+        {/* Traditional Floating Button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleChat}
+          className={cn(
+            "w-14 h-14 rounded-2xl bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 flex items-center justify-center transition-all duration-300 relative overflow-hidden group",
+            unreadTotal > 0 && "ring-4 ring-indigo-500/20"
+          )}
+          aria-label="Mở chat"
+        >
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          {isOpen && !isMinimized ? (
+            <Minimize2 className="w-6 h-6" />
+          ) : (
+            <>
+              <MessageCircle className="w-6 h-6" />
+              <AnimatePresence>
+                {unreadTotal > 0 && (
+                  <motion.span 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="absolute -top-1 -right-1 w-6 h-6 bg-rose-500 border-2 border-white text-white text-[10px] rounded-lg flex items-center justify-center font-black shadow-sm"
+                  >
+                    {unreadTotal > 9 ? "9+" : unreadTotal}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </>
+          )}
+        </motion.button>
+      </div>
 
       {/* Chat Window */}
       {isOpen && !isMinimized && (
