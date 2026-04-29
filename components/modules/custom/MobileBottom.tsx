@@ -34,7 +34,7 @@ export default function MobileBottom() {
       isAction: true,
     },
     {
-      href: "/categories",
+      href: "/products",
       label: "Danh mục",
       icon: Grid3X3,
     },
