@@ -295,7 +295,6 @@ toast.custom(<Toast message={t(language, "walletNoBankAccount")} status="error" 
       if (checkoutUrl) {
         const { open } = usePayOS({
           RETURN_URL: returnUrl,
-          ELEMENT_ID: "payos-checkout-iframe",
           CHECKOUT_URL: checkoutUrl,
           onSuccess: (event) => {
             toast.custom(<Toast message={t(language, "walletDepositSuccess")} status="success" />);
@@ -519,7 +518,6 @@ toast.custom(
 
   return (
     <>
-      <div id="payos-checkout-iframe"></div>
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         {/* ───────── WALLET HEADER ───────── */}
         <div className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-400 p-6 text-white">
