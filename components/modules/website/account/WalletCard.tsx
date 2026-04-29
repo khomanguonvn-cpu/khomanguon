@@ -293,23 +293,8 @@ toast.custom(<Toast message={t(language, "walletNoBankAccount")} status="error" 
 
       const checkoutUrl = response.data?.checkoutUrl || response.data?.data?.checkoutUrl;
       if (checkoutUrl) {
-        const { open } = usePayOS({
-          RETURN_URL: returnUrl,
-          CHECKOUT_URL: checkoutUrl,
-          onSuccess: (event) => {
-            toast.custom(<Toast message={t(language, "walletDepositSuccess")} status="success" />);
-            setDepositAmount("");
-            activatePanel("history");
-            void loadWallet();
-          },
-          onCancel: (event) => {
-            toast.custom(<Toast message={t(language, "walletDepositFail") || "Đã hủy nạp tiền"} status="error" />);
-          },
-          onExit: (event) => {
-            // User closed the popup
-          }
-        });
-        open();
+        // Use native redirect for better mobile compatibility and layout stability
+        window.location.href = checkoutUrl;
         return;
       }
 
