@@ -54,7 +54,7 @@ export default function CartItem({ item }: { item: TCartItem }) {
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shadow-sm"
           >
             <Image
-              src={item.images?.[0] || "/assets/images/placeholders/placeholder.png"}
+              src={Array.isArray(item.images) ? (item.images[0] || "/assets/images/placeholders/placeholder.png") : (item.images || "/assets/images/placeholders/placeholder.png")}
               alt={item.name}
               width={96}
               height={96}

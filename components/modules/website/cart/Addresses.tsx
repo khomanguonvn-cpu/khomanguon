@@ -321,7 +321,7 @@ export default function DigitalCheckout() {
                 >
                   <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-white border border-slate-200 flex-shrink-0">
                     <Image
-                      src={item?.images || "/assets/images/logo.svg"}
+                      src={Array.isArray(item?.images) ? (item?.images[0] || "/assets/images/logo.svg") : (item?.images || "/assets/images/logo.svg")}
                       alt=""
                       className="w-full h-full object-cover"
                       width={56}
