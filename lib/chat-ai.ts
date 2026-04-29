@@ -4,12 +4,13 @@ import { chatMessages, chatConversations } from "@/lib/schema";
 import { eq, sql } from "drizzle-orm";
 
 export async function processAiAutoReply(conversationId: number, userMessage: string) {
+  console.log(`[AI-CHAT] Starting auto reply for conv: ${conversationId}`);
   try {
     const config = await getNewsAiConfig();
     const apiKey = config.mistralApiKey;
     if (!apiKey) {
-      console.warn("No Mistral API key found for auto-reply");
-      return;
+      console.warn("[AI-CHAT] No Mistral API key found in DB");
+      throw new Error("Missing Mistral API Key");
     }
 
     const systemPrompt = `Bạn là AI KHOMANGUON, một trợ lý ảo hỗ trợ khách hàng của nền tảng KhoMaNguon.IO.VN (Kho Mã Nguồn).
