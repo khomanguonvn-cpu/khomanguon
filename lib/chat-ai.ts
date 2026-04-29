@@ -40,9 +40,11 @@ Bạn trả lời ngắn gọn, thân thiện và chuyên nghiệp.`;
     }
 
     const data = await response.json();
-    const aiContent = data.choices?.[0]?.message?.content;
+    let aiContent = data.choices?.[0]?.message?.content;
 
-    if (!aiContent) return;
+    if (!aiContent) {
+      aiContent = "Xin chào! Hiện tại hệ thống AI KHOMANGUON đang bận một chút hoặc có sự cố kết nối. Bạn vui lòng thử lại sau giây lát hoặc để lại lời nhắn, Admin sẽ hỗ trợ bạn sớm nhất có thể nhé!";
+    }
 
     const aiNow = new Date().toISOString();
     await db.insert(chatMessages).values({
@@ -66,5 +68,20 @@ Bạn trả lời ngắn gọn, thân thiện và chuyên nghiệp.`;
 
   } catch (error) {
     console.error("Failed to auto-reply with AI:", error);
+    // Fallback on catch
+    try {
+      const aiNow = new Date().toISOString();
+      await db.insert(chatMessages).values({
+        conversationId,
+        senderId: 0,
+        senderName: "AI KHOMANGUON",
+        senderRole: "admin",
+        content: "Chào bạn, hệ thống AI KHOMANGUON đang gặp chút gián đoạn kết nối. Chúng tôi đã ghi nhận tin nhắn của bạn và sẽ phản hồi sớm nhất!",
+        isRead: false,
+        createdAt: aiNow,
+      });
+    } catch (e) {
+      console.error("Critical failure in chat fallback:", e);
+    }
   }
 }
