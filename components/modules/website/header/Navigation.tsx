@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { TbCategory2 } from "react-icons/tb";
-import { ChevronDown, Zap } from "lucide-react";
+import { TbCategory2, TbLayoutGrid } from "react-icons/tb";
+import { ChevronDown, Zap, Home, ShoppingBag, BookOpen, Phone, Newspaper, Tag, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSelector } from "react-redux";
@@ -14,17 +14,9 @@ import { usePathname } from "next/navigation";
 
 export default function Navigation() {
   const { language } = useSelector((state: IRootState) => state.settings);
-  const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     const getCategories = async () => {
@@ -32,65 +24,62 @@ export default function Navigation() {
         const response = await axios.get("/api/categories");
         setCategories(response.data.data || []);
       } catch {
-        // Lỗi tải dữ liệu
+        // silence
       }
     };
     getCategories();
   }, []);
 
   const fallbackCats = [
-    { name: t(language, "navAccountLicense"), href: "/products?category=tai-khoan" },
-    { name: t(language, "navSourceCode"), href: "/products?category=ma-nguon" },
-    { name: t(language, "navAiTools"), href: "/products?category=ai-tools" },
-    { name: t(language, "navSaaS"), href: "/products?category=saas" },
-    { name: t(language, "navGameMmo"), href: "/products?category=game-mmo" },
-    { name: t(language, "navTemplate"), href: "/products?category=template" },
+    { name: "Tài khoản & License", href: "/products?category=tai-khoan", emoji: "🔑" },
+    { name: "Mã nguồn", href: "/products?category=ma-nguon", emoji: "💻" },
+    { name: "AI Tools", href: "/products?category=ai-tools", emoji: "🤖" },
+    { name: "SaaS", href: "/products?category=saas", emoji: "☁️" },
+    { name: "Game & MMO", href: "/products?category=game-mmo", emoji: "🎮" },
+    { name: "Templates", href: "/products?category=template", emoji: "📐" },
   ];
 
   const navLinks = [
-    { href: "/", label: t(language, "navHome") },
-    { href: "/products", label: t(language, "navProducts") },
-    { href: "/tin-tuc", label: t(language, "navNews") },
-    { href: "/guide", label: t(language, "navGuide") },
-    { href: "/contact", label: t(language, "navContact") },
+    { href: "/", label: "Trang chủ", icon: Home },
+    { href: "/products", label: "Sản phẩm", icon: ShoppingBag },
+    { href: "/tin-tuc", label: "Tin tức", icon: Newspaper },
+    { href: "/guide", label: "Hướng dẫn", icon: BookOpen },
+    { href: "/contact", label: "Liên hệ", icon: Phone },
   ];
 
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
+
   return (
-    <div
-      className={cn(
-        "w-full bg-white transition-all duration-300 sticky top-0 z-40",
-        scrolled && "shadow-md"
-      )}
-    >
+    <div className="w-full bg-white border-t border-slate-100">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-12 lg:h-14 gap-4">
+        <div className="flex items-center h-11 lg:h-12 gap-1">
+
           {/* Category Dropdown */}
-          <div className={cn("relative", isHomePage && "lg:hidden")}>
+          <div className="relative">
             <button
               onClick={() => setActiveDropdown(!activeDropdown)}
               aria-expanded={activeDropdown}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200",
-                "bg-primary-600 text-white hover:bg-primary-700",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 h-9",
+                "bg-primary-600 text-white hover:bg-primary-700 active:scale-95",
                 activeDropdown && "bg-primary-700"
               )}
             >
-              <TbCategory2 className="h-4 w-4" />
-              <span className="hidden sm:inline">{t(language, "navCategories")}</span>
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 transition-transform duration-200",
-                  activeDropdown && "rotate-180"
-                )}
-              />
+              <TbLayoutGrid className="h-4 w-4" />
+              <span className="hidden sm:inline">{t(language, "navCategories") || "Danh mục"}</span>
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", activeDropdown && "rotate-180")} />
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown */}
             {activeDropdown && (
-              <div className="absolute top-full left-0 mt-2 w-64 sm:w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 animate-fade-in-scale">
-                <div className="py-2 max-h-[420px] overflow-y-auto">
-                  {categories.length > 0 ? (
-                    categories.map((cat, idx) => (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(false)} />
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50">
+                  <div className="py-2 max-h-[70vh] overflow-y-auto custom-scroll">
+                    {(categories.length > 0 ? categories : []).map((cat, idx) => (
                       <Link
                         key={cat._id || `cat-${idx}`}
                         href={`/categories/${cat.slug}/products`}
@@ -101,82 +90,73 @@ export default function Navigation() {
                           <Image
                             src={cat.image}
                             alt={cat.name}
-                            className="w-9 h-9 rounded-lg object-cover bg-slate-100"
-                            width={36}
-                            height={36}
+                            className="w-8 h-8 rounded-lg object-cover bg-slate-100 shrink-0"
+                            width={32}
+                            height={32}
                             unoptimized
                           />
                         ) : (
-                          <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center shrink-0">
-                            <span className="text-xs font-bold text-primary-600">
-                              {cat.name.charAt(0)}
-                            </span>
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center shrink-0">
+                            <span className="text-sm font-bold text-primary-600">{cat.name.charAt(0)}</span>
                           </div>
                         )}
-                        <span className="flex-1">{cat.name}</span>
+                        <span className="flex-1 font-medium">{cat.name}</span>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
                       </Link>
-                    ))
-                  ) : (
-                    <>
-                      {fallbackCats.map((cat) => (
-                        <Link
-                          key={cat.href}
-                          href={cat.href}
-                          onClick={() => setActiveDropdown(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
-                        >
-                          <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center shrink-0">
-                            <span className="text-xs font-bold text-primary-600">
-                              {cat.name.charAt(0)}
-                            </span>
-                          </div>
-                          <span className="flex-1">{cat.name}</span>
-                        </Link>
-                      ))}
-                    </>
-                  )}
-                  <div className="border-t border-slate-100 mt-1 pt-1">
-                    <Link
-                      href="/products"
-                      onClick={() => setActiveDropdown(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 hover:bg-primary-50 transition-colors"
-                    >
-                      {t(language, "navSeeAllProducts")}
-                    </Link>
+                    ))}
+                    {categories.length === 0 && fallbackCats.map((cat) => (
+                      <Link
+                        key={cat.href}
+                        href={cat.href}
+                        onClick={() => setActiveDropdown(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-base">
+                          {cat.emoji}
+                        </div>
+                        <span className="flex-1 font-medium">{cat.name}</span>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
+                      </Link>
+                    ))}
+                    <div className="border-t border-slate-100 mt-1 pt-1 mx-2">
+                      <Link
+                        href="/products"
+                        onClick={() => setActiveDropdown(false)}
+                        className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-primary-600 hover:bg-primary-50 transition-colors"
+                      >
+                        Xem tất cả sản phẩm
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Click overlay to close */}
-            {activeDropdown && (
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setActiveDropdown(false)}
-              />
+              </>
             )}
           </div>
 
           {/* Nav Links */}
-          <nav className="hidden md:flex items-center gap-1 flex-1">
+          <nav className="hidden md:flex items-center gap-0.5 flex-1 overflow-x-auto no-scrollbar">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="nav-link px-3 py-2 text-sm font-medium text-slate-600 hover:text-primary-600"
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-150 whitespace-nowrap",
+                  isActive(link.href)
+                    ? "text-primary-600 bg-primary-50 font-semibold"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                )}
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Auto Digital Delivery Badge */}
-          <div className="hidden lg:flex items-center gap-2 ml-auto">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200">
-              <Zap className="h-3.5 w-3.5 text-amber-500" />
-              <span className="text-xs font-semibold text-amber-700">
-                {t(language, "autoDigitalDelivery")}
-              </span>
+          {/* Right side badge */}
+          <div className="hidden lg:flex items-center gap-2 ml-auto shrink-0">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
+              <Zap className="h-3 w-3 text-amber-500" />
+              <span className="text-[11px] font-semibold text-amber-700">Giao hàng tự động 24/7</span>
             </div>
           </div>
         </div>

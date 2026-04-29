@@ -27,45 +27,46 @@ export default function SectionHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
+        "flex items-center justify-between gap-4",
         className
       )}
     >
-      <div className="min-w-0">
-        <div className="mb-2 flex flex-wrap items-center gap-3">
+      {/* Left: Badge + Title */}
+      <div className="flex items-center gap-3 min-w-0">
+        {/* Accent bar */}
+        <div className="h-6 w-1 rounded-full bg-primary-600 shrink-0" />
+
+        <div className="min-w-0">
           {badge && (
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
-              {badgeIcon && <span className="flex-shrink-0">{badgeIcon}</span>}
-              {badge}
-            </span>
+            <div className="mb-0.5 flex items-center gap-1.5">
+              {badgeIcon && <span className="flex-shrink-0 text-primary-600">{badgeIcon}</span>}
+              <span className="text-xs font-semibold text-primary-600 uppercase tracking-wider">
+                {badge}
+              </span>
+            </div>
           )}
           <h2
             className={cn(
-              "text-2xl font-black tracking-tight text-slate-950 md:text-3xl",
+              "text-lg sm:text-xl font-black tracking-tight text-slate-900 leading-tight",
               titleClassName
             )}
           >
             {title}
           </h2>
-        </div>
-
-        {subtitle && (
-          <p className="max-w-2xl text-sm leading-6 text-slate-500">{subtitle}</p>
-        )}
-
-        <div className="mt-4 flex items-center gap-0">
-          <div className="h-1 w-14 rounded-full bg-primary-600" />
-          <div className="h-px flex-1 bg-slate-200" />
+          {subtitle && (
+            <p className="mt-0.5 text-xs leading-5 text-slate-500 line-clamp-1">{subtitle}</p>
+          )}
         </div>
       </div>
 
+      {/* Right: View all */}
       {viewAllHref && viewAllLabel && (
         <Link
           href={viewAllHref}
-          className="group inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm transition-all duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700"
+          className="group inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors"
         >
           <span>{viewAllLabel}</span>
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </Link>
       )}
     </div>
