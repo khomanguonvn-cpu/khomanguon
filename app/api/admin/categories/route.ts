@@ -35,10 +35,30 @@ export async function POST(request: NextRequest) {
     if (!sessionUser || sessionUser.role !== "admin") return forbidden("Chỉ dành cho Quản trị viên");
 
     const body = await request.json();
+    const now = new Date().toISOString();
+
+    if (body.type === "subcategory") {
+      const { categoryId, name, slug, description, sortOrder, listingMode, variantSchemaJson } = body;
+      if (!categoryId || !name || !slug) return badRequest("Thiếu danh mục cha, tên hoặc đường dẫn");
+
+      await db.insert(productSubcategories).values({
+        categoryId,
+        name,
+        slug,
+        description: description || "",
+        sortOrder: sortOrder || 0,
+        listingMode: listingMode || "digital_account",
+        variantSchemaJson: variantSchemaJson || "[]",
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      });
+      return ok({ success: true });
+    }
+
     const { name, slug, description, sortOrder } = body;
     if (!name || !slug) return badRequest("Thiếu tên hoặc đường dẫn (slug)");
 
-    const now = new Date().toISOString();
     await db.insert(productCategories).values({
       name, slug, description: description || "", sortOrder: sortOrder || 0,
       isActive: true, createdAt: now, updatedAt: now,

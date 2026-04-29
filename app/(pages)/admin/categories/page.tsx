@@ -35,7 +35,8 @@ export default function AdminCategoriesPage() {
   const [catForm, setCatForm] = useState({ name: "", slug: "", description: "", sortOrder: 0 });
   const [editCat, setEditCat] = useState<Category | null>(null);
   const [editSub, setEditSub] = useState<{ catId: number; sub: Subcategory } | null>(null);
-  const [subForm, setSubForm] = useState({ name: "", slug: "", description: "", sortOrder: 0 });
+  const [createSub, setCreateSub] = useState<number | null>(null);
+  const [subForm, setSubForm] = useState({ name: "", slug: "", description: "", sortOrder: 0, listingMode: "digital_account" });
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -77,6 +78,12 @@ export default function AdminCategoriesPage() {
     if (!editSub) return;
     const res = await fetch("/api/admin/categories", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editSub.sub.id, type: "subcategory", ...subForm }) });
     if (res.ok) { setEditSub(null); fetchCategories(); }
+  };
+
+  const handleCreateSub = async () => {
+    if (!createSub) return;
+    const res = await fetch("/api/admin/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ categoryId: createSub, type: "subcategory", ...subForm }) });
+    if (res.ok) { setCreateSub(null); setSubForm({ name: "", slug: "", description: "", sortOrder: 0, listingMode: "digital_account" }); fetchCategories(); }
   };
 
   return (
@@ -127,6 +134,7 @@ export default function AdminCategoriesPage() {
                     <p className="text-xs text-slate-500">{cat.subcategories.length} danh mục con</p>
                   </div>
                   <div className="flex gap-1">
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => { setCreateSub(cat.id); setSubForm({ name: "", slug: "", description: "", sortOrder: 0, listingMode: "digital_account" }); setExpanded(new Set(expanded).add(cat.id)); }}><Plus className="h-3 w-3 mr-1" /> Thêm menu con</Button>
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setEditCat(cat)}><Pencil className="h-3 w-3" /></Button>
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-500" onClick={() => handleDeleteCat(cat.id)}><Trash2 className="h-3 w-3" /></Button>
                   </div>
@@ -160,7 +168,7 @@ export default function AdminCategoriesPage() {
                             <Badge variant="outline" className="text-xs">{sub.listingMode}</Badge>
                           </div>
                         </div>
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => { setEditSub({ catId: cat.id, sub }); setSubForm({ name: sub.name, slug: sub.slug, description: sub.description, sortOrder: sub.sortOrder }); }}>
+                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => { setEditSub({ catId: cat.id, sub }); setSubForm({ name: sub.name, slug: sub.slug, description: sub.description, sortOrder: sub.sortOrder, listingMode: sub.listingMode || "digital_account" }); }}>
                           <Pencil className="h-3 w-3" />
                         </Button>
                       </div>
@@ -172,14 +180,41 @@ export default function AdminCategoriesPage() {
                 {editSub && editSub.catId === cat.id && (
                   <div className="bg-slate-50 px-4 py-3 pl-12 border-b border-slate-100">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <Input placeholder="Tên" value={subForm.name} onChange={e => setSubForm({ ...subForm, name: e.target.value })} />
+                      <Input placeholder="Tên menu con" value={subForm.name} onChange={e => setSubForm({ ...subForm, name: e.target.value })} />
                       <Input placeholder="Slug" value={subForm.slug} onChange={e => setSubForm({ ...subForm, slug: e.target.value })} />
                       <Input placeholder="Mô tả" value={subForm.description} onChange={e => setSubForm({ ...subForm, description: e.target.value })} />
                       <Input placeholder="Thứ tự" type="number" value={subForm.sortOrder} onChange={e => setSubForm({ ...subForm, sortOrder: parseInt(e.target.value) || 0 })} />
+                      <select className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" value={subForm.listingMode} onChange={e => setSubForm({ ...subForm, listingMode: e.target.value })}>
+                        <option value="digital_account">Tài khoản số (AI, v.v.)</option>
+                        <option value="digital_license">Key / License / Source code</option>
+                        <option value="service_package">Gói dịch vụ</option>
+                      </select>
                     </div>
                     <div className="mt-3 flex gap-2">
                       <Button size="sm" onClick={handleUpdateSub}>Lưu</Button>
                       <Button size="sm" variant="outline" onClick={() => setEditSub(null)}>Hủy</Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Create Subcategory */}
+                {createSub === cat.id && (
+                  <div className="bg-indigo-50/50 px-4 py-3 pl-12 border-b border-indigo-100">
+                    <h4 className="text-sm font-semibold mb-2 text-indigo-700">Thêm menu con mới</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input placeholder="Tên menu con" value={subForm.name} onChange={e => setSubForm({ ...subForm, name: e.target.value })} />
+                      <Input placeholder="Slug" value={subForm.slug} onChange={e => setSubForm({ ...subForm, slug: e.target.value })} />
+                      <Input placeholder="Mô tả" value={subForm.description} onChange={e => setSubForm({ ...subForm, description: e.target.value })} />
+                      <Input placeholder="Thứ tự" type="number" value={subForm.sortOrder} onChange={e => setSubForm({ ...subForm, sortOrder: parseInt(e.target.value) || 0 })} />
+                      <select className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" value={subForm.listingMode} onChange={e => setSubForm({ ...subForm, listingMode: e.target.value })}>
+                        <option value="digital_account">Tài khoản số (AI, v.v.)</option>
+                        <option value="digital_license">Key / License / Source code</option>
+                        <option value="service_package">Gói dịch vụ</option>
+                      </select>
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <Button size="sm" onClick={handleCreateSub}>Tạo menu con</Button>
+                      <Button size="sm" variant="outline" onClick={() => setCreateSub(null)}>Hủy</Button>
                     </div>
                   </div>
                 )}

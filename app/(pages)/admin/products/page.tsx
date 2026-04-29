@@ -104,10 +104,10 @@ export default function AdminProductsPage() {
             className="bg-transparent outline-none text-sm flex-1"
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-600 text-white font-semibold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/25">
+        <Link href="/account/seller/products" className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-600 text-white font-semibold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/25">
           <Plus className="h-4 w-4" />
           <span>Thêm sản phẩm</span>
-        </button>
+        </Link>
       </div>
 
       {/* Table */}
