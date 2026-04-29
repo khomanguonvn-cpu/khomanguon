@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   Sheet,
@@ -116,7 +116,7 @@ export default function IconsGroup() {
 
       {/* Auth Dialog */}
       <Dialog open={authOpen} onOpenChange={setAuthOpen}>
-        <DialogContent className="max-h-[calc(100dvh-0.75rem)] overflow-y-auto p-3 sm:max-w-lg sm:p-6">
+        <DialogContent className="w-[95vw] max-h-[85vh] overflow-y-auto rounded-2xl p-4 sm:max-w-lg sm:p-6">
           <DialogHeader className="pr-8">
             <DialogTitle className="text-xl font-bold">
               {t(language, "authTitle")}

@@ -362,7 +362,7 @@ export default function ProductQty({
           </span>
         </div>
 
-        <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:min-w-[420px]">
+        <div className="flex w-full gap-2 sm:gap-3 lg:w-auto lg:min-w-[420px]">
           <m.button
             type="button"
             onClick={addTocartHandler}
@@ -370,7 +370,7 @@ export default function ProductQty({
             whileHover={!isOutOfStock ? { y: -1 } : {}}
             whileTap={!isOutOfStock ? { scale: 0.98 } : {}}
             className={cn(
-              "flex h-12 flex-1 items-center justify-center gap-2 rounded-lg border px-4 text-sm font-black transition-all duration-200",
+              "flex h-12 flex-1 items-center justify-center gap-1.5 sm:gap-2 rounded-lg border px-2 sm:px-4 text-xs sm:text-sm font-black transition-all duration-200",
               isOutOfStock
                 ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
                 : justAdded
@@ -385,7 +385,7 @@ export default function ProductQty({
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1.5 sm:gap-2"
                 >
                   <Check className="h-4 w-4" />
                   {labels.added}
@@ -396,7 +396,7 @@ export default function ProductQty({
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1.5 sm:gap-2"
                 >
                   <ShoppingBag className="h-4 w-4" />
                   {labels.addToCart}
@@ -412,7 +412,7 @@ export default function ProductQty({
             whileHover={!isOutOfStock ? { y: -1 } : {}}
             whileTap={!isOutOfStock ? { scale: 0.98 } : {}}
             className={cn(
-              "flex h-12 flex-1 items-center justify-center gap-2 rounded-lg px-4 text-sm font-black text-white shadow-sm transition-all duration-200",
+              "flex h-12 flex-1 items-center justify-center gap-1.5 sm:gap-2 rounded-lg px-2 sm:px-4 text-xs sm:text-sm font-black text-white shadow-sm transition-all duration-200",
               isOutOfStock || buyingLoading
                 ? "cursor-not-allowed bg-slate-300 shadow-none"
                 : "bg-slate-950 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary-600/20"
