@@ -2,6 +2,7 @@
 const nextConfig = {
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL || "https://khomanguon.io.vn",
+    AUTH_URL: process.env.AUTH_URL || "https://khomanguon.io.vn",
     NEXT_PUBLIC_SERVER_URL: process.env.NEXT_PUBLIC_SERVER_URL || "https://khomanguon.io.vn",
     AUTH_SECRET: process.env.AUTH_SECRET || "814db8a19310de42cafc16ffa39526e5be5b384c99fa2f468a222f12ab8b6afe",
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "814db8a19310de42cafc16ffa39526e5be5b384c99fa2f468a222f12ab8b6afe",
