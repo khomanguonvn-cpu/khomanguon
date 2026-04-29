@@ -92,25 +92,32 @@ function ensureVariantsMatchTemplate(
       const matched = variant.attributes.find((attribute) => attribute.key === field.key);
 
       if (field.required && !matched) {
-        return `Biến thể "${variant.label}" thiếu thuộc tính bắt buộc: ${field.key}`;
+        return `Biến thể "${variant.label}" thiếu thuộc tính bắt buộc: ${field.label || field.key}`;
       }
 
       if (!matched) {
         continue;
       }
 
+      if (matched.value === "") {
+        if (field.required) {
+          return `Biến thể "${variant.label}" thiếu thuộc tính bắt buộc: ${field.label || field.key}`;
+        }
+        continue;
+      }
+
       if (field.type === "number" && typeof matched.value !== "number") {
-        return `Thuộc tính ${field.key} của biến thể "${variant.label}" phải là số`;
+        return `Thuộc tính ${field.label || field.key} của biến thể "${variant.label}" phải là số`;
       }
 
       if (field.type === "text" && typeof matched.value !== "string") {
-        return `Thuộc tính ${field.key} của biến thể "${variant.label}" phải là chuỗi`;
+        return `Thuộc tính ${field.label || field.key} của biến thể "${variant.label}" phải là chuỗi`;
       }
 
       if (field.options?.length) {
         const found = field.options.some((option) => String(option) === String(matched.value));
         if (!found) {
-          return `Thuộc tính ${field.key} của biến thể "${variant.label}" không nằm trong danh sách cho phép`;
+          return `Thuộc tính ${field.label || field.key} của biến thể "${variant.label}" không nằm trong danh sách cho phép`;
         }
       }
     }

@@ -639,8 +639,8 @@ export default function SellerProductsManager() {
       name: name.trim(),
       description: description.trim(),
       deliveryMethod,
-      stock: Math.max(0, Math.round(parseNumber(stock, 0))),
-      basePrice: Math.max(0, parseNumber(basePrice, 0)),
+      stock: variants.reduce((sum, v) => sum + v.stock, 0),
+      basePrice: variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0,
       variants,
       assets,
       secureDelivery,
@@ -847,50 +847,10 @@ export default function SellerProductsManager() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {editingId && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={resetForm}
-                className="rounded-xl"
-              >
-                <X className="mr-1.5 h-4 w-4" />
-                Hủy sửa
-              </Button>
-            )}
-            <Button
-              type="button"
-              onClick={submit}
-              disabled={submitting || loading}
-              className={cn(
-                "rounded-xl text-white shadow-md transition-all hover:scale-[1.02] hover:shadow-lg",
-                editingId
-                  ? "bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-200 hover:from-amber-600 hover:to-orange-600"
-                  : "bg-gradient-to-br from-cyan-600 to-emerald-600 shadow-emerald-200 hover:from-cyan-700 hover:to-emerald-700"
-              )}
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                  Đang lưu...
-                </>
-              ) : editingId ? (
-                <>
-                  <Save className="mr-1.5 h-4 w-4" />
-                  Lưu cập nhật
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-1.5 h-4 w-4" />
-                  Đăng sản phẩm
-                </>
-              )}
-            </Button>
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Danh mục cha</label>
             <select
@@ -955,27 +915,6 @@ export default function SellerProductsManager() {
               className="h-11 rounded-xl"
             />
           </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Giá gốc (đ)</label>
-            <Input
-              type="number"
-              min={0}
-              placeholder="0"
-              value={basePrice}
-              onChange={(event) => setBasePrice(parseNumber(event.target.value, 0))}
-              className="h-11 rounded-xl"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Tồn kho</label>
-            <Input
-              type="number"
-              min={0}
-              placeholder="0"
-              value={stock}
-              onChange={(event) => setStock(Math.max(0, Math.round(parseNumber(event.target.value, 0))))}
-              className="h-11 rounded-xl"
-            />
           </div>
         </div>
 
@@ -1315,6 +1254,48 @@ export default function SellerProductsManager() {
             </div>
           </div>
         )}
+
+        <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
+          {editingId && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={resetForm}
+              className="h-12 rounded-xl px-6 font-bold"
+            >
+              <X className="mr-1.5 h-5 w-5" />
+              Hủy sửa
+            </Button>
+          )}
+          <Button
+            type="button"
+            onClick={submit}
+            disabled={submitting || loading}
+            className={cn(
+              "h-12 rounded-xl px-8 font-bold text-white shadow-md transition-all hover:scale-[1.02] hover:shadow-lg",
+              editingId
+                ? "bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-200 hover:from-amber-600 hover:to-orange-600"
+                : "bg-gradient-to-br from-cyan-600 to-emerald-600 shadow-emerald-200 hover:from-cyan-700 hover:to-emerald-700"
+            )}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Đang lưu...
+              </>
+            ) : editingId ? (
+              <>
+                <Save className="mr-2 h-5 w-5" />
+                Lưu cập nhật
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-5 w-5" />
+                Đăng sản phẩm ngay
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
