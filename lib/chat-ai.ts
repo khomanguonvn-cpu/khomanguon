@@ -18,7 +18,7 @@ BẮT BUỘC: Bạn CHỈ trả lời các câu hỏi hoặc nội dung liên qu
 Bạn trả lời ngắn gọn, thân thiện và chuyên nghiệp.`;
 
     const requestBody = {
-      model: "mistral-large-latest",
+      model: "mistral-small-latest",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userMessage }
