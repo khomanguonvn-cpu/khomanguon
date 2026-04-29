@@ -1,3 +1,4 @@
+"use client";
 import { getRating } from "@/lib/utils";
 import { Product } from "@/types";
 import React from "react";
@@ -170,3 +171,4 @@ export default function ProductInfo({ product }: { product: Product }) {
     </m.div>
   );
 }
+

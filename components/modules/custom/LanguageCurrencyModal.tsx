@@ -1,3 +1,4 @@
+"use client";
 import {
   Sheet,
   SheetContent,
@@ -45,3 +46,4 @@ export default function LanguageCurrencyModal({
     </Sheet>
   );
 }
+

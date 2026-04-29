@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Product, SubProduct } from "@/types";
 import React, { useEffect, useState } from "react";
@@ -99,3 +100,4 @@ export default function ProductContent({
     </div>
   );
 }
+

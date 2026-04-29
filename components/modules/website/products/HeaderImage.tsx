@@ -1,3 +1,4 @@
+"use client";
 import { Slide } from "@/types";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -56,3 +57,4 @@ export default function HeaderImage({ slug }: { slug?: string }) {
     </>
   );
 }
+

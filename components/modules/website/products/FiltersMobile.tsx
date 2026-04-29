@@ -1,3 +1,4 @@
+"use client";
 import {
   Sheet,
   SheetContent,
@@ -59,3 +60,4 @@ export default function FiltersMobile({
     </div>
   );
 }
+

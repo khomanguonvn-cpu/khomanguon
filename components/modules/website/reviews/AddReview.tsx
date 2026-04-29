@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useMemo } from "react";
 import Container from "../../custom/Container";
 import { Rating } from "@mui/material";
@@ -184,3 +185,4 @@ export default function AddReview({
     </section>
   );
 }
+

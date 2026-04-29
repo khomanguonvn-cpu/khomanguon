@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import Container from "../../custom/Container";
 import { Review } from "@/types";
@@ -47,3 +48,4 @@ export default function ReviewList({ reviews }: { reviews: Review[] }) {
     </section>
   );
 }
+

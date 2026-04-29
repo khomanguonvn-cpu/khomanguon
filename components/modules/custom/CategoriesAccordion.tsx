@@ -1,3 +1,4 @@
+"use client";
 import {
   Accordion,
   AccordionContent,
@@ -81,3 +82,4 @@ export default function CategoriesAccordion({
     </Accordion>
   );
 }
+

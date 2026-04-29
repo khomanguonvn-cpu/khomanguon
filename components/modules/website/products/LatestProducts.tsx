@@ -1,3 +1,4 @@
+"use client";
 import React, { Fragment, useEffect, useState } from "react";
 import { Product } from "@/types";
 import Link from "next/link";
@@ -85,3 +86,4 @@ export default function LatestProducts() {
     </div>
   );
 }
+

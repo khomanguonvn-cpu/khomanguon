@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Minus, Plus, ShoppingBag, Zap, Check, ShieldCheck } from "lucide-react";
 import React, { useState } from "react";
@@ -382,3 +383,4 @@ export default function ProductQty({
     </m.div>
   );
 }
+

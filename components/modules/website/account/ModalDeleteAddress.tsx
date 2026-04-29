@@ -1,3 +1,4 @@
+"use client";
 import { Address } from "@/types";
 import axios from "axios";
 import { Trash2Icon } from "lucide-react";
@@ -85,3 +86,4 @@ export default function ModalDeleteAddress({ item }: { item: Address }) {
     </>
   );
 }
+

@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { IRootState } from "@/store";
 import { CartItem } from "@/types";
@@ -79,3 +80,4 @@ export default function QuantityCart({ item }: { item: CartItem }) {
     </div>
   );
 }
+

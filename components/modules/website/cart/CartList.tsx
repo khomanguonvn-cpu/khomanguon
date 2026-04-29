@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import Container from "../../custom/Container";
 import CartHeader from "./CartHeader";
@@ -179,3 +180,4 @@ export default function CartList() {
     </section>
   );
 }
+

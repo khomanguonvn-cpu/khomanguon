@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { getDate } from "@/lib/utils";
 import { Review } from "@/types";
@@ -80,3 +81,4 @@ export default function ReviewItem({ item }: { item: Review }) {
     </article>
   );
 }
+
