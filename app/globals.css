@@ -8,11 +8,20 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
   min-height: 100vh;
+  overflow-x: clip;
+}
+
+@supports not (overflow: clip) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
 }
 
 /* =============================================
