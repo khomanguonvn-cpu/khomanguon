@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { useChat } from "@/providers/ChatProvider";
-import { X, MessageCircle, Send, ArrowLeft, Minimize2, Bot } from "lucide-react";
+import { X, MessageCircle, Send, ArrowLeft, Minimize2, Bot, Zap } from "lucide-react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 const WELCOME_MESSAGE = "Chào Mừng Khách Hàng Đến Với KhoMaNguon.IO.VN 🎉\n\nMọi chi tiết xin liên hệ — Tôi là trợ lý AI hỗ trợ 24/24.\n\nHãy gửi tin nhắn để được hỗ trợ ngay!";
 
