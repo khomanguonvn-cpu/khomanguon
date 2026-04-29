@@ -45,7 +45,6 @@ export default function ProductCard({
   loading: boolean;
 }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const router = useRouter();
   const { currency, vndToUsdRate } = useSelector(
     (state: IRootState) => state.settings
@@ -58,7 +57,6 @@ export default function ProductCard({
 
   useEffect(() => {
     setImageSrc(primaryImage);
-    setImageLoaded(false);
   }, [primaryImage]);
 
   if (loading || !item) {
@@ -144,15 +142,10 @@ export default function ProductCard({
             alt={item.name}
             width={400}
             height={400}
-            className={cn(
-              "h-full w-full object-cover transition-all duration-500 group-hover:scale-105",
-              !imageLoaded && "opacity-0",
-              imageLoaded && "opacity-100"
-            )}
-            onLoad={() => setImageLoaded(true)}
+            loading="eager"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={() => {
               if (imageSrc !== PLACEHOLDER_IMAGE) setImageSrc(PLACEHOLDER_IMAGE);
-              setImageLoaded(true);
             }}
           />
         </div>
