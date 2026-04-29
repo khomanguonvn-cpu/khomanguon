@@ -847,7 +847,6 @@ export default function SellerProductsManager() {
               </p>
             </div>
           </div>
-          </div>
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
