@@ -915,7 +915,6 @@ export default function SellerProductsManager() {
               className="h-11 rounded-xl"
             />
           </div>
-          </div>
         </div>
 
         <div className="mt-4">
