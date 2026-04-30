@@ -2,11 +2,13 @@ export const runtime = 'nodejs';
 
 import { and, eq, like } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { affiliateCommissions, affiliateReferrals, orders, wallets, walletTransactions } from "@/lib/schema";
+import { affiliateCommissions, affiliateReferrals, orders, systemConfigs, wallets, walletTransactions } from "@/lib/schema";
 import { badRequest, ok, serverError } from "@/lib/api-response";
 import { ensureDatabaseReady } from "@/lib/bootstrap";
 import { verifyPayOSWebhookSignature } from "@/lib/payos";
 import { getRequestId, logApiError } from "@/lib/observability";
+import { ensureAffiliateTables } from "@/lib/affiliate-bootstrap";
+
 
 function extractSignature(body: Record<string, unknown>) {
   const directSignature = body?.signature;
@@ -190,6 +192,7 @@ export async function POST(request: Request) {
 
   try {
     await ensureDatabaseReady();
+    await ensureAffiliateTables();
 
     const body = (await request.json()) as Record<string, unknown>;
     const payload = ((body?.data as Record<string, unknown>) ||

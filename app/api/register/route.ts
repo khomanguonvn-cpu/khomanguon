@@ -6,6 +6,7 @@ import { affiliateReferrals, systemConfigs, users } from "@/lib/schema";
 import { badRequest, ok, serverError } from "@/lib/api-response";
 import { ensureDatabaseReady } from "@/lib/bootstrap";
 import crypto from "crypto";
+import { ensureAffiliateTables } from "@/lib/affiliate-bootstrap";
 
 function generateReferralCode(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -14,6 +15,7 @@ function generateReferralCode(): string {
 export async function POST(request: Request) {
   try {
     await ensureDatabaseReady();
+    await ensureAffiliateTables();
 
     const body = await request.json();
     const name = String(body?.name || "").trim();

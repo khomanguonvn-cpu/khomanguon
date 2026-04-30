@@ -1,8 +1,8 @@
 import { desc, eq } from "drizzle-orm";
 import { requireSessionUser } from "@/lib/api-auth";
 import { badRequest, ok, serverError, unauthorized } from "@/lib/api-response";
-import { ensureDatabaseReady } from "@/lib/bootstrap";
 import { db } from "@/lib/db";
+import { client } from "@/lib/db";
 import { affiliateCommissions, affiliateReferrals, systemConfigs, users } from "@/lib/schema";
 import { getRequestId, logApiError } from "@/lib/observability";
 import crypto from "crypto";
@@ -12,11 +12,56 @@ function generateReferralCode(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
 }
 
+/** Ensure affiliate tables exist (runs in both dev & prod) */
+async function ensureAffiliateTables() {
+  try {
+    // Add referral_code column to users (idempotent)
+    try { await client.execute("ALTER TABLE users ADD COLUMN referral_code TEXT NOT NULL DEFAULT ''"); } catch (_) {}
+
+    // affiliate_referrals
+    await client.execute(`CREATE TABLE IF NOT EXISTS affiliate_referrals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      referrer_id INTEGER NOT NULL,
+      referee_id INTEGER NOT NULL UNIQUE,
+      referral_code TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    )`);
+    try { await client.execute("CREATE INDEX IF NOT EXISTS affiliate_referrals_referrer_idx ON affiliate_referrals(referrer_id)"); } catch (_) {}
+    try { await client.execute("CREATE INDEX IF NOT EXISTS affiliate_referrals_code_idx ON affiliate_referrals(referral_code)"); } catch (_) {}
+
+    // affiliate_commissions
+    await client.execute(`CREATE TABLE IF NOT EXISTS affiliate_commissions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      referrer_id INTEGER NOT NULL,
+      referee_id INTEGER NOT NULL,
+      deposit_tx_id INTEGER NOT NULL,
+      deposit_amount REAL NOT NULL,
+      commission_rate REAL NOT NULL DEFAULT 0.01,
+      commission_amount REAL NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      paid_at TEXT,
+      created_at TEXT NOT NULL
+    )`);
+    try { await client.execute("CREATE INDEX IF NOT EXISTS affiliate_commissions_referrer_idx ON affiliate_commissions(referrer_id, status)"); } catch (_) {}
+    try { await client.execute("CREATE INDEX IF NOT EXISTS affiliate_commissions_tx_idx ON affiliate_commissions(deposit_tx_id)"); } catch (_) {}
+
+    // Seed default configs if missing
+    try { await client.execute("INSERT OR IGNORE INTO system_configs(key, value, description, updated_at) VALUES ('affiliate_commission_rate', '1', 'Tỷ lệ hoa hồng affiliate (%)', datetime('now'))"); } catch (_) {}
+    try { await client.execute("INSERT OR IGNORE INTO system_configs(key, value, description, updated_at) VALUES ('affiliate_duration_days', '365', 'Thời hạn hoa hồng affiliate (ngày)', datetime('now'))"); } catch (_) {}
+    try { await client.execute("INSERT OR IGNORE INTO system_configs(key, value, description, updated_at) VALUES ('affiliate_enabled', '1', 'Bật/tắt affiliate (1=bật)', datetime('now'))"); } catch (_) {}
+  } catch (_) {
+    // Non-blocking - if DB connection fails just continue
+  }
+}
+
 /** GET: Return affiliate dashboard data for current user */
 export async function GET(request: Request) {
   const requestId = getRequestId(request);
   try {
-    await ensureDatabaseReady();
+    // Always ensure tables exist (works in prod too)
+    await ensureAffiliateTables();
+
     const sessionUser = await requireSessionUser();
     if (!sessionUser?.id) return unauthorized("Không được phép", { requestId });
 
@@ -34,7 +79,6 @@ export async function GET(request: Request) {
     // Auto-generate code if missing
     if (!userRow.referralCode) {
       let code = generateReferralCode();
-      // Ensure uniqueness
       let attempts = 0;
       while (attempts < 5) {
         const existing = await db.select({ id: users.id }).from(users).where(eq(users.referralCode, code));
@@ -42,20 +86,23 @@ export async function GET(request: Request) {
         code = generateReferralCode();
         attempts++;
       }
-      await db.update(users).set({ referralCode: code, updatedAt: new Date().toISOString() }).where(eq(users.id, userId));
+      await db.update(users)
+        .set({ referralCode: code, updatedAt: new Date().toISOString() })
+        .where(eq(users.id, userId));
       userRow.referralCode = code;
     }
 
-    // Get affiliate config
-    const configRows = await db.select().from(systemConfigs);
+    // Get affiliate config (read all, filter in JS to avoid dialect issues)
+    const allConfigs = await db.select().from(systemConfigs);
     const configMap: Record<string, string> = {};
-    for (const c of configRows) {
+    for (const c of allConfigs) {
       if (["affiliate_commission_rate", "affiliate_duration_days", "affiliate_enabled"].includes(c.key)) {
         configMap[c.key] = c.value;
       }
     }
 
-    const commissionRate = parseFloat(configMap["affiliate_commission_rate"] || "1") / 100;
+    const commissionRatePct = parseFloat(configMap["affiliate_commission_rate"] || "1");
+    const commissionRate = commissionRatePct / 100;
     const durationDays = parseInt(configMap["affiliate_duration_days"] || "365");
     const enabled = configMap["affiliate_enabled"] !== "0";
 
@@ -92,14 +139,15 @@ export async function GET(request: Request) {
     // Enrich with referee names (mask email)
     const refereeIds = [...new Set(commissionRows.map(c => c.refereeId))];
     const refereeMap: Record<number, string> = {};
-    if (refereeIds.length > 0) {
-      for (const rid of refereeIds) {
-        const rRows = await db.select({ name: users.name, email: users.email }).from(users).where(eq(users.id, rid));
-        if (rRows[0]) {
-          const e = rRows[0].email || "";
-          const masked = e.length > 4 ? e.slice(0, 2) + "***" + e.slice(e.indexOf("@")) : "***";
-          refereeMap[rid] = rRows[0].name || masked;
-        }
+    for (const rid of refereeIds) {
+      const rRows = await db
+        .select({ name: users.name, email: users.email })
+        .from(users)
+        .where(eq(users.id, rid));
+      if (rRows[0]) {
+        const e = rRows[0].email || "";
+        const masked = e.length > 4 ? e.slice(0, 2) + "***" + e.slice(e.indexOf("@")) : "***";
+        refereeMap[rid] = rRows[0].name || masked;
       }
     }
 
@@ -111,7 +159,7 @@ export async function GET(request: Request) {
         enabled,
         referralCode: userRow.referralCode,
         referralLink,
-        commissionRate: commissionRate * 100, // return as percentage e.g. 1
+        commissionRate: commissionRatePct,
         durationDays,
         totalReferrals: referralRows.length,
         activeReferrals: referralRows.filter(r => r.expiresAt > new Date().toISOString()).length,

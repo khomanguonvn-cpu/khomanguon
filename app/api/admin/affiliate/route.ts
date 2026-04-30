@@ -5,6 +5,7 @@ import { ensureDatabaseReady } from "@/lib/bootstrap";
 import { db } from "@/lib/db";
 import { affiliateCommissions, affiliateReferrals, systemConfigs, users, wallets } from "@/lib/schema";
 import { getRequestId, logApiError } from "@/lib/observability";
+import { ensureAffiliateTables } from "@/lib/affiliate-bootstrap";
 
 async function requireAdmin() {
   const session = await requireSessionUser();
@@ -18,7 +19,7 @@ async function requireAdmin() {
 export async function GET(request: Request) {
   const requestId = getRequestId(request);
   try {
-    await ensureDatabaseReady();
+    await ensureAffiliateTables();
     const admin = await requireAdmin();
     if (!admin) return unauthorized("Chỉ admin mới có quyền truy cập", { requestId });
 
@@ -111,7 +112,7 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   const requestId = getRequestId(request);
   try {
-    await ensureDatabaseReady();
+    await ensureAffiliateTables();
     const admin = await requireAdmin();
     if (!admin) return unauthorized("Chỉ admin", { requestId });
 
