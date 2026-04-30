@@ -86,6 +86,32 @@ function toLegacyProduct(
 ): Product {
   const variants = JSON.parse(product.variantsJson || "[]") as SellerVariant[];
   const reviews = parseReviews(product.reviewsJson || "[]");
+  const assets = JSON.parse(product.assetsJson || "[]") as Array<{ type: string; url: string; label?: string }>;
+  const imageUrls = assets.filter(a => a.type === "image" && a.url).map(a => a.url);
+  const fallbackImage = `/assets/images/placeholders/${subcategory?.slug || category?.slug || "placeholder"}.png`;
+  const productImages = imageUrls.length > 0 ? imageUrls : [fallbackImage];
+
+  const options = variants.length > 0 
+    ? variants.map((variant) => ({
+        qty: Number(variant.stock || 0),
+        price: Number(variant.price || 0),
+        sold: 0,
+        option: variant.label,
+        images: productImages,
+        discount: 0,
+        variantId: variant.id,
+        attributes: variant.attributes || [],
+      }))
+    : [{
+        qty: Number(product.stock || 0),
+        price: Number(product.basePrice || 0),
+        sold: 0,
+        option: "Mặc định",
+        images: productImages,
+        discount: 0,
+        variantId: `default-${product.id}`,
+        attributes: [],
+      }];
 
   return {
     _id: String(product.id),
@@ -101,7 +127,7 @@ function toLegacyProduct(
       name: category?.name || "Danh mục",
       link: `/categories/${category?.slug || "khac"}/products`,
       slug: category?.slug || "khac",
-      image: `/assets/images/placeholders/${category?.slug || "placeholder"}.png`,
+      image: productImages[0],
     },
     subCategories: [
       {
@@ -116,7 +142,7 @@ function toLegacyProduct(
       name: "KHOMANGUON",
       link: "/",
       slug: "khomanguon",
-      image: `/assets/images/placeholders/${subcategory?.slug || category?.slug || "placeholder"}.png`,
+      image: productImages[0],
     },
     content: product.description,
     details: [],
@@ -128,28 +154,10 @@ function toLegacyProduct(
         style: {
           name: subcategory?.name || "Mặc định",
           color: "#111827",
-          image: `/assets/images/placeholders/${subcategory?.slug || category?.slug || "placeholder"}.png`,
-          options: variants.map((variant) => ({
-            qty: Number(variant.stock || 0),
-            price: Number(variant.price || 0),
-            sold: 0,
-            option: variant.label,
-            images: [`/assets/images/placeholders/${subcategory?.slug || category?.slug || "placeholder"}.png`],
-            discount: 0,
-            variantId: variant.id,
-            attributes: variant.attributes || [],
-          })),
+          image: productImages[0],
+          options,
         },
-        options: variants.map((variant) => ({
-          qty: Number(variant.stock || 0),
-          price: Number(variant.price || 0),
-          sold: 0,
-          option: variant.label,
-          images: [`/assets/images/placeholders/${subcategory?.slug || category?.slug || "placeholder"}.png`],
-          discount: 0,
-          variantId: variant.id,
-          attributes: variant.attributes || [],
-        })),
+        options,
       },
     ],
   };

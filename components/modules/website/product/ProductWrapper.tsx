@@ -11,7 +11,9 @@ export default function ProductWrapper({ product }: { product: Product }) {
   const [images, setImages] = useState<string[]>(
     product?.subProducts?.[active]?.options?.[0]?.images?.length
       ? product.subProducts[active].options[0].images
-      : ["/assets/images/placeholders/placeholder.png"]
+      : product?.subProducts?.[active]?.style?.image
+        ? [product.subProducts[active].style.image]
+        : ["/assets/images/placeholders/placeholder.png"]
   );
 
   return (

@@ -152,16 +152,27 @@ function toLegacyProduct(
   const productType = toProductType(product.deliveryMethod, subcategory?.listingMode);
   const reviews = parseReviews(product.reviewsJson || "[]");
 
-  const options = variants.map((variant) => ({
-    qty: Number(variant.stock || 0),
-    price: Number(variant.price || 0),
-    sold: 0,
-    option: variant.label,
-    images: productImages,
-    discount: 0,
-    variantId: variant.id,
-    attributes: variant.attributes || [],
-  }));
+  const options = variants.length > 0 
+    ? variants.map((variant) => ({
+        qty: Number(variant.stock || 0),
+        price: Number(variant.price || 0),
+        sold: 0,
+        option: variant.label,
+        images: productImages,
+        discount: 0,
+        variantId: variant.id,
+        attributes: variant.attributes || [],
+      }))
+    : [{
+        qty: Number(product.stock || 0),
+        price: Number(product.basePrice || 0),
+        sold: 0,
+        option: "Mặc định",
+        images: productImages,
+        discount: 0,
+        variantId: `default-${product.id}`,
+        attributes: [],
+      }];
 
   return {
     _id: String(product.id),
