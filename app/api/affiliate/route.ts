@@ -1,15 +1,15 @@
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { requireSessionUser } from "@/lib/api-auth";
 import { badRequest, ok, serverError, unauthorized } from "@/lib/api-response";
 import { ensureDatabaseReady } from "@/lib/bootstrap";
 import { db } from "@/lib/db";
 import { affiliateCommissions, affiliateReferrals, systemConfigs, users } from "@/lib/schema";
 import { getRequestId, logApiError } from "@/lib/observability";
-import { nanoid } from "nanoid";
+import crypto from "crypto";
 
 /** Generate unique 8-char referral code */
 function generateReferralCode(): string {
-  return nanoid(8).toUpperCase();
+  return crypto.randomBytes(4).toString("hex").toUpperCase();
 }
 
 /** GET: Return affiliate dashboard data for current user */
@@ -42,16 +42,18 @@ export async function GET(request: Request) {
         code = generateReferralCode();
         attempts++;
       }
-      await db.update(users).set({ referralCode: code, updatedAt: new Date().toISOString() } as any).where(eq(users.id, userId));
+      await db.update(users).set({ referralCode: code, updatedAt: new Date().toISOString() }).where(eq(users.id, userId));
       userRow.referralCode = code;
     }
 
     // Get affiliate config
-    const configRows = await db.select().from(systemConfigs).where(
-      sql`key IN ('affiliate_commission_rate', 'affiliate_duration_days', 'affiliate_enabled')`
-    );
+    const configRows = await db.select().from(systemConfigs);
     const configMap: Record<string, string> = {};
-    for (const c of configRows) configMap[c.key] = c.value;
+    for (const c of configRows) {
+      if (["affiliate_commission_rate", "affiliate_duration_days", "affiliate_enabled"].includes(c.key)) {
+        configMap[c.key] = c.value;
+      }
+    }
 
     const commissionRate = parseFloat(configMap["affiliate_commission_rate"] || "1") / 100;
     const durationDays = parseInt(configMap["affiliate_duration_days"] || "365");

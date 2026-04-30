@@ -5,10 +5,10 @@ import { db } from "@/lib/db";
 import { affiliateReferrals, systemConfigs, users } from "@/lib/schema";
 import { badRequest, ok, serverError } from "@/lib/api-response";
 import { ensureDatabaseReady } from "@/lib/bootstrap";
-import { nanoid } from "nanoid";
+import crypto from "crypto";
 
 function generateReferralCode(): string {
-  return nanoid(8).toUpperCase();
+  return crypto.randomBytes(4).toString("hex").toUpperCase();
 }
 
 export async function POST(request: Request) {
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       referralCode: newUserCode,
       createdAt: now,
       updatedAt: now,
-    } as any).returning({ id: users.id });
+    }).returning({ id: users.id });
 
     const newUserId = inserted[0]?.id;
 
@@ -75,13 +75,17 @@ export async function POST(request: Request) {
 
             const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString();
 
-            await db.insert(affiliateReferrals).values({
-              referrerId: referrer.id,
-              refereeId: newUserId,
-              referralCode: refCode,
-              expiresAt,
-              createdAt: now,
-            }).onConflictDoNothing();
+            try {
+              await db.insert(affiliateReferrals).values({
+                referrerId: referrer.id,
+                refereeId: newUserId,
+                referralCode: refCode,
+                expiresAt,
+                createdAt: now,
+              });
+            } catch {
+              // Ignore duplicate referee (unique constraint)
+            }
           }
         }
       } catch {

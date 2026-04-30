@@ -23,11 +23,13 @@ export async function GET(request: Request) {
     if (!admin) return unauthorized("Chỉ admin mới có quyền truy cập", { requestId });
 
     // Config
-    const configRows = await db.select().from(systemConfigs).where(
-      sql`key IN ('affiliate_commission_rate', 'affiliate_duration_days', 'affiliate_enabled')`
-    );
+    const allConfigs = await db.select().from(systemConfigs);
     const configMap: Record<string, string> = {};
-    for (const c of configRows) configMap[c.key] = c.value;
+    for (const c of allConfigs) {
+      if (["affiliate_commission_rate", "affiliate_duration_days", "affiliate_enabled"].includes(c.key)) {
+        configMap[c.key] = c.value;
+      }
+    }
 
     // Stats
     const totalReferrals = await db.select({ count: sql<number>`COUNT(*)` }).from(affiliateReferrals);

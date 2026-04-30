@@ -11,6 +11,7 @@ export const users = sqliteTable("users", {
   bankName: text("bank_name").notNull().default(""),
   bankAccount: text("bank_account").notNull().default(""),
   bankAccountHolder: text("bank_account_holder").notNull().default(""),
+  referralCode: text("referral_code").notNull().default(""),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
