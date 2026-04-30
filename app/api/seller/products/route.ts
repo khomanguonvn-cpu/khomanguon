@@ -32,6 +32,7 @@ import {
   normalizeSellerSecureDelivery,
   type SellerSecureDelivery,
 } from "@/lib/secure-delivery";
+import { ensureFreeProductColumns } from "@/lib/free-products-bootstrap";
 
 type VariantTemplateField = {
   key: string;
@@ -206,6 +207,8 @@ function validateSecureDeliveryByMethod(
 function mapSellerProductRow(row: typeof sellerProducts.$inferSelect) {
   return {
     ...row,
+    isFree: Boolean(row.isFree),
+    freeDownloadUrl: row.freeDownloadUrl || "",
     variants: JSON.parse(row.variantsJson || "[]"),
     assets: extractPublicAssets(row.assetsJson),
     secureDelivery: extractSecureDelivery(row.assetsJson),
@@ -215,6 +218,7 @@ function mapSellerProductRow(row: typeof sellerProducts.$inferSelect) {
 export async function GET(request: Request) {
   try {
     await ensureDatabaseReady();
+    await ensureFreeProductColumns();
 
     const sessionUser = await requireSessionUser();
     if (!sessionUser?.id) {
@@ -302,6 +306,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     await ensureDatabaseReady();
+    await ensureFreeProductColumns();
 
     const sessionUser = await requireSessionUser();
     if (!sessionUser?.id) {
@@ -372,6 +377,14 @@ export async function POST(request: Request) {
       return badRequest(secureDeliveryError);
     }
 
+    const isFree = Boolean(payload.isFree);
+    const freeDownloadUrl = isFree ? String(payload.freeDownloadUrl || "").trim() : "";
+
+    // If free, force price to 0 on all variants and stock to unlimited (999999)
+    const variants = isFree
+      ? (payload.variants || []).map((v: { price: number; stock: number; [key: string]: unknown }) => ({ ...v, price: 0, stock: Math.max(v.stock || 999999, 999999) }))
+      : (payload.variants || []);
+
     const nowIso = new Date().toISOString();
     const slugBase = normalizeSlug(payload.name);
     const slug = `${slugBase}-${Date.now()}`;
@@ -387,10 +400,12 @@ export async function POST(request: Request) {
         slug,
         name: payload.name,
         description: payload.description,
-        deliveryMethod: payload.deliveryMethod,
-        stock: payload.stock,
-        basePrice: payload.basePrice,
-        variantsJson: JSON.stringify(payload.variants),
+        deliveryMethod: isFree ? "auto" : payload.deliveryMethod,
+        stock: isFree ? 999999 : payload.stock,
+        basePrice: isFree ? 0 : payload.basePrice,
+        isFree,
+        freeDownloadUrl,
+        variantsJson: JSON.stringify(variants),
         assetsJson,
         status: "active",
         createdAt: nowIso,

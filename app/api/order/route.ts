@@ -614,6 +614,9 @@ async function validateOrderProducts(
       return `Sản phẩm không tồn tại: ${product.name || "(không rõ tên)"}`;
     }
 
+    // FREE products: skip price and stock validation
+    if (sellerProduct.isFree) continue;
+
     const variants = JSON.parse(sellerProduct.variantsJson || "[]") as Array<{
       id: string;
       label: string;
@@ -809,21 +812,30 @@ export async function POST(request: Request) {
       return badRequest(productsValidationError, { requestId });
     }
 
+    // Check if ALL products in order are free
+    const allProductsFree = products.every((p) => {
+      const sp = sellerProductMap.get(Number(p.sellerProductId));
+      return sp?.isFree === true || sp?.isFree === 1;
+    });
+
     const sessionUserId = Number(sessionUser.id);
 
     if (userId !== sessionUserId) {
       return unauthorized("Không thể tạo đơn hàng cho người dùng khác");
     }
 
-    const paymentMethod = normalizePaymentMethod(rawPaymentMethod);
+    const paymentMethod = allProductsFree
+      ? "wallet" as const  // treat free as wallet payment (0 cost)
+      : normalizePaymentMethod(rawPaymentMethod);
     if (!paymentMethod) {
       return badRequest("Phương thức thanh toán không hợp lệ", { requestId });
     }
 
     const normalizedDeliveryInfo = String(
-      deliveryInfo || shippingAddress?.deliveryInfo || shippingAddress?.address || ""
-    ).trim();
-    if (!normalizedDeliveryInfo) {
+      deliveryInfo || shippingAddress?.deliveryInfo || shippingAddress?.address || "free_product"
+    ).trim() || "free_product";
+
+    if (!allProductsFree && !normalizedDeliveryInfo) {
       return badRequest("Vui lòng nhập thông tin bàn giao sản phẩm số", { requestId });
     }
 
@@ -845,6 +857,60 @@ export async function POST(request: Request) {
         checkoutUrl: duplicated.payosCheckoutUrl || null,
       });
     }
+
+    // ── FREE ORDER: Auto-complete immediately ────────────────────────────────
+    if (allProductsFree) {
+      const nowIso = new Date().toISOString();
+
+      // Build productsJson with deliveryAccess (freeDownloadUrl) embedded
+      const freeProductsJson = products.map((p) => {
+        const sp = sellerProductMap.get(Number(p.sellerProductId));
+        return {
+          ...p,
+          price: 0,
+          productType: "source_code",
+          deliveryAccess: sp?.freeDownloadUrl
+            ? {
+                method: "source_code",
+                downloads: [{ label: "Tải về", url: sp.freeDownloadUrl, note: "Miễn phí", passwordHint: "" }],
+              }
+            : undefined,
+        };
+      });
+
+      const insertedRows = await db
+        .insert(orders)
+        .values({
+          userId,
+          productsJson: JSON.stringify(freeProductsJson),
+          shippingAddressJson: JSON.stringify({ deliveryInfo: normalizedDeliveryInfo, address: normalizedDeliveryInfo }),
+          idempotencyKey,
+          paymentMethod: "wallet",
+          total: 0,
+          totalBeforeDiscount: 0,
+          couponApplied: null,
+          shippingStatus: "delivered",
+          shippingTimes: nowIso,
+          shippingPrice: 0,
+          paymentStatus: "paid",
+          createdAt: nowIso,
+        })
+        .returning();
+
+      const inserted = insertedRows[0];
+
+      return ok({
+        message: "Đã nhận sản phẩm miễn phí!",
+        order_id: String(inserted.id),
+        checkoutUrl: null,
+        free: true,
+        downloads: freeProductsJson.map((p) => ({
+          name: p.name,
+          deliveryAccess: p.deliveryAccess,
+        })),
+      });
+    }
+    // ── END FREE ORDER ───────────────────────────────────────────────────────
 
     const nowIso = new Date().toISOString();
 

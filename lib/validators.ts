@@ -139,6 +139,8 @@ const sellerProductBaseSchema = z.object({
     .default("digital"),
   stock: z.coerce.number().int().nonnegative("Tồn kho không hợp lệ"),
   basePrice: z.coerce.number().nonnegative("Giá gốc không hợp lệ"),
+  isFree: z.boolean().optional().default(false),
+  freeDownloadUrl: z.string().trim().optional().default(""),
   variants: z
     .array(sellerProductVariantSchema)
     .min(1, "Phải khai báo ít nhất 1 biến thể"),

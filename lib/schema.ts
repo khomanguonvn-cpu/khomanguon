@@ -300,6 +300,8 @@ export const sellerProducts = sqliteTable("seller_products", {
   deliveryMethod: text("delivery_method").notNull().default("manual"),
   stock: int("stock").notNull().default(0),
   basePrice: real("base_price").notNull(),
+  isFree: int("is_free", { mode: "boolean" }).notNull().default(false),
+  freeDownloadUrl: text("free_download_url").notNull().default(""),
   variantsJson: text("variants_json").notNull().default("[]"),
   assetsJson: text("assets_json").notNull().default("[]"),
   reviewsJson: text("reviews_json").notNull().default("[]"),

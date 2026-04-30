@@ -102,6 +102,8 @@ type SellerProduct = {
   deliveryMethod: DeliveryMethod;
   basePrice: number;
   stock: number;
+  isFree: boolean;
+  freeDownloadUrl: string;
   status: SellerStatus;
   variants: SellerVariant[];
   assets: SellerAsset[];
@@ -288,6 +290,8 @@ export default function SellerProductsManager() {
   const [variants, setVariants] = useState<SellerVariant[]>([]);
 
   const [secureDelivery, setSecureDelivery] = useState<SellerSecureDelivery>(EMPTY_SECURE_DELIVERY);
+  const [isFree, setIsFree] = useState(false);
+  const [freeDownloadUrl, setFreeDownloadUrl] = useState("");
 
   // ── Telegram Bot check ──
   const [telegramConfigured, setTelegramConfigured] = useState<boolean | null>(null);
@@ -335,6 +339,8 @@ export default function SellerProductsManager() {
     setVariantAttrs({});
     setVariants([]);
     setSecureDelivery(EMPTY_SECURE_DELIVERY);
+    setIsFree(false);
+    setFreeDownloadUrl("");
     setAccountTypeDraft("");
     setAccountUsernameDraft("");
     setAccountPasswordDraft("");
@@ -399,6 +405,8 @@ export default function SellerProductsManager() {
             deliveryMethod: normalizeDeliveryMethod(item.deliveryMethod),
             basePrice: Number(item.basePrice || 0),
             stock: Number(item.stock || 0),
+            isFree: Boolean(item.isFree),
+            freeDownloadUrl: String(item.freeDownloadUrl || ""),
             status: normalizeStatus(item.status),
             variants: Array.isArray(item.variants)
               ? (item.variants as SellerVariant[])
@@ -638,12 +646,16 @@ export default function SellerProductsManager() {
       subcategorySlug,
       name: name.trim(),
       description: description.trim(),
-      deliveryMethod,
-      stock: variants.reduce((sum, v) => sum + v.stock, 0),
-      basePrice: variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0,
-      variants,
+      deliveryMethod: isFree ? "source_code" : deliveryMethod,
+      stock: isFree ? 999999 : variants.reduce((sum, v) => sum + v.stock, 0),
+      basePrice: isFree ? 0 : (variants.length > 0 ? Math.min(...variants.map((v) => v.price)) : 0),
+      isFree,
+      freeDownloadUrl: isFree ? freeDownloadUrl.trim() : "",
+      variants: isFree
+        ? (variants.length > 0 ? variants.map(v => ({ ...v, price: 0, stock: 999999 })) : [{ id: `free-${Date.now()}`, label: "Miễn phí", price: 0, stock: 999999, attributes: [] }])
+        : variants,
       assets,
-      secureDelivery,
+      secureDelivery: isFree ? EMPTY_SECURE_DELIVERY : secureDelivery,
     };
 
     setSubmitting(true);
@@ -687,6 +699,8 @@ export default function SellerProductsManager() {
     setDeliveryMethod(normalizeDeliveryMethod(item.deliveryMethod));
     setBasePrice(Number(item.basePrice || 0));
     setStock(Number(item.stock || 0));
+    setIsFree(Boolean(item.isFree));
+    setFreeDownloadUrl(String(item.freeDownloadUrl || ""));
     setVariants(Array.isArray(item.variants) ? item.variants : []);
     setAssets(normalizeAssets(item.assets));
     setSecureDelivery(normalizeSecureDelivery(item.secureDelivery));
@@ -891,7 +905,8 @@ export default function SellerProductsManager() {
             <select
               value={deliveryMethod}
               onChange={(event) => setDeliveryMethod(normalizeDeliveryMethod(event.target.value))}
-              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 transition-colors hover:border-slate-300 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+              disabled={isFree}
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 transition-colors hover:border-slate-300 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 disabled:opacity-50"
             >
               {DELIVERY_METHOD_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -914,6 +929,32 @@ export default function SellerProductsManager() {
               className="h-11 rounded-xl"
             />
           </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-primary-200 bg-primary-50/50 p-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white" style={{ backgroundColor: isFree ? '#0ea5e9' : '#e2e8f0' }}>
+              <input type="checkbox" className="sr-only" checked={isFree} onChange={(e) => setIsFree(e.target.checked)} />
+              <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform", isFree ? "translate-x-6" : "translate-x-1")} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-900">Sản phẩm miễn phí</p>
+              <p className="text-xs text-slate-500">Người dùng có thể tải ngay mà không cần thanh toán. Giá sẽ tự động gán bằng 0.</p>
+            </div>
+          </label>
+
+          {isFree && (
+            <div className="mt-4 border-t border-primary-200/50 pt-4">
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Link tải trực tiếp <span className="text-red-500">*</span></label>
+              <Input
+                placeholder="VD: https://drive.google.com/..."
+                value={freeDownloadUrl}
+                onChange={(event) => setFreeDownloadUrl(event.target.value)}
+                className="h-11 rounded-xl border-primary-200 focus-visible:ring-primary-500"
+              />
+              <p className="mt-1 text-[11px] text-slate-500">URL này sẽ được tự động gửi cho khách sau khi họ "Mua" thành công (0đ).</p>
+            </div>
+          )}
         </div>
 
         <div className="mt-4">
@@ -1069,16 +1110,16 @@ export default function SellerProductsManager() {
           </div>
         </div>
 
-        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
+        <div className={cn("mt-5 rounded-2xl border border-slate-200 bg-slate-50/50 p-5", isFree ? "opacity-50 pointer-events-none" : "")}>
           <div className="mb-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100">
                 <Layers className="h-5 w-5 text-violet-700" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">Biến thể sản phẩm</h3>
+                <h3 className="text-base font-bold text-slate-900">Biến thể sản phẩm {isFree && "(Đã vô hiệu hóa cho SP Miễn phí)"}</h3>
                 <p className="text-xs text-slate-500">
-                  Tối thiểu 1 biến thể · giá & tồn kho lấy theo biến thể
+                  {isFree ? "Sản phẩm miễn phí không dùng biến thể. Sẽ tự động gán giá 0đ." : "Tối thiểu 1 biến thể · giá & tồn kho lấy theo biến thể"}
                 </p>
               </div>
             </div>
