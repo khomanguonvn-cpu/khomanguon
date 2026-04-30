@@ -207,11 +207,11 @@ export default function SidebarAccount({ user }: { user: TUser }) {
 
   return (
     <div className="relative w-full lg:w-72 lg:shrink-0">
-      {/* Mobile toggle button — angular */}
+      {/* Mobile toggle button */}
       <button
         type="button"
         onClick={() => setSidebar(!openSidebar)}
-        className="lg:hidden w-full flex items-center justify-between gap-2 px-4 py-3 bg-white border border-slate-200 text-slate-700 font-bold text-sm uppercase tracking-wider transition-all clip-angular-sm"
+        className="lg:hidden w-full flex items-center justify-between gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-semibold text-sm shadow-sm transition-all hover:bg-slate-50"
       >
         <span className="flex items-center gap-2">
           <AlignJustify className="h-4 w-4" />
@@ -230,13 +230,12 @@ export default function SidebarAccount({ user }: { user: TUser }) {
 
       <aside
         className={cn(
-          "fixed top-0 left-0 z-40 h-full w-80 max-w-[90vw] transition-transform duration-300 -translate-x-full lg:sticky lg:top-6 lg:h-auto lg:w-72 lg:max-w-none lg:translate-x-0",
+          "fixed top-0 left-0 z-40 h-[calc(100%-56px)] w-80 max-w-[90vw] transition-transform duration-300 -translate-x-full lg:sticky lg:top-6 lg:h-auto lg:w-72 lg:max-w-none lg:translate-x-0",
           openSidebar && "translate-x-0"
         )}
         aria-label="sidebar"
       >
-        <div className="h-full overflow-auto bg-white border border-slate-200 p-4 lg:h-auto lg:max-h-[calc(100vh-3rem)]"
-          style={{ clipPath: "polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))" }}
+        <div className="h-full overflow-auto bg-white border-r border-slate-200 p-4 pb-safe"
         >
           {/* Mobile close button */}
           <div className="flex items-center justify-between mb-4 lg:hidden">

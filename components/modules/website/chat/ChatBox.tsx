@@ -129,7 +129,8 @@ export default function ChatBox() {
       <button
         onClick={toggleChat}
         className={cn(
-          "fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary-600 text-white shadow-lg hover:bg-primary-700 transition-all duration-300 flex items-center justify-center",
+          "fixed z-[999] w-14 h-14 rounded-full bg-primary-600 text-white shadow-lg hover:bg-primary-700 transition-all duration-300 flex items-center justify-center",
+          "bottom-[88px] right-4 lg:bottom-6 lg:right-6",
           unreadTotal > 0 && "animate-pulse"
         )}
         aria-label="Mở chat"
@@ -150,7 +151,9 @@ export default function ChatBox() {
 
       {/* Chat Window */}
       {isOpen && !isMinimized && (
-        <div className="fixed bottom-24 right-6 z-50 w-[380px] h-[560px] max-w-[calc(100vw-48px)] max-h-[calc(100vh-120px)] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-neutral-200 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed z-[998] w-[380px] max-w-[calc(100vw-24px)] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-neutral-200 animate-in fade-in slide-in-from-bottom-4 duration-300
+          bottom-[calc(88px+64px+8px)] right-4 max-h-[calc(100vh-200px)]
+          lg:bottom-24 lg:right-6 lg:h-[560px] lg:max-h-[calc(100vh-120px)]">
           {/* Header */}
           <div className="bg-primary-600 text-white px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
