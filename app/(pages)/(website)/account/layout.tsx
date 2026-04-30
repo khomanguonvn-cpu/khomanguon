@@ -18,14 +18,14 @@ export default async function layout({
   }
 
   return (
-    <section className="relative min-h-screen overflow-x-hidden bg-slate-50 py-4 pb-24 sm:py-6 lg:py-8 lg:pb-12">
-      {/* Angular accent strip at top */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-600 via-indigo-500 to-orange-500" />
+    <section className="relative min-h-screen overflow-x-hidden bg-slate-50 py-3 sm:py-5 lg:py-8">
+      {/* Accent top strip */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-600 via-indigo-500 to-orange-500" />
 
       <Container>
-        <div className="relative flex flex-col items-start gap-4 lg:flex-row lg:gap-6 xl:gap-8">
+        <div className="relative flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-6 xl:gap-8">
           <SidebarAccount user={user} />
-          <div className="min-w-0 flex-1 w-full">{children}</div>
+          <div className="min-w-0 flex-1 w-full overflow-hidden">{children}</div>
         </div>
       </Container>
     </section>

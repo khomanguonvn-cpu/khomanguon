@@ -207,17 +207,22 @@ export default function SidebarAccount({ user }: { user: TUser }) {
 
   return (
     <div className="relative w-full lg:w-72 lg:shrink-0">
-      {/* Mobile toggle button */}
+      {/* Mobile toggle button — shows user info */}
       <button
         type="button"
         onClick={() => setSidebar(!openSidebar)}
-        className="lg:hidden w-full flex items-center justify-between gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 font-semibold text-sm shadow-sm transition-all hover:bg-slate-50"
+        className="lg:hidden w-full flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 rounded-2xl shadow-sm text-left hover:bg-slate-50 transition-all"
       >
-        <span className="flex items-center gap-2">
-          <AlignJustify className="h-4 w-4" />
-          Menu tài khoản
-        </span>
-        <ChevronRight className={cn("h-4 w-4 transition-transform", openSidebar && "rotate-90")} />
+        <img
+          src={user?.image || "https://cdn-icons-png.flaticon.com/128/236/236831.png"}
+          alt={user?.name || "Avatar"}
+          className="w-10 h-10 rounded-full object-cover border-2 border-primary-100 shrink-0"
+        />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-slate-900 truncate">{user?.name || t(language, "profileUserFallback")}</p>
+          <p className="text-xs text-slate-500 truncate">{user?.email || ""}</p>
+        </div>
+        <ChevronRight className={cn("h-5 w-5 text-slate-400 shrink-0 transition-transform", openSidebar && "rotate-90")} />
       </button>
 
       {/* Overlay for mobile */}
@@ -235,7 +240,7 @@ export default function SidebarAccount({ user }: { user: TUser }) {
         )}
         aria-label="sidebar"
       >
-        <div className="h-full overflow-auto bg-white border-r border-slate-200 p-4 pb-safe"
+        <div className="h-full overflow-y-auto overflow-x-hidden bg-white border-r border-slate-100 p-4" style={{ paddingBottom: "env(safe-area-inset-bottom, 16px)" }}
         >
           {/* Mobile close button */}
           <div className="flex items-center justify-between mb-4 lg:hidden">
