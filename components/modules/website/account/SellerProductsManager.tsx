@@ -61,6 +61,7 @@ type SellerVariant = {
   id: string;
   label: string;
   price: number;
+  originalPrice?: number;
   stock: number;
   attributes: Array<{ key: string; value: string | number | boolean }>;
 };
@@ -285,6 +286,7 @@ export default function SellerProductsManager() {
 
   const [variantLabel, setVariantLabel] = useState("");
   const [variantPrice, setVariantPrice] = useState(0);
+  const [variantOriginalPrice, setVariantOriginalPrice] = useState(0);
   const [variantStock, setVariantStock] = useState(1);
   const [variantAttrs, setVariantAttrs] = useState<Record<string, string>>({});
   const [variants, setVariants] = useState<SellerVariant[]>([]);
@@ -335,6 +337,7 @@ export default function SellerProductsManager() {
     setAssets([]);
     setVariantLabel("");
     setVariantPrice(0);
+    setVariantOriginalPrice(0);
     setVariantStock(1);
     setVariantAttrs({});
     setVariants([]);
@@ -496,6 +499,7 @@ export default function SellerProductsManager() {
         id: createLocalId("var"),
         label: variantLabel.trim(),
         price: Math.max(0, parseNumber(variantPrice, 0)),
+        originalPrice: Math.max(0, parseNumber(variantOriginalPrice, 0)),
         stock: Math.max(0, Math.round(parseNumber(variantStock, 0))),
         attributes: [],
       },
@@ -503,6 +507,7 @@ export default function SellerProductsManager() {
 
     setVariantLabel("");
     setVariantPrice(0);
+    setVariantOriginalPrice(0);
     setVariantStock(1);
     setVariantAttrs({});
   };
@@ -1111,43 +1116,73 @@ export default function SellerProductsManager() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-            <Input
-              placeholder="Tên biến thể (VD: Gói 1 tháng)"
-              value={variantLabel}
-              onChange={(event) => setVariantLabel(event.target.value)}
-              className="h-11 rounded-xl"
-            />
-            <Input
-              type="number"
-              min={0}
-              placeholder="Giá biến thể (đ)"
-              value={variantPrice}
-              onChange={(event) => setVariantPrice(parseNumber(event.target.value, 0))}
-              className="h-11 rounded-xl"
-            />
-            <div className="relative">
-              {variantStock >= 999999 ? (
-                <div className="flex h-11 w-full items-center rounded-xl border border-slate-200 bg-slate-50 pl-3 pr-20 text-sm font-medium text-slate-500">
-                  Không giới hạn (∞)
-                </div>
-              ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">Tên biến thể</label>
+              <Input
+                placeholder="VD: Gói 1 tháng"
+                value={variantLabel}
+                onChange={(event) => setVariantLabel(event.target.value)}
+                className="h-11 rounded-xl"
+              />
+            </div>
+            
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">Giá gốc (đ) - Tùy chọn</label>
+              <Input
+                type="number"
+                min={0}
+                placeholder="VD: 500000"
+                value={variantOriginalPrice}
+                onChange={(event) => setVariantOriginalPrice(parseNumber(event.target.value, 0))}
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">Giá bán (đ) <span className="text-red-500">*</span></label>
+              <div className="relative">
                 <Input
                   type="number"
                   min={0}
-                  placeholder="Tồn kho biến thể"
-                  value={variantStock}
-                  onChange={(event) => setVariantStock(Math.max(0, Math.round(parseNumber(event.target.value, 0))))}
-                  className="h-11 rounded-xl pr-20"
+                  placeholder="Giá bán thực tế"
+                  value={variantPrice}
+                  onChange={(event) => setVariantPrice(parseNumber(event.target.value, 0))}
+                  className="h-11 rounded-xl"
                 />
-              )}
-              <button
-                type="button"
-                onClick={() => setVariantStock(variantStock >= 999999 ? 1 : 999999)}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-800"
-              >
-                {variantStock >= 999999 ? "Nhập số" : "Vô hạn"}
-              </button>
+                {variantOriginalPrice > variantPrice && variantPrice > 0 && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700">
+                    -{Math.round((1 - variantPrice / variantOriginalPrice) * 100)}%
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">Tồn kho</label>
+              <div className="relative">
+                {variantStock >= 999999 ? (
+                  <div className="flex h-11 w-full items-center rounded-xl border border-slate-200 bg-slate-50 pl-3 pr-20 text-sm font-medium text-slate-500">
+                    Không giới hạn (∞)
+                  </div>
+                ) : (
+                  <Input
+                    type="number"
+                    min={0}
+                    placeholder="Số lượng"
+                    value={variantStock}
+                    onChange={(event) => setVariantStock(Math.max(0, Math.round(parseNumber(event.target.value, 0))))}
+                    className="h-11 rounded-xl pr-20"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => setVariantStock(variantStock >= 999999 ? 1 : 999999)}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-slate-100 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-800"
+                >
+                  {variantStock >= 999999 ? "Nhập số" : "Vô hạn"}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1179,10 +1214,20 @@ export default function SellerProductsManager() {
                       <p className="font-bold text-slate-900">{variant.label}</p>
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-bold text-emerald-700">
-                          {variant.price.toLocaleString("vi-VN")}đ
+                          Giá bán: {variant.price.toLocaleString("vi-VN")}đ
                         </span>
+                        {variant.originalPrice && variant.originalPrice > variant.price && (
+                          <span className="text-slate-400 line-through text-[11px]">
+                            {variant.originalPrice.toLocaleString("vi-VN")}đ
+                          </span>
+                        )}
+                        {variant.originalPrice && variant.originalPrice > variant.price && variant.price > 0 && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-1.5 py-0.5 font-bold text-red-600 text-[10px]">
+                            -{Math.round((1 - variant.price / variant.originalPrice) * 100)}%
+                          </span>
+                        )}
                         <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-700">
-                          Tồn: {variant.stock >= 999999 ? "∞ (Không giới hạn)" : variant.stock}
+                          Tồn: {variant.stock >= 999999 ? "∞" : variant.stock}
                         </span>
                       </div>
 
