@@ -490,29 +490,6 @@ export default function SellerProductsManager() {
       return;
     }
 
-    const schema = selectedSubcategory?.variantSchema || [];
-    const missingField = schema.find((field) => {
-      if (!field.required) {
-        return false;
-      }
-      const rawValue = String(variantAttrs[field.key] || "").trim();
-      return rawValue.length === 0;
-    });
-
-    if (missingField) {
-      toast.error(`Thiếu thuộc tính bắt buộc: ${missingField.label || missingField.key}`);
-      return;
-    }
-
-    const attributes = schema.map((field) => {
-      const raw = String(variantAttrs[field.key] || "").trim();
-      const value = field.type === "number" ? parseNumber(raw, 0) : raw;
-      return {
-        key: field.key,
-        value,
-      };
-    });
-
     setVariants((old) => [
       ...old,
       {
@@ -520,7 +497,7 @@ export default function SellerProductsManager() {
         label: variantLabel.trim(),
         price: Math.max(0, parseNumber(variantPrice, 0)),
         stock: Math.max(0, Math.round(parseNumber(variantStock, 0))),
-        attributes,
+        attributes: [],
       },
     ]);
 
@@ -1174,48 +1151,7 @@ export default function SellerProductsManager() {
             </div>
           </div>
 
-          {(selectedSubcategory?.variantSchema || []).length > 0 && (
-            <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-              {selectedSubcategory?.variantSchema.map((field) => (
-                <div key={field.key}>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">
-                    {field.label}
-                    {field.required ? " *" : ""}
-                  </label>
-                  {field.type === "select" ? (
-                    <select
-                      value={variantAttrs[field.key] || ""}
-                      onChange={(event) =>
-                        setVariantAttrs((old) => ({
-                          ...old,
-                          [field.key]: event.target.value,
-                        }))
-                      }
-                      className="h-10 w-full rounded-md border border-slate-300 px-3"
-                    >
-                      <option value="">Chọn giá trị</option>
-                      {(field.options || []).map((option) => (
-                        <option key={String(option)} value={String(option)}>
-                          {String(option)}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <Input
-                      type={field.type === "number" ? "number" : "text"}
-                      value={variantAttrs[field.key] || ""}
-                      onChange={(event) =>
-                        setVariantAttrs((old) => ({
-                          ...old,
-                          [field.key]: event.target.value,
-                        }))
-                      }
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+
 
           <div className="mt-3">
             <Button
@@ -1249,18 +1185,7 @@ export default function SellerProductsManager() {
                           Tồn: {variant.stock >= 999999 ? "∞ (Không giới hạn)" : variant.stock}
                         </span>
                       </div>
-                      {variant.attributes.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-                          {variant.attributes.map((attr, index) => (
-                            <span
-                              key={`${variant.id}-${attr.key}-${index}`}
-                              className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-slate-600"
-                            >
-                              <span className="font-semibold text-slate-700">{attr.key}:</span> {String(attr.value)}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+
                     </div>
                     <Button
                       type="button"
