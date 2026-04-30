@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Send, Mail, ShieldCheck, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import Toast from "../../custom/Toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Loading from "../../custom/Loading";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
@@ -36,6 +36,9 @@ export default function Register({ mode = "page", onSuccess }: RegisterProps) {
   const [pendingPassword, setPendingPassword] = useState("");
   const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const refCode = searchParams?.get("ref") || "";
   const { language } = useSelector((state: IRootState) => state.settings);
 
   const initialValues: RegisterFormValues = {
@@ -69,15 +72,13 @@ export default function Register({ mode = "page", onSuccess }: RegisterProps) {
     otp: Yup.string(),
   });
 
-  const router = useRouter();
-
   const handleRegisterAndSendOtp = async (values: RegisterFormValues) => {
     setLoading(true);
     try {
       const registerResponse = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: values.name, email: values.email, password: values.password }),
+        body: JSON.stringify({ name: values.name, email: values.email, password: values.password, refCode }),
       });
       const registerData = await registerResponse.json();
 

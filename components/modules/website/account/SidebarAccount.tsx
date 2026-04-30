@@ -6,6 +6,7 @@ import {
   AlignJustify,
   BadgeCheck,
   BadgeDollarSign,
+  BadgePercent,
   ChevronDown,
   ChevronRight,
   History,
@@ -285,7 +286,7 @@ export default function SidebarAccount({ user }: { user: TUser }) {
                 ))}
             </li>
 
-            {/* Orders button — angular */}
+            {/* Orders button */}
             <li>
               <button
                 type="button"
@@ -303,6 +304,27 @@ export default function SidebarAccount({ user }: { user: TUser }) {
                 </span>
                 <ChevronRight className="h-4 w-4" />
               </button>
+            </li>
+
+            {/* Affiliate button */}
+            <li>
+              <Link
+                href="/account/affiliate"
+                onClick={() => setSidebar(false)}
+                className={cn(
+                  "w-full flex items-center justify-between px-4 py-3 text-sm font-semibold transition-all rounded-xl",
+                  isItemActive("/account/affiliate")
+                    ? "bg-violet-600 text-white"
+                    : "border border-slate-200 bg-white text-slate-700 hover:bg-violet-50 hover:border-violet-200 hover:text-violet-700"
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <BadgePercent className="h-4 w-4" />
+                  Affiliate
+                  <span className="ml-1 px-1.5 py-0.5 bg-amber-400 text-white text-[9px] font-black rounded-full leading-none">HOT</span>
+                </span>
+                <ChevronRight className="h-4 w-4" />
+              </Link>
             </li>
 
             {/* Menu groups */}

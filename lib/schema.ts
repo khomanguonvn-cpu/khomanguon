@@ -424,3 +424,31 @@ export const siteVisitors = sqliteTable("site_visitors", {
   lastVisitAt: text("last_visit_at").notNull(),
   createdAt: text("created_at").notNull(),
 });
+
+// =============================================
+// AFFILIATE SYSTEM
+// =============================================
+
+/** Tracks referral links: referrer invited referee */
+export const affiliateReferrals = sqliteTable("affiliate_referrals", {
+  id: int("id").primaryKey({ autoIncrement: true }),
+  referrerId: int("referrer_id").notNull(),       // người giới thiệu
+  refereeId: int("referee_id").notNull().unique(), // người được giới thiệu
+  referralCode: text("referral_code").notNull(),   // mã ref của referrer
+  expiresAt: text("expires_at").notNull(),          // referrerId nhận hoa hồng đến ngày này
+  createdAt: text("created_at").notNull(),
+});
+
+/** Commission payouts from deposits of referred users */
+export const affiliateCommissions = sqliteTable("affiliate_commissions", {
+  id: int("id").primaryKey({ autoIncrement: true }),
+  referrerId: int("referrer_id").notNull(),     // người nhận hoa hồng
+  refereeId: int("referee_id").notNull(),        // người nạp tiền
+  depositTxId: int("deposit_tx_id").notNull(),   // wallet_transactions.id của khoản nạp
+  depositAmount: real("deposit_amount").notNull(),
+  commissionRate: real("commission_rate").notNull().default(0.01), // 1%
+  commissionAmount: real("commission_amount").notNull(),
+  status: text("status").notNull().default("pending"), // pending | paid | expired
+  paidAt: text("paid_at"),
+  createdAt: text("created_at").notNull(),
+});

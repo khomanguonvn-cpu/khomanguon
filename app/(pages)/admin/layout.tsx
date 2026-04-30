@@ -22,6 +22,7 @@ import {
   Handshake,
   Newspaper,
   Settings,
+  BadgePercent,
 } from "lucide-react";
 
 const navItems = [
@@ -37,6 +38,7 @@ const navItems = [
   { icon: Gift, label: "VIP", href: "/admin/vip" },
   { icon: Wallet, label: "Số dư user", href: "/admin/wallet" },
   { icon: WalletCards, label: "Duyệt rút tiền", href: "/admin/withdrawals" },
+  { icon: BadgePercent, label: "Affiliate", href: "/admin/affiliate" },
   { icon: MessageCircle, label: "Chat", href: "/admin/chat" },
   { icon: Settings, label: "Cấu hình", href: "/admin/settings" },
   { icon: Mail, label: "Liên hệ", href: "/admin/contacts" },
@@ -122,7 +124,7 @@ export default function AdminLayout({
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-extrabold text-slate-900">
-              {navItems.find((n) => n.href === pathname)?.label || "Quản trị"}
+              {navItems.find((n) => n.href === pathname)?.label || (pathname.startsWith("/admin/affiliate") ? "Affiliate" : "Quản trị")}
             </h1>
           </div>
           <div className="flex items-center gap-3">

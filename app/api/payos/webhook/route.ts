@@ -2,7 +2,7 @@ export const runtime = 'nodejs';
 
 import { and, eq, like } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { orders, wallets, walletTransactions } from "@/lib/schema";
+import { affiliateCommissions, affiliateReferrals, orders, wallets, walletTransactions } from "@/lib/schema";
 import { badRequest, ok, serverError } from "@/lib/api-response";
 import { ensureDatabaseReady } from "@/lib/bootstrap";
 import { verifyPayOSWebhookSignature } from "@/lib/payos";
@@ -130,6 +130,61 @@ async function processWalletDeposit(payosOrderCode: string, isPaid: boolean) {
   return { handled: true as const, message: "Đã xử lý giao dịch nạp ví" };
 }
 
+/** Process affiliate commission for a completed deposit */
+async function processAffiliateCommission(userId: number, depositTxId: number, depositAmount: number) {
+  try {
+    const nowIso = new Date().toISOString();
+
+    // Check if affiliate is enabled
+    const configRows = await db.select().from(systemConfigs).where(
+      and(eq(systemConfigs.key, "affiliate_enabled"))
+    );
+    if (configRows[0]?.value === "0") return;
+
+    // Find active referral for this user
+    const referralRows = await db
+      .select()
+      .from(affiliateReferrals)
+      .where(
+        and(
+          eq(affiliateReferrals.refereeId, userId),
+          // expiresAt > now
+        )
+      );
+
+    const referral = referralRows.find(r => r.expiresAt > nowIso);
+    if (!referral) return;
+
+    // Avoid duplicate commission for same deposit tx
+    const existing = await db
+      .select({ id: affiliateCommissions.id })
+      .from(affiliateCommissions)
+      .where(eq(affiliateCommissions.depositTxId, depositTxId));
+    if (existing.length > 0) return;
+
+    // Get commission rate
+    const rateRows = await db.select().from(systemConfigs).where(eq(systemConfigs.key, "affiliate_commission_rate"));
+    const ratePercent = parseFloat(rateRows[0]?.value || "1");
+    const rate = ratePercent / 100;
+    const commissionAmount = parseFloat((depositAmount * rate).toFixed(2));
+    if (commissionAmount <= 0) return;
+
+    // Create commission record (pending - admin pays out manually or auto)
+    await db.insert(affiliateCommissions).values({
+      referrerId: referral.referrerId,
+      refereeId: userId,
+      depositTxId,
+      depositAmount,
+      commissionRate: rate,
+      commissionAmount,
+      status: "pending",
+      createdAt: nowIso,
+    });
+  } catch {
+    // Non-blocking - don't fail the webhook
+  }
+}
+
 export async function POST(request: Request) {
   const requestId = getRequestId(request);
 
@@ -155,6 +210,17 @@ export async function POST(request: Request) {
 
     const orderResult = await processOrderPayment(payosOrderCode, isPaid);
     const walletResult = await processWalletDeposit(payosOrderCode, isPaid);
+
+    // Trigger affiliate commission if deposit was successful
+    if (walletResult?.handled && isPaid) {
+      const txRows = await db
+        .select({ id: walletTransactions.id, userId: walletTransactions.userId, amount: walletTransactions.amount })
+        .from(walletTransactions)
+        .where(and(eq(walletTransactions.payosOrderCode, payosOrderCode), like(walletTransactions.type, "deposit:%")));
+      if (txRows[0]) {
+        await processAffiliateCommission(txRows[0].userId, txRows[0].id, txRows[0].amount);
+      }
+    }
 
     if (!orderResult.handled && !walletResult.handled) {
       return badRequest("Không tìm thấy đơn hàng hoặc giao dịch nạp ví", { requestId });

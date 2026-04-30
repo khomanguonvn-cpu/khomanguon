@@ -370,6 +370,7 @@ export async function ensureDatabaseReady() {
       await client.execute("CREATE INDEX IF NOT EXISTS chat_msg_conv_idx ON chat_messages(conversation_id, created_at)");
     } catch (e) {}
 
+
     try {
       await client.execute("CREATE TABLE IF NOT EXISTS site_visitors (id INTEGER PRIMARY KEY AUTOINCREMENT, ip TEXT NOT NULL UNIQUE, country_code TEXT NOT NULL DEFAULT 'XX', country_name TEXT NOT NULL DEFAULT 'Không xác định', last_visit_at TEXT NOT NULL, created_at TEXT NOT NULL)");
     } catch (e) {}
@@ -380,7 +381,47 @@ export async function ensureDatabaseReady() {
       await client.execute("CREATE INDEX IF NOT EXISTS site_visitors_country_idx ON site_visitors(country_code)");
     } catch (e) {}
 
+    // =============================================
+    // AFFILIATE SYSTEM TABLES
+    // =============================================
+    try {
+      await client.execute("CREATE TABLE IF NOT EXISTS affiliate_referrals (id INTEGER PRIMARY KEY AUTOINCREMENT, referrer_id INTEGER NOT NULL, referee_id INTEGER NOT NULL UNIQUE, referral_code TEXT NOT NULL, expires_at TEXT NOT NULL, created_at TEXT NOT NULL)");
+    } catch (e) {}
+    try {
+      await client.execute("CREATE INDEX IF NOT EXISTS affiliate_referrals_referrer_idx ON affiliate_referrals(referrer_id)");
+    } catch (e) {}
+    try {
+      await client.execute("CREATE INDEX IF NOT EXISTS affiliate_referrals_code_idx ON affiliate_referrals(referral_code)");
+    } catch (e) {}
+
+    try {
+      await client.execute("CREATE TABLE IF NOT EXISTS affiliate_commissions (id INTEGER PRIMARY KEY AUTOINCREMENT, referrer_id INTEGER NOT NULL, referee_id INTEGER NOT NULL, deposit_tx_id INTEGER NOT NULL, deposit_amount REAL NOT NULL, commission_rate REAL NOT NULL DEFAULT 0.01, commission_amount REAL NOT NULL, status TEXT NOT NULL DEFAULT 'pending', paid_at TEXT, created_at TEXT NOT NULL)");
+    } catch (e) {}
+    try {
+      await client.execute("CREATE INDEX IF NOT EXISTS affiliate_commissions_referrer_idx ON affiliate_commissions(referrer_id, status)");
+    } catch (e) {}
+    try {
+      await client.execute("CREATE INDEX IF NOT EXISTS affiliate_commissions_tx_idx ON affiliate_commissions(deposit_tx_id)");
+    } catch (e) {}
+
+    // Affiliate config
+    try {
+      await client.execute("INSERT OR IGNORE INTO system_configs(key, value, description, updated_at) VALUES ('affiliate_commission_rate', '1', 'Tỷ lệ hoa hồng affiliate (% trên mỗi lần nạp của user được giới thiệu)', datetime('now'))");
+    } catch (e) {}
+    try {
+      await client.execute("INSERT OR IGNORE INTO system_configs(key, value, description, updated_at) VALUES ('affiliate_duration_days', '365', 'Thời hạn hoa hồng affiliate (ngày kể từ khi user đăng ký qua ref link)', datetime('now'))");
+    } catch (e) {}
+    try {
+      await client.execute("INSERT OR IGNORE INTO system_configs(key, value, description, updated_at) VALUES ('affiliate_enabled', '1', 'Bật/tắt hệ thống affiliate (1=bật, 0=tắt)', datetime('now'))");
+    } catch (e) {}
+
+    // Add referral_code column to users table (idempotent ALTER)
+    try {
+      await client.execute("ALTER TABLE users ADD COLUMN referral_code TEXT NOT NULL DEFAULT ''");
+    } catch (e) {}
+
     initialized = true;
+
   })();
 
   await initPromise;
