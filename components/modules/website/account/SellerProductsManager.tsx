@@ -250,7 +250,13 @@ function parseNumber(value: string | number, fallback = 0) {
   return num;
 }
 
-export default function SellerProductsManager() {
+export default function SellerProductsManager({
+  defaultEditProductId,
+  adminViewSellerId,
+}: {
+  defaultEditProductId?: number;
+  adminViewSellerId?: number;
+} = {}) {
   const [catalog, setCatalog] = useState<Category[]>([]);
   const [products, setProducts] = useState<SellerProduct[]>([]);
 
@@ -384,6 +390,7 @@ export default function SellerProductsManager() {
               subcategorySlug: nextSubcategorySlug,
               status: nextStatus,
               sortBy: nextSortBy,
+              ...(adminViewSellerId ? { seller_id: adminViewSellerId } : {}),
             },
           }),
         ]);
@@ -396,28 +403,28 @@ export default function SellerProductsManager() {
           ? (productsRes.data.data as Array<Record<string, unknown>>)
           : [];
 
+        const mappedProducts = productRows.map((item) => ({
+          id: Number(item.id || 0),
+          slug: String(item.slug || ""),
+          name: String(item.name || ""),
+          categoryId: Number(item.categoryId || 0),
+          subcategoryId: Number(item.subcategoryId || 0),
+          description: String(item.description || ""),
+          deliveryMethod: normalizeDeliveryMethod(item.deliveryMethod),
+          basePrice: Number(item.basePrice || 0),
+          stock: Number(item.stock || 0),
+          isFree: Boolean(item.isFree),
+          freeDownloadUrl: String(item.freeDownloadUrl || ""),
+          status: normalizeStatus(item.status),
+          variants: Array.isArray(item.variants)
+            ? (item.variants as SellerVariant[])
+            : [],
+          assets: normalizeAssets(item.assets),
+          secureDelivery: normalizeSecureDelivery(item.secureDelivery),
+        }));
+
         setCatalog(catalogRows);
-        setProducts(
-          productRows.map((item) => ({
-            id: Number(item.id || 0),
-            slug: String(item.slug || ""),
-            name: String(item.name || ""),
-            categoryId: Number(item.categoryId || 0),
-            subcategoryId: Number(item.subcategoryId || 0),
-            description: String(item.description || ""),
-            deliveryMethod: normalizeDeliveryMethod(item.deliveryMethod),
-            basePrice: Number(item.basePrice || 0),
-            stock: Number(item.stock || 0),
-            isFree: Boolean(item.isFree),
-            freeDownloadUrl: String(item.freeDownloadUrl || ""),
-            status: normalizeStatus(item.status),
-            variants: Array.isArray(item.variants)
-              ? (item.variants as SellerVariant[])
-              : [],
-            assets: normalizeAssets(item.assets),
-            secureDelivery: normalizeSecureDelivery(item.secureDelivery),
-          }))
-        );
+        setProducts(mappedProducts);
 
         setPagination(productsRes.data?.pagination || { page: 1, totalPages: 1, total: 0, limit: LIMIT });
         setPage(nextPage);
@@ -427,6 +434,8 @@ export default function SellerProductsManager() {
         setListStatus(nextStatus);
         setSortBy(nextSortBy);
         setSelectedIds([]);
+
+        return mappedProducts;
       } catch (error) {
         const message =
           (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
@@ -440,7 +449,13 @@ export default function SellerProductsManager() {
   );
 
   useEffect(() => {
-    void load();
+    load().then((loadedProducts) => {
+      if (defaultEditProductId && loadedProducts) {
+        const p = loadedProducts.find(item => item.id === defaultEditProductId);
+        if (p) startEdit(p);
+      }
+    });
+
     // Check Telegram config
     axios.get("/api/seller/telegram")
       .then((res) => {
@@ -449,7 +464,8 @@ export default function SellerProductsManager() {
       .catch(() => {
         setTelegramConfigured(false);
       });
-  }, [load]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const addImageAsset = () => {
     const url = String(imageUrlInput || "").trim();

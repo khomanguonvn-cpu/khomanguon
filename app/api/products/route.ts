@@ -189,6 +189,7 @@ function toLegacyProduct(
   return {
     _id: String(product.id),
     sellerProductId: product.id,
+    sellerId: product.sellerId,
     name: product.name,
     featured: true,
     slug: product.slug,

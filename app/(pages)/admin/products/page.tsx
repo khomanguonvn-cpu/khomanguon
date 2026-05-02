@@ -190,9 +190,12 @@ export default function AdminProductsPage() {
                         >
                           <Eye className="h-4 w-4" />
                         </a>
-                        <button className="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                        <Link 
+                          href={`/admin/products/edit/${product._id}`}
+                          className="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        >
                           <Edit className="h-4 w-4" />
-                        </button>
+                        </Link>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <button className="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors">
