@@ -118,7 +118,7 @@ export default function ProductCard({
       )}
     >
       {/* Image Area */}
-      <div className="relative overflow-hidden bg-slate-50 aspect-video">
+      <div className="relative overflow-hidden bg-slate-50 aspect-[4/3]">
         <img
           src={imageSrc}
           alt={item.name}

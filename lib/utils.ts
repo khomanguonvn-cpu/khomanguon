@@ -9,8 +9,13 @@ export function cn(...inputs: ClassValue[]) {
 
 /** Get the discount from an option of a product */
 export const discountPrice = (price: number, discount: number): number => {
-  if (!price || price <= 0) return 0;
-  if (discount > 0 && discount < price) return discount;
+  if (!price || price <= 0 || !discount || discount <= 0) return price;
+  // If discount is less than or equal to 100, treat it as a percentage
+  if (discount <= 100) {
+    return parseInt((price * ((100 - discount) / 100)).toFixed(2));
+  }
+  // Otherwise, treat it as the actual selling price
+  if (discount < price) return discount;
   return price;
 };
 

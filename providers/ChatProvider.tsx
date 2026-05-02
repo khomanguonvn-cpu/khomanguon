@@ -56,39 +56,55 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
  * Generate a short notification beep using Web Audio API.
  * Falls back silently if audio is not available.
  */
+let globalAudioCtx: AudioContext | null = null;
+
+if (typeof window !== "undefined") {
+  const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+  if (AudioContextClass) {
+    globalAudioCtx = new AudioContextClass();
+    const unlockAudio = () => {
+      if (globalAudioCtx && globalAudioCtx.state === "suspended") {
+        globalAudioCtx.resume();
+      }
+      window.removeEventListener("click", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    };
+    window.addEventListener("click", unlockAudio);
+    window.addEventListener("keydown", unlockAudio);
+  }
+}
+
 function playNotificationSound() {
+  if (!globalAudioCtx) return;
   try {
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-
-    // First tone (higher pitch)
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
+    if (globalAudioCtx.state === "suspended") {
+      globalAudioCtx.resume();
+    }
+    
+    // Create new oscillator for the beep
+    const osc1 = globalAudioCtx.createOscillator();
+    const gain1 = globalAudioCtx.createGain();
     osc1.type = "sine";
-    osc1.frequency.setValueAtTime(880, ctx.currentTime); // A5
-    gain1.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+    osc1.frequency.setValueAtTime(880, globalAudioCtx.currentTime); // A5
+    gain1.gain.setValueAtTime(0.3, globalAudioCtx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, globalAudioCtx.currentTime + 0.15);
     osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start(ctx.currentTime);
-    osc1.stop(ctx.currentTime + 0.15);
+    gain1.connect(globalAudioCtx.destination);
+    osc1.start(globalAudioCtx.currentTime);
+    osc1.stop(globalAudioCtx.currentTime + 0.15);
 
-    // Second tone (even higher - pleasant ding)
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
+    const osc2 = globalAudioCtx.createOscillator();
+    const gain2 = globalAudioCtx.createGain();
     osc2.type = "sine";
-    osc2.frequency.setValueAtTime(1320, ctx.currentTime + 0.12); // E6
-    gain2.gain.setValueAtTime(0, ctx.currentTime);
-    gain2.gain.setValueAtTime(0.25, ctx.currentTime + 0.12);
-    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+    osc2.frequency.setValueAtTime(1320, globalAudioCtx.currentTime + 0.12); // E6
+    gain2.gain.setValueAtTime(0, globalAudioCtx.currentTime);
+    gain2.gain.setValueAtTime(0.25, globalAudioCtx.currentTime + 0.12);
+    gain2.gain.exponentialRampToValueAtTime(0.01, globalAudioCtx.currentTime + 0.35);
     osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start(ctx.currentTime + 0.12);
-    osc2.stop(ctx.currentTime + 0.35);
+    gain2.connect(globalAudioCtx.destination);
+    osc2.start(globalAudioCtx.currentTime + 0.12);
+    osc2.stop(globalAudioCtx.currentTime + 0.35);
 
-    // Cleanup
-    setTimeout(() => ctx.close(), 500);
   } catch {
     // Audio not available — silently skip
   }
@@ -323,6 +339,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       }
     };
     initChat();
+
+    // Poll for new conversations/unread counts every 10 seconds
+    const interval = setInterval(() => {
+      if (userIdRef.current > 0) {
+        fetchConversations();
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, [fetchConversations]);
 
   // Poll for new messages in active conversation + play sound on new incoming messages
