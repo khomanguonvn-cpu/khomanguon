@@ -10,8 +10,8 @@ export function cn(...inputs: ClassValue[]) {
 /** Get the discount from an option of a product */
 export const discountPrice = (price: number, discount: number): number => {
   if (!price || price <= 0) return 0;
-  const final_price = price * (100 - discount) / 100;
-  return parseInt(final_price.toFixed(2));
+  if (discount > 0 && discount < price) return discount;
+  return price;
 };
 
 /** Get the best low price from a list of number of option for a product with considering its discount */

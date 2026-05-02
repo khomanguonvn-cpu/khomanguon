@@ -192,7 +192,7 @@ export default function ProductImage({
             key={displayImage}
             src={displayImage}
             alt={product.name}
-            className="w-full aspect-square object-contain cursor-zoom-in bg-white"
+            className="w-full h-auto min-h-[400px] max-h-[600px] object-contain cursor-zoom-in bg-slate-50"
             onLoad={() => setLoaded(true)}
             onError={() => {
               if (fallbackIndex < fallbackCandidates.length) {
