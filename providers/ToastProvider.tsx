@@ -18,25 +18,28 @@ export default function ToastProvider() {
         toastOptions={{
           duration: 4000,
           style: {
-            background: "transparent",
-            boxShadow: "none",
-            padding: 0,
+            background: "#ffffff",
+            color: "#1e293b",
+            boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+            padding: "12px 20px",
+            borderRadius: "12px",
+            fontSize: "14px",
+            fontWeight: "500",
             maxWidth: "420px",
+            border: "1px solid #f1f5f9"
           },
           success: {
             duration: 3000,
-            style: {
-              background: "transparent",
-              boxShadow: "none",
-              padding: 0,
+            iconTheme: {
+              primary: "#10b981",
+              secondary: "#ffffff",
             },
           },
           error: {
             duration: 5000,
-            style: {
-              background: "transparent",
-              boxShadow: "none",
-              padding: 0,
+            iconTheme: {
+              primary: "#ef4444",
+              secondary: "#ffffff",
             },
           },
         }}
