@@ -45,6 +45,7 @@ type SellerVariantInput = {
   id: string;
   label: string;
   price: number;
+  originalPrice?: number;
   stock: number;
   attributes: Array<{ key: string; value: string | number | boolean }>;
 };

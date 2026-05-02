@@ -153,16 +153,28 @@ function toLegacyProduct(
   const reviews = parseReviews(product.reviewsJson || "[]");
 
   const options = variants.length > 0 
-    ? variants.map((variant) => ({
-        qty: Number(variant.stock || 0),
-        price: Number(variant.price || 0),
-        sold: 0,
-        option: variant.label,
-        images: productImages,
-        discount: 0,
-        variantId: variant.id,
-        attributes: variant.attributes || [],
-      }))
+    ? variants.map((variant) => {
+        const rawPrice = Number(variant.price || 0);
+        const rawOriginal = Number((variant as any).originalPrice || 0);
+        let finalPrice = rawPrice;
+        let finalDiscount = 0;
+
+        if (rawOriginal > 0 && rawOriginal > rawPrice) {
+          finalPrice = rawOriginal;
+          finalDiscount = rawPrice;
+        }
+
+        return {
+          qty: Number(variant.stock || 0),
+          price: finalPrice,
+          sold: 0,
+          option: variant.label,
+          images: productImages,
+          discount: finalDiscount,
+          variantId: variant.id,
+          attributes: variant.attributes || [],
+        };
+      })
     : [{
         qty: Number(product.stock || 0),
         price: Number(product.basePrice || 0),

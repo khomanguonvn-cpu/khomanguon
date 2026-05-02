@@ -92,6 +92,7 @@ export const sellerProductVariantSchema = z.object({
   id: z.string().trim().min(1, "Thiếu id biến thể"),
   label: z.string().trim().min(1, "Thiếu tên biến thể"),
   price: z.coerce.number().nonnegative("Giá biến thể không hợp lệ"),
+  originalPrice: z.coerce.number().nonnegative().optional().default(0),
   stock: z.coerce.number().int().nonnegative("Tồn kho biến thể không hợp lệ"),
   attributes: z.array(sellerVariantValueSchema).default([]),
 });
