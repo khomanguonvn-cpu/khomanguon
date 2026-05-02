@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -32,15 +32,15 @@ export default function ProductImage({
       .map((item) => {
         if (!item) return "";
         if (item.startsWith("http://") || item.startsWith("https://")) {
-          return encodeURI(item);
+          return item;
         }
         if (item.startsWith("//")) {
-          return encodeURI(`https:${item}`);
+          return `https:${item}`;
         }
         if (item.startsWith("/")) {
-          return encodeURI(item);
+          return item;
         }
-        return encodeURI(`/${item}`);
+        return `/${item}`;
       })
       .filter(Boolean);
 
@@ -227,7 +227,7 @@ export default function ProductImage({
                   : "border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md"
               )}
               style={{
-                backgroundImage: `url(${item})`,
+                backgroundImage: `url("${item}")`,
                 backgroundPosition: "center",
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",

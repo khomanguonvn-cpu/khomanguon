@@ -8,13 +8,34 @@ import { m } from "framer-motion";
 
 export default function ProductWrapper({ product }: { product: Product }) {
   const [active, setActive] = useState<number>(0);
+  const extractedImages = React.useMemo(() => {
+    if (product?.assets && Array.isArray(product.assets) && product.assets.length > 0) {
+      const assetUrls = product.assets
+        .filter((a: any) => a.type === "image" && a.url)
+        .map((a: any) => a.url);
+      if (assetUrls.length > 0) return assetUrls;
+    }
+
+    if (product?.subProducts?.[active]?.options?.[0]?.images?.length) {
+      return product.subProducts[active].options[0].images;
+    }
+
+    if (product?.subProducts?.[active]?.style?.image) {
+      return [product.subProducts[active].style.image];
+    }
+
+    return [];
+  }, [product, active]);
+
   const [images, setImages] = useState<string[]>(
-    product?.subProducts?.[active]?.options?.[0]?.images?.length
-      ? product.subProducts[active].options[0].images
-      : product?.subProducts?.[active]?.style?.image
-        ? [product.subProducts[active].style.image]
-        : ["/assets/images/placeholders/placeholder.png"]
+    extractedImages.length > 0 ? extractedImages : ["/assets/images/placeholders/placeholder.png"]
   );
+
+  React.useEffect(() => {
+    if (extractedImages.length > 0) {
+      setImages(extractedImages);
+    }
+  }, [extractedImages]);
 
   return (
     <section className="bg-white py-6 lg:py-10">
