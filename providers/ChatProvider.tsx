@@ -74,7 +74,7 @@ if (typeof window !== "undefined") {
   }
 }
 
-function playNotificationSound() {
+export function playNotificationSound() {
   if (!globalAudioCtx) return;
   try {
     if (globalAudioCtx.state === "suspended") {

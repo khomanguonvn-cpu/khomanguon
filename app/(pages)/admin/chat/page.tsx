@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
+import { playNotificationSound } from "@/providers/ChatProvider";
+
 interface ChatMessage {
   id: number;
   conversationId: number;
@@ -82,6 +84,9 @@ export default function AdminChatPage() {
   const [showMobileDetail, setShowMobileDetail] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const conversationsPollingRef = useRef<NodeJS.Timeout | null>(null);
+  const prevUnreadRef = useRef<number>(0);
+  const prevMessageCountRef = useRef<number>(0);
 
   const userRole = String((session?.user as any)?.role || "");
   const userId = Number((session?.user as any)?.id || 0);
@@ -93,10 +98,38 @@ export default function AdminChatPage() {
     }
   }, [status, session, userRole, router]);
 
+  const fetchConversations = useCallback(async () => {
+    try {
+      const res = await axios.get("/api/admin/chat");
+      if (res.data.conversations) {
+        const convs = res.data.conversations as ChatConversation[];
+        setConversations(convs);
+        
+        const unreadTotal = convs.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+        if (unreadTotal > prevUnreadRef.current && prevUnreadRef.current >= 0) {
+          playNotificationSound();
+        }
+        prevUnreadRef.current = unreadTotal;
+      }
+    } catch (err) {
+      console.error("Error fetching conversations:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!session || userRole !== "admin") return;
     fetchConversations();
-  }, [session, userRole]);
+    
+    conversationsPollingRef.current = setInterval(() => {
+      fetchConversations();
+    }, 10000);
+    
+    return () => {
+      if (conversationsPollingRef.current) clearInterval(conversationsPollingRef.current);
+    };
+  }, [session, userRole, fetchConversations]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -104,35 +137,34 @@ export default function AdminChatPage() {
     }, 100);
   };
 
-  const fetchConversations = async () => {
-    try {
-      setIsLoading(true);
-      const res = await axios.get("/api/admin/chat");
-      if (res.data.conversations) {
-        setConversations(res.data.conversations);
-      }
-    } catch (err) {
-      console.error("Error fetching conversations:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const fetchMessages = useCallback(async (conversationId: number, silent = false) => {
     try {
       const res = await axios.get(`/api/chat/${conversationId}`);
       if (res.data.conversation && res.data.messages) {
+        const newMessages: ChatMessage[] = res.data.messages;
+        const oldCount = prevMessageCountRef.current;
+        
+        // Sound check for active conversation
+        if (newMessages.length > oldCount) {
+          const latestNew = newMessages.slice(oldCount);
+          const hasIncoming = latestNew.some((m) => m.senderId !== userId);
+          if (hasIncoming && silent) {
+            playNotificationSound();
+          }
+        }
+        prevMessageCountRef.current = newMessages.length;
+
         setConversations((prev) =>
           prev.map((c) =>
             c.id === conversationId
-              ? { ...c, messages: res.data.messages, unreadCount: 0 }
+              ? { ...c, messages: newMessages, unreadCount: 0 }
               : c
           )
         );
         if (activeConversation?.id === conversationId) {
           setActiveConversation((prev) =>
             prev && prev.id === conversationId
-              ? { ...prev, messages: res.data.messages, unreadCount: 0 }
+              ? { ...prev, messages: newMessages, unreadCount: 0 }
               : prev
           );
         }
@@ -140,7 +172,7 @@ export default function AdminChatPage() {
     } catch (err) {
       if (!silent) console.error("Error fetching messages:", err);
     }
-  }, [activeConversation]);
+  }, [activeConversation, userId]);
 
   useEffect(() => {
     if (activeConversation) {
