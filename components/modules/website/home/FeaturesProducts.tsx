@@ -3,20 +3,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Sparkles } from "lucide-react";
-import { Autoplay, Pagination } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
 import { useSelector } from "react-redux";
-import { cn } from "@/lib/utils";
 import { IRootState } from "@/store";
 import { Product } from "@/types";
 import { t } from "@/lib/i18n";
 import Container from "../../custom/Container";
 import ProductCard from "../../custom/ProductCard";
 import SectionHeader from "../../custom/SectionHeader";
-import "./style.css";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 
 export default function FeaturesProducts() {
   const [loading, setLoading] = useState(true);
@@ -44,7 +37,7 @@ export default function FeaturesProducts() {
 
   if (!loading && products.length === 0) return null;
 
-  const visibleProducts = products.slice(0, 10);
+  const visibleProducts = products.slice(0, 8);
   const skeletonItems = Array.from({ length: 4 });
 
   return (
@@ -60,40 +53,19 @@ export default function FeaturesProducts() {
           className="mb-6"
         />
 
-        <Swiper
-          breakpoints={{
-            360: { slidesPerView: 1.15, spaceBetween: 14 },
-            575: { slidesPerView: 2, spaceBetween: 16 },
-            768: { slidesPerView: 2.4, spaceBetween: 18 },
-            1024: { slidesPerView: 3, spaceBetween: 20 },
-            1280: { slidesPerView: 4, spaceBetween: 22 },
-          }}
-          autoplay={{
-            delay: 22000,
-            disableOnInteraction: false,
-          }}
-          spaceBetween={18}
-          slidesPerView={1.15}
-          navigation={false}
-          pagination={{
-            clickable: true,
-            bulletActiveClass: "swiper-pagination-bullet-active !bg-primary-600",
-          }}
-          modules={[Autoplay, Pagination]}
-          className={cn("mySwiper !overflow-visible pb-10")}
-        >
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
           {loading
             ? skeletonItems.map((_, index) => (
-                <SwiperSlide key={`featured-skeleton-${index}`} className="!h-auto pb-8">
+                <div key={`featured-skeleton-${index}`} className="h-full">
                   <ProductCard loading item={null} />
-                </SwiperSlide>
+                </div>
               ))
             : visibleProducts.map((item: Product, index: number) => (
-                <SwiperSlide key={item._id || item.slug || index} className="!h-auto pb-8">
+                <div key={item._id || item.slug || index} className="h-full">
                   <ProductCard loading={false} item={item} />
-                </SwiperSlide>
+                </div>
               ))}
-        </Swiper>
+        </div>
       </Container>
     </section>
   );

@@ -165,7 +165,7 @@ export default function ProductCard({
       {/* Content */}
       <div className="flex flex-1 flex-col p-2 sm:p-2.5 gap-1">
         {/* Product name */}
-        <p className="text-[12px] sm:text-[13px] leading-snug text-slate-800 line-clamp-2 font-normal group-hover:text-rose-600 transition-colors">
+        <p className="text-[13px] sm:text-[15px] leading-snug text-slate-800 line-clamp-2 font-medium group-hover:text-rose-600 transition-colors">
           {item.name}
         </p>
 

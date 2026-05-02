@@ -52,6 +52,48 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
+/**
+ * Generate a short notification beep using Web Audio API.
+ * Falls back silently if audio is not available.
+ */
+function playNotificationSound() {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+
+    // First tone (higher pitch)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = "sine";
+    osc1.frequency.setValueAtTime(880, ctx.currentTime); // A5
+    gain1.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 0.15);
+
+    // Second tone (even higher - pleasant ding)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(1320, ctx.currentTime + 0.12); // E6
+    gain2.gain.setValueAtTime(0, ctx.currentTime);
+    gain2.gain.setValueAtTime(0.25, ctx.currentTime + 0.12);
+    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(ctx.currentTime + 0.12);
+    osc2.stop(ctx.currentTime + 0.35);
+
+    // Cleanup
+    setTimeout(() => ctx.close(), 500);
+  } catch {
+    // Audio not available — silently skip
+  }
+}
+
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [activeConversation, setActiveConversationState] = useState<ChatConversation | null>(null);
@@ -62,8 +104,18 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const userIdRef = useRef<number>(0);
   const userRoleRef = useRef<string>("user");
+  const prevUnreadRef = useRef<number>(0);
+  const prevMessageCountRef = useRef<number>(0);
 
   const unreadTotal = conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+
+  // Play sound when unread count increases (new message from admin/seller)
+  useEffect(() => {
+    if (unreadTotal > prevUnreadRef.current && prevUnreadRef.current >= 0) {
+      playNotificationSound();
+    }
+    prevUnreadRef.current = unreadTotal;
+  }, [unreadTotal]);
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -273,23 +325,42 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     initChat();
   }, [fetchConversations]);
 
+  // Poll for new messages in active conversation + play sound on new incoming messages
   useEffect(() => {
     if (!isOpen || !activeConversation) return;
+
+    // Track current message count for sound detection
+    prevMessageCountRef.current = activeConversation.messages?.length || 0;
 
     const pollMessages = async () => {
       try {
         const res = await axios.get(`/api/chat/${activeConversation.id}`);
         if (res.data.messages) {
+          const newMessages: ChatMessage[] = res.data.messages;
+          const oldCount = prevMessageCountRef.current;
+
+          // Check if there are new messages from someone else (admin/seller)
+          if (newMessages.length > oldCount) {
+            const latestNew = newMessages.slice(oldCount);
+            const hasIncoming = latestNew.some(
+              (m) => m.senderId !== userIdRef.current
+            );
+            if (hasIncoming) {
+              playNotificationSound();
+            }
+          }
+          prevMessageCountRef.current = newMessages.length;
+
           setConversations((prev) =>
             prev.map((c) =>
               c.id === activeConversation.id
-                ? { ...c, messages: res.data.messages }
+                ? { ...c, messages: newMessages }
                 : c
             )
           );
           setActiveConversationState((prev) =>
             prev && prev.id === activeConversation.id
-              ? { ...prev, messages: res.data.messages }
+              ? { ...prev, messages: newMessages }
               : prev
           );
         }

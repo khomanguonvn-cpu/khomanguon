@@ -10,8 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 /** Get the discount from an option of a product */
 export const discountPrice = (price: number, discount: number): number => {
   if (!price || price <= 0) return 0;
-  let final_price: number = 0;
-  final_price = (price * (100 * discount)) / 100;
+  const final_price = price * (100 - discount) / 100;
   return parseInt(final_price.toFixed(2));
 };
 

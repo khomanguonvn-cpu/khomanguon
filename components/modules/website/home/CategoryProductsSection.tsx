@@ -55,7 +55,7 @@ export default function CategoryProductsSection({
           className="mb-6"
         />
 
-        <div className="grid grid-cols-2 gap-3 max-[360px]:grid-cols-1 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
           {loading
             ? Array.from({ length: 5 }).map((_, index) => (
                 <div key={`category-product-skeleton-${index}`} className="h-full">
