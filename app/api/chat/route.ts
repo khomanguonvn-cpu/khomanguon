@@ -149,7 +149,12 @@ export async function POST(req: NextRequest) {
         .where(eq(chatConversations.id, conversationId));
     }
 
-    if (senderRole === "user") {
+    let shouldAiReply = senderRole === "user";
+    if (isExistingConversation && (existing[0] as any).aiEnabled === false) {
+      shouldAiReply = false;
+    }
+
+    if (shouldAiReply) {
       const { processAiAutoReply } = await import("@/lib/chat-ai");
       await processAiAutoReply(conversationId, content);
     }

@@ -150,17 +150,23 @@ export async function POST(
       createdAt: now,
     });
 
+    const updateData: any = {
+      lastMessage: content,
+      lastMessageAt: now,
+      unreadCount: shouldAutoReply ? sql`unread_count + 1` : sql`unread_count`,
+      updatedAt: now,
+    };
+
+    if (senderRole === "admin") {
+      updateData.aiEnabled = false;
+    }
+
     await db
       .update(chatConversations)
-      .set({
-        lastMessage: content,
-        lastMessageAt: now,
-        unreadCount: shouldAutoReply ? sql`unread_count + 1` : sql`unread_count`,
-        updatedAt: now,
-      })
+      .set(updateData)
       .where(eq(chatConversations.id, conversationId));
 
-    if (shouldAutoReply) {
+    if (shouldAutoReply && (conv as any).aiEnabled !== false) {
       const { processAiAutoReply } = await import("@/lib/chat-ai");
       await processAiAutoReply(conversationId, content);
     }

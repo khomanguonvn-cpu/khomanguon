@@ -390,6 +390,7 @@ export const chatConversations = sqliteTable("chat_conversations", {
   adminId: int("admin_id"),
   type: text("type").notNull().default("user_admin"),
   status: text("status").notNull().default("open"),
+  aiEnabled: int("ai_enabled", { mode: "boolean" }).notNull().default(true),
   lastMessage: text("last_message").notNull().default(""),
   lastMessageAt: text("last_message_at"),
   unreadCount: int("unread_count").notNull().default(0),

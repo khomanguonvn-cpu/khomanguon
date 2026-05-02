@@ -8,6 +8,8 @@ import { Provider } from "react-redux";
 import store from "@/store/index";
 import SettingsHydrator from "@/components/modules/custom/SettingsHydrator";
 
+import FloatingSupport from "@/components/modules/custom/FloatingSupport";
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
@@ -15,6 +17,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <SettingsHydrator />
         <FramerMotionProvider>
           <ToastProvider />
+          <FloatingSupport />
           <ChatProvider>
             {children}
           </ChatProvider>

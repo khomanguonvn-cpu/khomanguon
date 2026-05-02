@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     if (action === "close") {
       await db
         .update(chatConversations)
-        .set({ status: "closed", updatedAt: new Date().toISOString() })
+        .set({ status: "closed", aiEnabled: true, updatedAt: new Date().toISOString() })
         .where(eq(chatConversations.id, conversationId));
       return NextResponse.json({ success: true }, { status: 200 });
     }

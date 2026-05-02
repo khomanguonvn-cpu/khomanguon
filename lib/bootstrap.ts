@@ -357,6 +357,9 @@ export async function ensureDatabaseReady() {
       await client.execute("CREATE TABLE IF NOT EXISTS chat_conversations (id INTEGER PRIMARY KEY AUTOINCREMENT, participant_id INTEGER NOT NULL, participant_name TEXT NOT NULL DEFAULT '', participant_email TEXT NOT NULL DEFAULT '', admin_id INTEGER, type TEXT NOT NULL DEFAULT 'user_admin', status TEXT NOT NULL DEFAULT 'open', last_message TEXT NOT NULL DEFAULT '', last_message_at TEXT, unread_count INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)");
     } catch (e) {}
     try {
+      await client.execute("ALTER TABLE chat_conversations ADD COLUMN ai_enabled INTEGER NOT NULL DEFAULT 1");
+    } catch (e) {}
+    try {
       await client.execute("CREATE INDEX IF NOT EXISTS chat_conv_participant_idx ON chat_conversations(participant_id, type)");
     } catch (e) {}
     try {
