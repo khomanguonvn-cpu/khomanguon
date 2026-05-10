@@ -5,8 +5,10 @@ import * as React from "react";
 import Providers from "@/providers";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
+// NOTE: Không đặt force-dynamic ở root layout vì nó khiến metadata 
+// (title, meta description, OG tags) bị defer trong HTML stream.
+// Googlebot chỉ đọc HTML shell đầu tiên → không thấy title.
+// Các page cần dynamic nên tự set `export const dynamic` riêng.
 
 const baseUrl = "https://khomanguon.io.vn";
 
