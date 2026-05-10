@@ -37,11 +37,40 @@ function extractSignature(body: Record<string, unknown>) {
   return null;
 }
 
-function isPaidPayload(payload: Record<string, unknown>) {
-  const code = String(payload?.code || "").trim();
-  const status = String(payload?.status || "").trim().toUpperCase();
-  const success = payload?.success === true;
-  return code === "00" || status === "PAID" || success;
+/**
+ * PayOS sends webhook body like:
+ * { code: "00", desc: "success", data: { orderCode, amount, ... }, signature: "..." }
+ *
+ * The status code "00" is at the ROOT level (body.code), NOT inside body.data.
+ * We must check BOTH body-level and data-level fields to determine payment status.
+ */
+function isPaidPayload(body: Record<string, unknown>, dataPayload: Record<string, unknown>) {
+  // Check root-level code (PayOS standard: body.code === "00" means success)
+  const rootCode = String(body?.code ?? "").trim();
+  const rootSuccess = body?.success === true;
+
+  // Check data-level fields as fallback
+  const dataCode = String(dataPayload?.code ?? "").trim();
+  const dataStatus = String(dataPayload?.status ?? "").trim().toUpperCase();
+  const dataSuccess = dataPayload?.success === true;
+
+  const isPaid =
+    rootCode === "00" ||
+    dataCode === "00" ||
+    dataStatus === "PAID" ||
+    rootSuccess ||
+    dataSuccess;
+
+  console.log("[PayOS Webhook] isPaidPayload check:", {
+    rootCode,
+    rootSuccess,
+    dataCode,
+    dataStatus,
+    dataSuccess,
+    result: isPaid,
+  });
+
+  return isPaid;
 }
 
 async function processOrderPayment(payosOrderCode: string, isPaid: boolean) {
@@ -83,6 +112,15 @@ async function processWalletDeposit(payosOrderCode: string, isPaid: boolean) {
     return { handled: false as const, message: "Không tìm thấy giao dịch nạp ví" };
   }
 
+  console.log("[PayOS Webhook] processWalletDeposit:", {
+    txId: target.id,
+    userId: target.userId,
+    amount: target.amount,
+    currentStatus: target.status,
+    isPaid,
+    payosOrderCode,
+  });
+
   const nextStatus = isPaid ? "completed" : "failed";
 
   if (target.status === "completed" && nextStatus !== "completed") {
@@ -102,6 +140,10 @@ async function processWalletDeposit(payosOrderCode: string, isPaid: boolean) {
       .where(eq(walletTransactions.id, target.id));
 
     if (nextStatus !== "completed") {
+      console.log("[PayOS Webhook] Deposit marked as failed, skipping balance update", {
+        txId: target.id,
+        userId: target.userId,
+      });
       return;
     }
 
@@ -116,17 +158,29 @@ async function processWalletDeposit(payosOrderCode: string, isPaid: boolean) {
         balance: target.amount,
         updatedAt: nowIso,
       });
+      console.log("[PayOS Webhook] Created new wallet with deposit balance:", {
+        userId: target.userId,
+        balance: target.amount,
+      });
       return;
     }
 
     const currentWallet = walletRows[0];
+    const newBalance = Number((currentWallet.balance + target.amount).toFixed(2));
     await tx
       .update(wallets)
       .set({
-        balance: Number((currentWallet.balance + target.amount).toFixed(2)),
+        balance: newBalance,
         updatedAt: nowIso,
       })
       .where(eq(wallets.id, currentWallet.id));
+
+    console.log("[PayOS Webhook] Updated wallet balance:", {
+      userId: target.userId,
+      previousBalance: currentWallet.balance,
+      depositAmount: target.amount,
+      newBalance,
+    });
   });
 
   return { handled: true as const, message: "Đã xử lý giao dịch nạp ví" };
@@ -195,24 +249,65 @@ export async function POST(request: Request) {
     await ensureAffiliateTables();
 
     const body = (await request.json()) as Record<string, unknown>;
+
+    // Log the full incoming webhook for debugging
+    console.log("[PayOS Webhook] Incoming webhook body:", JSON.stringify(body, null, 2));
+
     const payload = ((body?.data as Record<string, unknown>) ||
       body) as Record<string, unknown>;
     const signature = extractSignature(body);
 
+    console.log("[PayOS Webhook] Extracted:", {
+      hasDataField: !!body?.data,
+      payloadKeys: Object.keys(payload),
+      hasSignature: !!signature,
+      signaturePrefix: signature ? signature.slice(0, 16) + "..." : null,
+    });
+
     const isVerified = await verifyPayOSWebhookSignature(payload, signature);
     if (!isVerified) {
+      console.error("[PayOS Webhook] Signature verification FAILED!", {
+        requestId,
+        payloadKeys: Object.keys(payload),
+        signature: signature ? signature.slice(0, 16) + "..." : null,
+        orderCode: payload?.orderCode,
+      });
+
+      // Still log the payload so admin can manually process if needed
+      console.error("[PayOS Webhook] Rejected payload:", JSON.stringify({
+        body_code: body?.code,
+        body_desc: body?.desc,
+        orderCode: payload?.orderCode,
+        amount: payload?.amount,
+      }));
+
       return badRequest("Webhook signature không hợp lệ", { requestId });
     }
+
+    console.log("[PayOS Webhook] Signature verified OK");
 
     const payosOrderCode = payload?.orderCode ? String(payload.orderCode) : "";
     if (!payosOrderCode) {
       return badRequest("Thiếu orderCode", { requestId });
     }
 
-    const isPaid = isPaidPayload(payload);
+    // FIX: Pass both body (for root-level code) and payload (for data-level fields)
+    const isPaid = isPaidPayload(body, payload);
+
+    console.log("[PayOS Webhook] Processing:", {
+      payosOrderCode,
+      isPaid,
+      rootCode: body?.code,
+      rootDesc: body?.desc,
+    });
 
     const orderResult = await processOrderPayment(payosOrderCode, isPaid);
     const walletResult = await processWalletDeposit(payosOrderCode, isPaid);
+
+    console.log("[PayOS Webhook] Results:", {
+      order: orderResult,
+      wallet: walletResult,
+    });
 
     // Trigger affiliate commission if deposit was successful
     if (walletResult?.handled && isPaid) {
@@ -226,6 +321,10 @@ export async function POST(request: Request) {
     }
 
     if (!orderResult.handled && !walletResult.handled) {
+      console.error("[PayOS Webhook] No matching order or wallet transaction found!", {
+        payosOrderCode,
+        requestId,
+      });
       return badRequest("Không tìm thấy đơn hàng hoặc giao dịch nạp ví", { requestId });
     }
 
@@ -242,6 +341,8 @@ export async function POST(request: Request) {
       message: "Không thể xử lý webhook PayOS",
       error,
     });
+
+    console.error("[PayOS Webhook] UNHANDLED ERROR:", error);
 
     return serverError("Không thể xử lý webhook PayOS", { requestId });
   }

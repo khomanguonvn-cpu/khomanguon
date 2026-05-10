@@ -1,0 +1,162 @@
+﻿npx : ⚠ `eslint` configuration in next.config.mjs is no longer supported. See more info here: 
+https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+At line:1 char:1
++ npx next build 2>&1 | Out-File -FilePath "build_output2.txt" -Encodin ...
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (⚠ `eslint` conf...xt-lint-options:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+⚠ Invalid next.config.mjs options detected: 
+⚠     Unrecognized key(s) in object: 'eslint'
+⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+▲ Next.js 16.2.4 (Turbopack)
+- Environments: .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: 
+https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 65s
+  Skipping validation of types
+  Finished TypeScript config validation in 251ms ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/70) ...
+  Generating static pages using 3 workers (17/70) 
+  Generating static pages using 3 workers (34/70) 
+  Generating static pages using 3 workers (52/70) 
+✓ Generating static pages using 3 workers (70/70) in 2.2s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /about
+├ ƒ /account/address
+├ ƒ /account/affiliate
+├ ƒ /account/bank
+├ ƒ /account/dashboard
+├ ƒ /account/kyc
+├ ƒ /account/order
+├ ƒ /account/profile
+├ ƒ /account/security
+├ ƒ /account/seller/orders
+├ ƒ /account/seller/products
+├ ƒ /account/seller/telegram
+├ ƒ /account/wallet
+├ ƒ /admin
+├ ƒ /admin/affiliate
+├ ƒ /admin/auth
+├ ƒ /admin/categories
+├ ƒ /admin/chat
+├ ƒ /admin/contacts
+├ ƒ /admin/coupons
+├ ƒ /admin/kyc
+├ ƒ /admin/news
+├ ƒ /admin/orders
+├ ƒ /admin/partners
+├ ƒ /admin/payos
+├ ƒ /admin/products
+├ ƒ /admin/seo
+├ ƒ /admin/settings
+├ ƒ /admin/site-config
+├ ƒ /admin/slides
+├ ƒ /admin/users
+├ ƒ /admin/vip
+├ ƒ /admin/wallet
+├ ƒ /admin/withdrawals
+├ ƒ /api/account/bank
+├ ƒ /api/account/order
+├ ƒ /api/account/profile
+├ ƒ /api/admin/affiliate
+├ ƒ /api/admin/auth
+├ ƒ /api/admin/categories
+├ ƒ /api/admin/chat
+├ ƒ /api/admin/contacts
+├ ƒ /api/admin/coupons
+├ ƒ /api/admin/kyc
+├ ƒ /api/admin/news
+├ ƒ /api/admin/news/ai-config
+├ ƒ /api/admin/news/crawl
+├ ƒ /api/admin/news/rewrite
+├ ƒ /api/admin/orders
+├ ƒ /api/admin/partners
+├ ƒ /api/admin/payos
+├ ƒ /api/admin/products
+├ ƒ /api/admin/seo
+├ ƒ /api/admin/seo/sync-schema
+├ ƒ /api/admin/site-config
+├ ƒ /api/admin/slides
+├ ƒ /api/admin/stats
+├ ƒ /api/admin/users
+├ ƒ /api/admin/vip
+├ ƒ /api/admin/wallet
+├ ƒ /api/admin/wallet-withdrawals
+├ ƒ /api/admin/withdrawal-fee
+├ ƒ /api/affiliate
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/cart
+├ ƒ /api/catalog
+├ ƒ /api/categories
+├ ƒ /api/chat
+├ ƒ /api/chat/[id]
+├ ƒ /api/contact
+├ ƒ /api/coupon
+├ ƒ /api/cron/auto-refund
+├ ƒ /api/kyc
+├ ƒ /api/order
+├ ƒ /api/otp/send
+├ ƒ /api/otp/verify
+├ ƒ /api/partners
+├ ƒ /api/password/reset
+├ ƒ /api/payos/health
+├ ƒ /api/payos/webhook
+├ ƒ /api/products
+├ ƒ /api/register
+├ ƒ /api/review
+├ ƒ /api/saas/rentals
+├ ƒ /api/seller/bump
+├ ƒ /api/seller/chat
+├ ƒ /api/seller/orders
+├ ƒ /api/seller/products
+├ ƒ /api/seller/telegram
+├ ƒ /api/seller/verification
+├ ƒ /api/shipping
+├ ƒ /api/site-config
+├ ƒ /api/slides
+├ ƒ /api/upload
+├ ƒ /api/upload-direct
+├ ƒ /api/user
+├ ƒ /api/vip/subscribe
+├ ƒ /api/visitors
+├ ƒ /api/wallet
+├ ƒ /api/wallet/deposit
+├ ƒ /api/wallet/deposit/webhook
+├ ƒ /api/wallet/fee
+├ ƒ /api/wallet/withdraw
+├ ƒ /cart
+├ ƒ /categories/[slug]/products
+├ ƒ /checkout
+├ ƒ /contact
+├ ƒ /faq
+├ ƒ /forgot-password
+├ ƒ /guide
+├ ○ /icon.png
+├ ƒ /order/[id]
+├ ƒ /privacy
+├ ƒ /products
+├ ƒ /products/[slug]
+├ ƒ /refund
+├ ƒ /register
+├ ƒ /report
+├ ○ /robots.txt
+├ ƒ /signin
+├ ƒ /sitemap.xml
+├ ƒ /terms
+├ ƒ /tin-tuc
+└ ƒ /tin-tuc/[slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

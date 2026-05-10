@@ -267,10 +267,12 @@ export async function verifyPayOSWebhookSignature(
   const checksumKey = payosConfig.checksumKey;
 
   if (!checksumKey) {
+    console.error("[PayOS] verifyWebhookSignature: Missing checksumKey!");
     return false;
   }
 
   if (!signature) {
+    console.error("[PayOS] verifyWebhookSignature: Missing signature from request!");
     return false;
   }
 
@@ -280,7 +282,19 @@ export async function verifyPayOSWebhookSignature(
     .update(signData)
     .digest("hex");
 
-  return expected === signature;
+  const isMatch = expected === signature;
+
+  if (!isMatch) {
+    console.error("[PayOS] Webhook signature mismatch!", {
+      signData: signData.slice(0, 200) + (signData.length > 200 ? "..." : ""),
+      expectedPrefix: expected.slice(0, 16),
+      receivedPrefix: signature.slice(0, 16),
+      payloadKeys: Object.keys(payload).sort(),
+      checksumKeyLen: checksumKey.length,
+    });
+  }
+
+  return isMatch;
 }
 
 function resolvePayOSError(json: PayOSResponseShape, status: number) {
