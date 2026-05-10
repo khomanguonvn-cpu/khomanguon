@@ -281,14 +281,16 @@ export async function POST(request: Request) {
         amount: payload?.amount,
       }));
 
-      return badRequest("Webhook signature không hợp lệ", { requestId });
+      // MUST return 200 - PayOS marks webhook as broken if it receives non-2xx
+      return ok({ message: "Webhook signature không hợp lệ", requestId });
     }
 
     console.log("[PayOS Webhook] Signature verified OK");
 
     const payosOrderCode = payload?.orderCode ? String(payload.orderCode) : "";
     if (!payosOrderCode) {
-      return badRequest("Thiếu orderCode", { requestId });
+      // MUST return 200 - PayOS marks webhook as broken if it receives non-2xx
+      return ok({ message: "Thiếu orderCode (có thể là webhook test)", requestId });
     }
 
     // FIX: Pass both body (for root-level code) and payload (for data-level fields)
@@ -321,11 +323,12 @@ export async function POST(request: Request) {
     }
 
     if (!orderResult.handled && !walletResult.handled) {
-      console.error("[PayOS Webhook] No matching order or wallet transaction found!", {
+      console.warn("[PayOS Webhook] No matching order or wallet transaction found", {
         payosOrderCode,
         requestId,
       });
-      return badRequest("Không tìm thấy đơn hàng hoặc giao dịch nạp ví", { requestId });
+      // MUST return 200 - PayOS marks webhook as broken if it receives non-2xx
+      return ok({ message: "Không tìm thấy đơn hàng hoặc giao dịch nạp ví", requestId });
     }
 
     return ok({

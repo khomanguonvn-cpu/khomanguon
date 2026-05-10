@@ -55,7 +55,8 @@ export async function POST(request: Request) {
         payloadKeys: Object.keys(payload),
         orderCode: payload?.orderCode,
       });
-      return badRequest("Webhook signature không hợp lệ", { requestId });
+      // MUST return 200 - PayOS marks webhook as broken if it receives non-2xx
+      return ok({ message: "Webhook signature không hợp lệ", requestId });
     }
 
     console.log("[Wallet Deposit Webhook] Signature verified OK");
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
     const dataCode = String(payload?.code ?? "").trim();
 
     if (!payosOrderCode) {
-      return badRequest("Thiếu orderCode", { requestId });
+      return ok({ message: "Thiếu orderCode (có thể là webhook test)", requestId });
     }
 
     const txRows = await db
@@ -77,7 +78,7 @@ export async function POST(request: Request) {
     const targetTx = txRows[0];
     if (!targetTx) {
       console.error("[Wallet Deposit Webhook] Transaction not found for orderCode:", payosOrderCode);
-      return badRequest("Không tìm thấy giao dịch nạp", { requestId });
+      return ok({ message: "Không tìm thấy giao dịch nạp", requestId });
     }
 
     // FIX: Check both root-level and data-level fields for payment status
