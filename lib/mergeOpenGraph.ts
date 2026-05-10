@@ -1,26 +1,30 @@
 import type { Metadata } from "next";
+import {
+  SEO_DEFAULT_TITLE,
+  SEO_DEFAULT_DESCRIPTION,
+  SEO_DEFAULT_OG_IMAGE_PATH,
+  SEO_SITE_NAME,
+  getSeoBaseUrl,
+} from "@/lib/seo-constants";
 
 // Default open graph – phải khớp với nội dung SEO thực tế của website
 // để Google luôn nhận được đúng thông tin khi fallback.
 
-const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "https://khomanguon.io.vn";
-
 const defaultOpenGraph: Metadata["openGraph"] = {
-  title: "KHOMANGUON.IO.VN - Chợ Mua Bán Mã Nguồn & Tài Khoản Số",
-  description:
-    "Nền tảng mua bán mã nguồn, tài khoản số, công cụ AI, SaaS, game MMO - Giao dịch an toàn, thanh toán tự động",
+  title: SEO_DEFAULT_TITLE,
+  description: SEO_DEFAULT_DESCRIPTION,
 
   images: [
     {
-      url: `${baseUrl}/assets/images/og.png`,
+      url: `${getSeoBaseUrl()}${SEO_DEFAULT_OG_IMAGE_PATH}`,
       width: 1200,
       height: 630,
-      alt: "KHOMANGUON.IO.VN - Chợ sản phẩm số",
+      alt: `${SEO_SITE_NAME} - Chợ sản phẩm số`,
     },
   ],
   type: "website",
-  url: `${baseUrl}`,
-  siteName: "KHOMANGUON.IO.VN",
+  url: getSeoBaseUrl(),
+  siteName: SEO_SITE_NAME,
   locale: "vi_VN",
 };
 

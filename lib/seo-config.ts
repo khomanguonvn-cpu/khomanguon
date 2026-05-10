@@ -115,3 +115,21 @@ export async function getSeoSettings(options?: { forceRefresh?: boolean }) {
   return data;
 }
 
+/**
+ * Lấy SEO config từ admin DB một cách an toàn.
+ * - Timeout 2s: nếu DB chậm → trả null → caller dùng fallback
+ * - Cache 10s: request liên tiếp không query DB lại
+ * - Dùng cho root layout, home page, và mọi page cần admin config
+ */
+export async function getGlobalSeoSafe(): Promise<SeoSettings | null> {
+  try {
+    const result = await Promise.race([
+      getSeoSettings(),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000)),
+    ]);
+    return result;
+  } catch {
+    return null;
+  }
+}
+

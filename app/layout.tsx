@@ -4,80 +4,117 @@ import "./globals.css";
 import * as React from "react";
 import Providers from "@/providers";
 import { Metadata } from "next";
+import {
+  SEO_DEFAULT_TITLE,
+  SEO_TITLE_TEMPLATE,
+  SEO_DEFAULT_DESCRIPTION,
+  SEO_DEFAULT_KEYWORDS,
+  SEO_DEFAULT_BASE_URL,
+  SEO_DEFAULT_OG_IMAGE_PATH,
+  SEO_DEFAULT_FAVICON_PATH,
+  SEO_SITE_NAME,
+} from "@/lib/seo-constants";
+import { getGlobalSeoSafe, parseSeoKeywords } from "@/lib/seo-config";
 
-// NOTE: Không đặt force-dynamic ở root layout vì nó khiến metadata 
-// (title, meta description, OG tags) bị defer trong HTML stream.
-// Googlebot chỉ đọc HTML shell đầu tiên → không thấy title.
-// Các page cần dynamic nên tự set `export const dynamic` riêng.
+// NOTE: Không đặt force-dynamic ở root layout.
+// generateMetadata() tự fetch admin config từ DB với timeout 2s.
+// Nếu DB chậm → fallback về SEO_DEFAULT constants.
+// Googlebot luôn thấy <title> trong HTML shell đầu tiên.
 
-const baseUrl = "https://khomanguon.io.vn";
+/**
+ * ROOT METADATA – Ưu tiên admin DB config, fallback về constants.
+ *
+ * Luồng ưu tiên:
+ * 1. Admin cấu hình qua /admin/seo → lưu DB (seo_site_title, seo_meta_description, ...)
+ * 2. generateMetadata() lấy từ DB → áp dụng cho toàn site
+ * 3. Nếu DB lỗi/chậm → dùng SEO_DEFAULT_* từ seo-constants.ts
+ * 4. Page-level generateMetadata() có thể override thêm (title cụ thể cho từng trang)
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getGlobalSeoSafe();
 
-// SEO GLOBAL
-export const metadata: Metadata = {
-  metadataBase: new URL(baseUrl),
-  title: {
-    default: "KHOMANGUON.IO.VN - Chợ sản phẩm số hàng đầu Việt Nam",
-    template: "%s | KHOMANGUON.IO.VN",
-  },
-  description: "Nền tảng mua bán mã nguồn, tài khoản số, công cụ AI, SaaS, game MMO - Giao dịch an toàn, thanh toán tự động",
-  applicationName: "KHOMANGUON",
-  keywords: [
-    "khomanguon", "mã nguồn", "source code", "tài khoản số", "digital products",
-    "AI tools", "MMO", "SaaS", "mua bán mã nguồn", "chợ sản phẩm số",
-    "template", "game account", "phần mềm", "công cụ AI",
-  ],
-  authors: [{ name: "KHOMANGUON" }],
-  publisher: "KHOMANGUON.IO.VN",
+  // Admin config → fallback constants
+  const title = seo?.siteTitle || SEO_DEFAULT_TITLE;
+  const description = seo?.metaDescription || SEO_DEFAULT_DESCRIPTION;
+  const keywords = seo?.keywords
+    ? parseSeoKeywords(seo.keywords)
+    : SEO_DEFAULT_KEYWORDS;
+  const favicon = seo?.favicon || SEO_DEFAULT_FAVICON_PATH;
+  const ogImage = seo?.ogImage || SEO_DEFAULT_OG_IMAGE_PATH;
+  const twitterHandle = seo?.twitterHandle || "";
 
-  alternates: {
-    canonical: "/",
-    languages: {
-      vi: "vi",
+  return {
+    metadataBase: new URL(SEO_DEFAULT_BASE_URL),
+    title: {
+      default: title,
+      template: SEO_TITLE_TEMPLATE,
     },
-  },
+    description,
+    applicationName: SEO_SITE_NAME,
+    keywords,
+    authors: [{ name: SEO_SITE_NAME }],
+    publisher: SEO_SITE_NAME,
 
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+    icons: {
+      icon: favicon,
+    },
+
+    alternates: {
+      canonical: "/",
+      languages: {
+        vi: "vi",
+      },
+    },
+
+    robots: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
 
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      ...(twitterHandle ? { creator: twitterHandle } : {}),
+      siteId: SEO_SITE_NAME,
+      images: [
+        {
+          url: ogImage.startsWith("http")
+            ? ogImage
+            : `${SEO_DEFAULT_BASE_URL}${ogImage}`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
 
-  twitter: {
-    card: "summary_large_image",
-    title: "KHOMANGUON.IO.VN - Chợ sản phẩm số",
-    description: "Nền tảng mua bán mã nguồn, tài khoản số, AI, MMO và SaaS",
-    siteId: "KHOMANGUON",
-    creator: "KHOMANGUON",
-    images: [
-      {
-        url: `${baseUrl}/assets/images/og.png`,
-        width: 1200,
-        height: 630,
-        alt: "KHOMANGUON.IO.VN - Chợ sản phẩm số",
-      },
-    ],
-  },
-
-  openGraph: {
-    title: "KHOMANGUON.IO.VN - Chợ sản phẩm số",
-    description: "Nền tảng trao đổi trực tiếp sản phẩm số dành cho cộng đồng Việt Nam",
-
-    images: [
-      {
-        url: `${baseUrl}/assets/images/og.png`,
-      },
-    ],
-    type: "website",
-    url: `${baseUrl}`,
-    siteName: "KHOMANGUON.IO.VN",
-  },
-};
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: ogImage.startsWith("http")
+            ? ogImage
+            : `${SEO_DEFAULT_BASE_URL}${ogImage}`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      type: "website",
+      url: SEO_DEFAULT_BASE_URL,
+      siteName: SEO_SITE_NAME,
+      locale: "vi_VN",
+    },
+  };
+}
 
 export default function RootLayout({
   children,

@@ -12,24 +12,19 @@ import * as React from "react";
 import Script from "next/script";
 import { Metadata } from "next";
 import { mergeOpenGraph } from "@/lib/mergeOpenGraph";
-import { getSeoSettings, parseSeoKeywords } from "@/lib/seo-config";
+import { getGlobalSeoSafe, parseSeoKeywords } from "@/lib/seo-config";
+import {
+  SEO_DEFAULT_TITLE,
+  SEO_DEFAULT_DESCRIPTION,
+  SEO_DEFAULT_KEYWORDS,
+  SEO_DEFAULT_FAVICON_PATH,
+  SEO_DEFAULT_OG_IMAGE_PATH,
+  getSeoBaseUrl,
+} from "@/lib/seo-constants";
 
 // Dynamic rendering cho page này (data sản phẩm, SEO config từ DB)
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-
-
-const FALLBACK_TITLE = "KHOMANGUON.IO.VN - Chợ Mua Bán Mã Nguồn & Tài Khoản Số";
-const FALLBACK_DESCRIPTION =
-  "Nền tảng mua bán và trao đổi trực tiếp mã nguồn, tài khoản số, AI, MMO, SaaS - Giao dịch an toàn, thanh toán tự động 24/7";
-
-function getBaseUrl() {
-  const fromEnv = String(process.env.NEXT_PUBLIC_SERVER_URL || "").trim();
-  if (fromEnv) {
-    return fromEnv.replace(/\/+$/, "");
-  }
-  return "https://khomanguon.io.vn";
-}
 
 function parseCustomSchema(input: string) {
   const value = String(input || "").trim();
@@ -52,23 +47,19 @@ function parseCustomSchema(input: string) {
 }
 
 /**
- * Lấy SEO data với timeout ngắn. Nếu database chậm/lỗi,
- * trả về null để generateMetadata dùng fallback tĩnh.
- * Đây là cách đảm bảo <title> LUÔN xuất hiện trong HTML shell
- * bất kể database có trả lời kịp hay không.
+ * Lấy SEO data cho trang chủ từ admin config.
+ * Dùng getGlobalSeoSafe() (đã có timeout 2s + cache).
+ * Nếu DB chậm/lỗi → trả null → generateMetadata dùng fallback.
  */
 async function getHomeSeoDataSafe() {
   try {
-    const seo = await Promise.race([
-      getSeoSettings(),
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000)),
-    ]);
+    const seo = await getGlobalSeoSafe();
 
     if (!seo) return null;
 
-    const baseUrl = getBaseUrl();
-    const title = seo.siteTitle || FALLBACK_TITLE;
-    const description = seo.metaDescription || FALLBACK_DESCRIPTION;
+    const baseUrl = getSeoBaseUrl();
+    const title = seo.siteTitle || SEO_DEFAULT_TITLE;
+    const description = seo.metaDescription || SEO_DEFAULT_DESCRIPTION;
     const keywords = parseSeoKeywords(seo.keywords);
 
     const organizationSchema = {
@@ -183,14 +174,12 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await getHomeSeoDataSafe();
 
   // Fallback tĩnh - luôn đảm bảo có title & description
-  const title = data?.title || FALLBACK_TITLE;
-  const description = data?.description || FALLBACK_DESCRIPTION;
-  const keywords = data?.keywords || [
-    "khomanguon", "mã nguồn", "source code", "tài khoản số",
-    "AI tools", "MMO", "SaaS", "mua bán mã nguồn", "chợ sản phẩm số",
-  ];
-  const icon = data?.seo?.favicon || "/assets/images/logo.svg";
-  const image = data?.seo?.ogImage || "/assets/images/og.png";
+  // Ưu tiên: Admin DB config → SEO constants fallback
+  const title = data?.title || SEO_DEFAULT_TITLE;
+  const description = data?.description || SEO_DEFAULT_DESCRIPTION;
+  const keywords = data?.keywords || SEO_DEFAULT_KEYWORDS;
+  const icon = data?.seo?.favicon || SEO_DEFAULT_FAVICON_PATH;
+  const image = data?.seo?.ogImage || SEO_DEFAULT_OG_IMAGE_PATH;
 
   return {
     title,

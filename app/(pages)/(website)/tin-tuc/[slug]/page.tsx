@@ -7,8 +7,15 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getGlobalSeoSafe } from "@/lib/seo-config";
+import {
+  SEO_DEFAULT_FAVICON_PATH,
+  SEO_DEFAULT_OG_IMAGE_PATH,
+  SEO_SITE_NAME,
+  getSeoBaseUrl,
+} from "@/lib/seo-constants";
 
-const BASE_URL = "https://khomanguon.io.vn";
+export const dynamic = "force-dynamic";
 
 function formatDate(input: string | null) {
   if (!input) {
@@ -40,31 +47,33 @@ export default async function NewsDetailPage({
 
   const related = await getRelatedPublishedNews(post.id, 6);
 
+  const baseUrl = getSeoBaseUrl();
+
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
     description: post.excerpt || "",
-    image: post.coverImage ? `${BASE_URL}${post.coverImage}` : `${BASE_URL}/assets/images/logo.svg`,
+    image: post.coverImage ? `${baseUrl}${post.coverImage}` : `${baseUrl}/assets/images/logo.svg`,
     datePublished: formatISODate(post.publishedAt || post.createdAt),
     dateModified: formatISODate(post.updatedAt || post.publishedAt || post.createdAt),
     author: {
       "@type": "Organization",
-      name: "KHOMANGUON.IO.VN",
-      url: BASE_URL,
+      name: SEO_SITE_NAME,
+      url: baseUrl,
     },
     publisher: {
       "@type": "Organization",
-      name: "KHOMANGUON.IO.VN",
-      url: BASE_URL,
+      name: SEO_SITE_NAME,
+      url: baseUrl,
       logo: {
         "@type": "ImageObject",
-        url: `${BASE_URL}/assets/images/logo.svg`,
+        url: `${baseUrl}/assets/images/logo.svg`,
       },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${BASE_URL}/tin-tuc/${post.slug}`,
+      "@id": `${baseUrl}/tin-tuc/${post.slug}`,
     },
     ...(post.tags?.length ? { keywords: post.tags.join(", ") } : {}),
   };
@@ -169,23 +178,32 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPublishedNewsBySlug(slug);
+
+  // Fetch bài viết + admin SEO config song song
+  const [post, seo] = await Promise.all([
+    getPublishedNewsBySlug(slug),
+    getGlobalSeoSafe(),
+  ]);
+
+  const favicon = seo?.favicon || SEO_DEFAULT_FAVICON_PATH;
+  const siteName = SEO_SITE_NAME;
 
   if (!post) {
     return {
-      title: "Bài viết không tồn tại | KHOMANGUON.IO.VN",
+      title: `Bài viết không tồn tại | ${siteName}`,
       description: "Không tìm thấy bài viết tin tức bạn đang tìm.",
       robots: { index: false, follow: false },
+      icons: { icon: favicon },
     };
   }
 
-  const image = post.coverImage || "/assets/images/og.png";
+  const image = post.coverImage || seo?.ogImage || SEO_DEFAULT_OG_IMAGE_PATH;
   const publishedTime = formatISODate(post.publishedAt || post.createdAt);
   const modifiedTime = formatISODate(post.updatedAt || post.publishedAt || post.createdAt);
 
   return {
-    title: `${post.title} | Tin tức KHOMANGUON`,
-    description: post.excerpt || `${post.title} - Bài viết tin tức công nghệ trên KHOMANGUON.IO.VN`,
+    title: `${post.title} | Tin tức ${siteName}`,
+    description: post.excerpt || `${post.title} - Bài viết tin tức công nghệ trên ${siteName}`,
     keywords: post.keywords,
     alternates: {
       canonical: `/tin-tuc/${post.slug}`,
@@ -196,13 +214,14 @@ export async function generateMetadata({
       url: `/tin-tuc/${post.slug}`,
       images: [{ url: image, width: 1200, height: 630, alt: post.title }],
       type: "article",
-      siteName: "KHOMANGUON.IO.VN",
+      siteName,
     }),
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt || "Bài viết tin tức",
       images: [image],
+      ...(seo?.twitterHandle ? { creator: seo.twitterHandle } : {}),
     },
     other: {
       "article:published_time": publishedTime,
@@ -210,7 +229,7 @@ export async function generateMetadata({
       "article:section": "Tin tức",
       ...(post.tags?.length ? { "article:tag": post.tags.slice(0, 5).join(", ") } : {}),
     },
-    icons: { icon: "/assets/images/logo.svg" },
+    icons: { icon: favicon },
   };
 }
 

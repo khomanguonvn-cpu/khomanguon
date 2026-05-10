@@ -17,8 +17,16 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import React, { Fragment } from "react";
+import { getGlobalSeoSafe } from "@/lib/seo-config";
+import {
+  SEO_DEFAULT_BASE_URL,
+  SEO_DEFAULT_FAVICON_PATH,
+  SEO_DEFAULT_OG_IMAGE_PATH,
+  SEO_SITE_NAME,
+  getSeoBaseUrl,
+} from "@/lib/seo-constants";
 
-const BASE_URL = "https://khomanguon.io.vn";
+export const dynamic = "force-dynamic";
 
 export default async function page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -28,6 +36,7 @@ export default async function page({ params }: { params: Promise<{ slug: string 
     notFound();
   }
 
+  const baseUrl = getSeoBaseUrl();
   const reviews = Array.isArray(product.reviews) ? product.reviews : [];
   const subCategories = Array.isArray(product.subCategories) ? product.subCategories : [];
   const firstOption = product.subProducts?.[0]?.options?.[0];
@@ -38,16 +47,16 @@ export default async function page({ params }: { params: Promise<{ slug: string 
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description || `${product.name} - Sản phẩm chất lượng trên KHOMANGUON.IO.VN`,
-    image: productImages.map((img: string) => `${BASE_URL}${img}`),
+    description: product.description || `${product.name} - Sản phẩm chất lượng trên ${SEO_SITE_NAME}`,
+    image: productImages.map((img: string) => `${baseUrl}${img}`),
     sku: product.subProducts?.[0]?.sku || product.slug,
     brand: {
       "@type": "Brand",
-      name: product.brand?.name || "KHOMANGUON",
+      name: product.brand?.name || SEO_SITE_NAME,
     },
     offers: {
       "@type": "Offer",
-      url: `${BASE_URL}/products/${slug}`,
+      url: `${baseUrl}/products/${slug}`,
       priceCurrency: "VND",
       price: price,
       availability: price > 0
@@ -55,8 +64,8 @@ export default async function page({ params }: { params: Promise<{ slug: string 
         : "https://schema.org/OutOfStock",
       seller: {
         "@type": "Organization",
-        name: "KHOMANGUON.IO.VN",
-        url: BASE_URL,
+        name: SEO_SITE_NAME,
+        url: baseUrl,
       },
     },
     aggregateRating: reviews.length
@@ -75,13 +84,13 @@ export default async function page({ params }: { params: Promise<{ slug: string 
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Trang chủ", item: BASE_URL },
-      { "@type": "ListItem", position: 2, name: product.category.name, item: `${BASE_URL}/categories/${product.category.slug}/products` },
+      { "@type": "ListItem", position: 1, name: "Trang chủ", item: baseUrl },
+      { "@type": "ListItem", position: 2, name: product.category.name, item: `${baseUrl}/categories/${product.category.slug}/products` },
       ...subCategories.map((item: SubCategory, idx: number) => ({
         "@type": "ListItem" as const,
         position: 3 + idx,
         name: item.name,
-        item: `${BASE_URL}/categories/${item.slug}/products`,
+        item: `${baseUrl}/categories/${item.slug}/products`,
       })),
     ],
   };
@@ -148,27 +157,35 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+
+  // Fetch product + admin SEO config song song
+  const [product, seo] = await Promise.all([
+    getProductBySlug(slug),
+    getGlobalSeoSafe(),
+  ]);
+
+  const baseUrl = getSeoBaseUrl();
+  const favicon = seo?.favicon || SEO_DEFAULT_FAVICON_PATH;
+  const siteName = SEO_SITE_NAME;
 
   if (!product) {
     return {
-      title: "Sản phẩm không tồn tại | KHOMANGUON.IO.VN",
+      title: `Sản phẩm không tồn tại | ${siteName}`,
       description: "Không tìm thấy sản phẩm bạn đang tìm kiếm.",
       robots: { index: false, follow: false },
-      icons: { icon: "/assets/images/logo.svg" },
+      icons: { icon: favicon },
     };
   }
 
   const subCategories = Array.isArray(product.subCategories) ? product.subCategories : [];
   const firstOption = product.subProducts?.[0]?.options?.[0];
-  const images = firstOption?.images?.[0] || "/assets/images/logo.svg";
+  const images = firstOption?.images?.[0] || seo?.ogImage || SEO_DEFAULT_OG_IMAGE_PATH;
   const price = firstOption?.price || 0;
-  // slug is already awaited
 
-  const title = `${product.name} | Mua ngay tại KHOMANGUON.IO.VN`;
+  const title = `${product.name} | Mua ngay tại ${siteName}`;
   const description =
     product.description?.substring(0, 160) ||
-    `${product.name} - Sản phẩm chất lượng cao, giao hàng nhanh chóng trên KHOMANGUON.IO.VN. Mua ngay hôm nay!`;
+    `${product.name} - Sản phẩm chất lượng cao, giao hàng nhanh chóng trên ${siteName}. Mua ngay hôm nay!`;
 
   return {
     title,
@@ -187,7 +204,7 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      url: `https://khomanguon.io.vn/products/${slug}`,
+      url: `${baseUrl}/products/${slug}`,
       images: [
         {
           url: images,
@@ -197,18 +214,19 @@ export async function generateMetadata({
         },
       ],
       type: "article",
-      siteName: "KHOMANGUON.IO.VN",
+      siteName,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
       images: [images],
+      ...(seo?.twitterHandle ? { creator: seo.twitterHandle } : {}),
     },
     other: {
       "product:price:amount": String(price),
       "product:price:currency": "VND",
     },
-    icons: { icon: "/assets/images/logo.svg" },
+    icons: { icon: favicon },
   } as Metadata;
 }

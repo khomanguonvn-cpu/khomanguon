@@ -5,6 +5,13 @@ import { mergeOpenGraph } from "@/lib/mergeOpenGraph";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { getGlobalSeoSafe } from "@/lib/seo-config";
+import {
+  SEO_DEFAULT_FAVICON_PATH,
+  SEO_SITE_NAME,
+} from "@/lib/seo-constants";
+
+export const dynamic = "force-dynamic";
 
 const NEWS_PER_PAGE = 50;
 
@@ -127,19 +134,33 @@ export default async function NewsPage({
   );
 }
 
-export const metadata: Metadata = {
-  title: "Tin tức | KHOMANGUON.IO.VN",
-  description:
-    "Tin tức công nghệ, mã nguồn, tài khoản số, AI và xu hướng thương mại điện tử cập nhật liên tục.",
-  keywords: [
-    "tin tức công nghệ",
-    "tin tức mã nguồn",
-    "AI",
-    "thương mại điện tử",
-    "khomanguon",
-  ],
-  openGraph: mergeOpenGraph({
-    title: "Tin tức | KHOMANGUON.IO.VN",
-    url: "/tin-tuc",
-  }),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getGlobalSeoSafe();
+  const favicon = seo?.favicon || SEO_DEFAULT_FAVICON_PATH;
+  const siteName = SEO_SITE_NAME;
+
+  const title = `Tin tức | ${siteName}`;
+
+  return {
+    title,
+    description:
+      "Tin tức công nghệ, mã nguồn, tài khoản số, AI và xu hướng thương mại điện tử cập nhật liên tục.",
+    keywords: [
+      "tin tức công nghệ",
+      "tin tức mã nguồn",
+      "AI",
+      "thương mại điện tử",
+      "khomanguon",
+    ],
+    openGraph: mergeOpenGraph({
+      title,
+      url: "/tin-tuc",
+    }),
+    twitter: {
+      card: "summary_large_image",
+      title,
+      ...(seo?.twitterHandle ? { creator: seo.twitterHandle } : {}),
+    },
+    icons: { icon: favicon },
+  };
+}
